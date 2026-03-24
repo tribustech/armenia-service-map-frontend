@@ -1,0 +1,44 @@
+{
+  "common": {
+    "search": "Որոնել",
+    "login": "Մուտք",
+    "logout": "Ելք",
+    "save": "Պահպանել",
+    "cancel": "Չեղարկել",
+    "delete": "Ջնջել",
+    "edit": "Խմբագրել",
+    "view": "Դիտել",
+    "loading": "Բեռdelays...",
+    "noResults": "Արdelays չdelays",
+    "perPage": "Մdelays էdelays",
+    "next": "Հdelays",
+    "previous": "Նdelays"
+  },
+  "nav": {
+    "home": "Գdelays",
+    "about": "Մdelays delays",
+    "services": "Ծdelays",
+    "reportNeed": "Հdelays delays"
+  },
+  "home": {
+    "title": "Բdelays delays RefugeeSupport.am",
+    "subtitle": "",
+    "readMore": "",
+    "searchTitle": "",
+    "searchPlaceholder": "",
+    "browseTopics": "",
+    "latestServices": "",
+    "latestServicesSubtitle": "",
+    "viewAllServices": "",
+    "ctaTitle": "",
+    "ctaSubtitle": "",
+    "reportNeed": ""
+  },
+  "auth": {
+    "email": "Էdelays",
+    "password": "Գdelays",
+    "loginTitle": "Մdelays delays",
+    "loginButton": "Մdelays",
+    "invalidCredentials": ""
+  }
+}

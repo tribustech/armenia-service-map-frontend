@@ -1,0 +1,44 @@
+{
+  "common": {
+    "search": "Search",
+    "login": "Login",
+    "logout": "Logout",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "perPage": "Per page",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "reportNeed": "Report a need"
+  },
+  "home": {
+    "title": "Welcome to RefugeeSupport.am",
+    "subtitle": "Thousands of refugees in Armenia are seeking housing, healthcare, legal aid, and more. Find trusted support services near you — confidential, free, and easy to access.",
+    "readMore": "Read more about us",
+    "searchTitle": "Search for support",
+    "searchPlaceholder": "What are you looking for?",
+    "browseTopics": "Browse support topics",
+    "latestServices": "Explore the latest services",
+    "latestServicesSubtitle": "Choose from a range of available services",
+    "viewAllServices": "View all services",
+    "ctaTitle": "Haven't found the right service yet?",
+    "ctaSubtitle": "Tell us what your needs are and you will be contacted and provided with the available resources.",
+    "reportNeed": "Report a need"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "loginTitle": "Sign in to your account",
+    "loginButton": "Sign in",
+    "invalidCredentials": "Invalid email or password"
+  }
+}
