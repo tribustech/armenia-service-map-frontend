@@ -85,3 +85,25 @@ export interface User {
   updatedAt: string;
   organisation: { id: string; name: string } | null;
 }
+
+export interface ServiceTopic {
+  topic: { id: string; name: string; slug: string };
+}
+
+export interface Service {
+  id: string;
+  title: string;
+  shortDescription: string;
+  description: string;
+  organisationId: string;
+  regionId: string | null;
+  isAvailable: boolean;
+  availabilityStart: string | null;
+  availabilityEnd: string | null;
+  targetGroup: string[];
+  createdAt: string;
+  updatedAt: string;
+  organisation: { id: string; name: string };
+  region: { id: string; name: string } | null;
+  topics: ServiceTopic[];
+}

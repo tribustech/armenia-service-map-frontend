@@ -74,6 +74,24 @@
       "deactivateAccount": "Deactivate account",
       "resetPassword": "Reset password",
       "userDetails": "User details"
+    },
+    "services": {
+      "title": "Service directory",
+      "addService": "Add service",
+      "editService": "Edit service",
+      "deleteService": "Delete service",
+      "available": "Available",
+      "unavailable": "Unavailable"
     }
+  },
+  "services": {
+    "title": "Support services",
+    "subtitle": "Browse available support services across Armenia",
+    "searchPlaceholder": "Search services...",
+    "allTopics": "All topics",
+    "allRegions": "All regions",
+    "listView": "List",
+    "mapView": "Map",
+    "noResults": "No services found matching your criteria"
   }
 }
