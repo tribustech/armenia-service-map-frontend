@@ -40,5 +40,40 @@
     "loginTitle": "Sign in to your account",
     "loginButton": "Sign in",
     "invalidCredentials": "Invalid email or password"
+  },
+  "admin": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "serviceDirectory": "Service directory",
+      "needReports": "Need reports",
+      "needsMap": "Needs map",
+      "analytics": "Analytics",
+      "userManagement": "User management",
+      "taxonomy": "Taxonomy"
+    },
+    "taxonomy": {
+      "title": "Nomenclature",
+      "serviceTopics": "Service topics",
+      "needTags": "Need tags",
+      "addTopic": "Add topic",
+      "addTag": "Add tag",
+      "editTopic": "Edit topic",
+      "editTag": "Edit tag"
+    },
+    "organisations": {
+      "title": "Users management",
+      "addOrganisation": "Add organisation",
+      "deactivate": "Deactivate organisation",
+      "activate": "Activate organisation",
+      "details": "Organisation details",
+      "users": "Organisation users"
+    },
+    "users": {
+      "allUsers": "All users",
+      "addUser": "Add user",
+      "deactivateAccount": "Deactivate account",
+      "resetPassword": "Reset password",
+      "userDetails": "User details"
+    }
   }
 }
