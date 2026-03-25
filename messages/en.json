@@ -82,7 +82,22 @@
       "deleteService": "Delete service",
       "available": "Available",
       "unavailable": "Unavailable"
+    },
+    "needs": {
+      "title": "Need reports",
+      "assign": "Assign to organisation",
+      "delete": "Delete need report"
     }
+  },
+  "needs": {
+    "title": "Need reports",
+    "assignedNeeds": "Assigned needs",
+    "reportNeed": "Report a need",
+    "submitSuccess": "Thank you. Your need has been submitted.",
+    "mapTitle": "Needs map",
+    "allStatuses": "All statuses",
+    "assign": "Assign",
+    "unassigned": "Unassigned"
   },
   "services": {
     "title": "Support services",

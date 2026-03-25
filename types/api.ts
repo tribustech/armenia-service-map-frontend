@@ -90,6 +90,33 @@ export interface ServiceTopic {
   topic: { id: string; name: string; slug: string };
 }
 
+export interface NeedReportTag {
+  needTag: { id: string; name: string; slug: string };
+}
+
+export interface NeedReport {
+  id: string;
+  description: string;
+  fullName: string;
+  contactMethod: string;
+  contactValue: string;
+  regionId: string | null;
+  status: 'NEW' | 'ASSIGNED' | 'RESOLVED' | 'CLOSED';
+  assignedOrganisationId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  region: { id: string; name: string } | null;
+  assignedOrganisation: { id: string; name: string } | null;
+  tags: NeedReportTag[];
+}
+
+export interface NeedsMapEntry {
+  regionId: string;
+  regionName: string;
+  svgPathId: string;
+  count: number;
+}
+
 export interface Service {
   id: string;
   title: string;
