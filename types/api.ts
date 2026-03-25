@@ -134,3 +134,30 @@ export interface Service {
   region: { id: string; name: string } | null;
   topics: ServiceTopic[];
 }
+
+export interface OverviewStats {
+  totalServices: number;
+  totalOrganisations: number;
+  totalNeedReports: number;
+  totalSearches: number;
+  newNeeds: number;
+  resolvedNeeds: number;
+}
+
+export interface SearchStats {
+  topQueries: { query: string; count: number }[];
+  zeroResultQueries: { query: string; count: number }[];
+  dailyTrend: { date: string; count: number }[];
+}
+
+export interface FilterStats {
+  regionUsage: { regionId: string; regionName: string; svgPathId: string; count: number }[];
+  topicUsage: { topicId: string; topicName: string; count: number }[];
+}
+
+export interface OrgOverviewStats {
+  totalServices: number;
+  activeServices: number;
+  assignedNeeds: number;
+  resolvedNeeds: number;
+}
