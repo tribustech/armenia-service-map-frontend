@@ -108,5 +108,32 @@
     "listView": "List",
     "mapView": "Map",
     "noResults": "No services found matching your criteria"
+  },
+  "about": {
+    "title": "About RefugeeSupport.am",
+    "intro": "RefugeeSupport.am is a platform connecting refugees and displaced people in Armenia with verified support services provided by trusted organisations.",
+    "mission": "Our Mission",
+    "missionText": "We believe everyone deserves access to essential services — housing, healthcare, legal aid, education, and more. Our platform makes it easy to find, compare, and connect with the right support.",
+    "howItWorks": "How it works",
+    "step1Title": "Browse or search",
+    "step1Text": "Find services by topic, region, or keyword. Use the map to explore what's available near you.",
+    "step2Title": "Get connected",
+    "step2Text": "View detailed service information and contact the providing organisation directly.",
+    "step3Title": "Report a need",
+    "step3Text": "Can't find what you need? Submit a need report and we'll connect you with available resources.",
+    "builtBy": "Built with care by Code for Romania, in partnership with local organisations across Armenia."
+  },
+  "joinNetwork": {
+    "title": "Join the network",
+    "subtitle": "Are you an organisation providing support services to refugees in Armenia? Join our network to reach the people who need you.",
+    "benefit1Title": "Reach more people",
+    "benefit1Text": "Your services will be listed on our platform, making them discoverable to thousands of refugees and displaced people.",
+    "benefit2Title": "Manage your services",
+    "benefit2Text": "Use our dashboard to add, update, and manage your service listings. Track assigned need reports.",
+    "benefit3Title": "Connect with needs",
+    "benefit3Text": "Receive need report assignments and connect directly with people who need your support.",
+    "ctaTitle": "Get started",
+    "ctaText": "To join the network, contact us at the email address below. We will set up your organisation account and provide access credentials.",
+    "contactEmail": "partners@refugeesupport.am"
   }
 }
