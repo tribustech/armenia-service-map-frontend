@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Pagination } from '@/components/admin/pagination';
@@ -12,12 +13,21 @@ import type { Service } from '@/types/api';
 type ViewMode = 'list' | 'map';
 
 export default function PublicServicesPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-6xl px-4 py-8">Loading...</div>}>
+      <ServicesContent />
+    </Suspense>
+  );
+}
+
+function ServicesContent() {
+  const searchParams = useSearchParams();
   const [view, setView] = useState<ViewMode>('list');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [search, setSearch] = useState('');
-  const [selectedTopicId, setSelectedTopicId] = useState('');
-  const [selectedRegionId, setSelectedRegionId] = useState('');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [selectedTopicId, setSelectedTopicId] = useState(searchParams.get('topicId') || '');
+  const [selectedRegionId, setSelectedRegionId] = useState(searchParams.get('regionId') || '');
 
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
