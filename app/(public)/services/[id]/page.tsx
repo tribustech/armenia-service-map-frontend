@@ -25,7 +25,7 @@ export default function PublicServiceDetailPage() {
         {service.topics.map((t) => <Badge key={t.topic.id} variant="neutral">{t.topic.name}</Badge>)}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 rounded-lg border bg-white p-6">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 rounded-lg border bg-white p-6">
         <div>
           <div className="text-sm font-medium text-gray-500">Organisation</div>
           <div className="mt-1">{service.organisation.name}</div>

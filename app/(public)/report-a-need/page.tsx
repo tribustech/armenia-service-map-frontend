@@ -50,7 +50,7 @@ export default function ReportANeedPage() {
       <form onSubmit={handleSubmit} className="mt-8 space-y-4 rounded-lg border bg-white p-6">
         <Input label="Full name *" value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} required />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Preferred contact method *</label>
             <select value={form.contactMethod} onChange={(e) => updateField('contactMethod', e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500">
