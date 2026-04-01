@@ -16,10 +16,14 @@ import {
   useCreateNeedTag,
   useUpdateNeedTag,
   useDeleteNeedTag,
+  useTargetGroups,
+  useCreateTargetGroup,
+  useUpdateTargetGroup,
+  useDeleteTargetGroup,
 } from '@/lib/api/taxonomy';
-import type { Topic, NeedTag } from '@/types/api';
+import type { Topic, NeedTag, TargetGroup } from '@/types/api';
 
-type Tab = 'topics' | 'need-tags';
+type Tab = 'topics' | 'need-tags' | 'target-groups';
 
 export default function TaxonomyPage() {
   const [activeTab, setActiveTab] = useState<Tab>('topics');
@@ -45,10 +49,22 @@ export default function TaxonomyPage() {
         >
           Need tags
         </button>
+        <button
+          onClick={() => setActiveTab('target-groups')}
+          className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'target-groups' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          Target groups
+        </button>
       </div>
 
       <div className="mt-6">
-        {activeTab === 'topics' ? <TopicsSection /> : <NeedTagsSection />}
+        {activeTab === 'topics'
+          ? <TopicsSection />
+          : activeTab === 'need-tags'
+            ? <NeedTagsSection />
+            : <TargetGroupsSection />}
       </div>
     </div>
   );
@@ -296,6 +312,155 @@ function NeedTagsSection() {
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmit}>{editingTag ? 'Save changes' : 'Create'}</Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+function TargetGroupsSection() {
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [search, setSearch] = useState('');
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTargetGroup, setEditingTargetGroup] = useState<TargetGroup | null>(null);
+  const [formName, setFormName] = useState('');
+  const [formStatus, setFormStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
+
+  const sortBy = sorting[0]?.id;
+  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc';
+
+  const { data, isLoading } = useTargetGroups({ page, perPage, search, sortBy, sortOrder });
+  const createTargetGroup = useCreateTargetGroup();
+  const updateTargetGroup = useUpdateTargetGroup();
+  const deleteTargetGroup = useDeleteTargetGroup();
+
+  const columns: ColumnDef<TargetGroup, unknown>[] = [
+    { accessorKey: 'name', header: 'Target group', enableSorting: true },
+    {
+      accessorFn: (row) => row._count.services,
+      id: 'usage',
+      header: 'Usage',
+      enableSorting: false,
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ getValue }) => {
+        const value = String(getValue());
+        return (
+          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+            value === 'ACTIVE' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'
+          }`}>
+            {value}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'updatedAt',
+      header: 'Last update',
+      cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
+      enableSorting: true,
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditingTargetGroup(row.original);
+              setFormName(row.original.name);
+              setFormStatus(row.original.status);
+              setIsModalOpen(true);
+            }}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => {
+              if (confirm('Delete this target group?')) deleteTargetGroup.mutate(row.original.id);
+            }}
+            className="text-sm text-red-600 hover:underline"
+          >
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  function handleSubmit() {
+    if (editingTargetGroup) {
+      updateTargetGroup.mutate({ id: editingTargetGroup.id, name: formName, status: formStatus });
+    } else {
+      createTargetGroup.mutate({ name: formName, status: formStatus });
+    }
+    setIsModalOpen(false);
+  }
+
+  return (
+    <div className="rounded-lg border bg-white">
+      <div className="flex items-center justify-between border-b p-4">
+        <h2 className="text-lg font-semibold">Target groups</h2>
+        <Button onClick={() => {
+          setEditingTargetGroup(null);
+          setFormName('');
+          setFormStatus('ACTIVE');
+          setIsModalOpen(true);
+        }}>
+          Add target group
+        </Button>
+      </div>
+
+      <div className="flex justify-end p-4 pb-0">
+        <Input
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="w-64"
+        />
+      </div>
+
+      {isLoading ? (
+        <div className="p-8 text-center text-gray-500">Loading...</div>
+      ) : (
+        <>
+          <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />
+          {data && (
+            <Pagination
+              page={data.meta.page}
+              totalPages={data.meta.totalPages}
+              total={data.meta.total}
+              perPage={data.meta.perPage}
+              onPageChange={setPage}
+              onPerPageChange={(pp) => { setPerPage(pp); setPage(1); }}
+            />
+          )}
+        </>
+      )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingTargetGroup ? 'Edit target group' : 'Add target group'}>
+        <div className="space-y-4">
+          <Input label="Name" value={formName} onChange={(e) => setFormName(e.target.value)} />
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
+            <select
+              value={formStatus}
+              onChange={(e) => setFormStatus(e.target.value as 'ACTIVE' | 'INACTIVE')}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmit}>{editingTargetGroup ? 'Save changes' : 'Create'}</Button>
           </div>
         </div>
       </Modal>

@@ -31,14 +31,27 @@ export default function AdminNeedsPage() {
 
   const columns: ColumnDef<NeedReport, unknown>[] = [
     {
-      accessorKey: 'fullName',
-      header: 'Name',
-      enableSorting: true,
+      accessorKey: 'id',
+      header: 'ID',
+      cell: ({ getValue }) => (
+        <span className="font-mono text-xs text-gray-500">{String(getValue()).slice(0, 8)}</span>
+      ),
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ getValue }) => <span className="line-clamp-1">{getValue() as string}</span>,
+      accessorKey: 'title',
+      header: 'Title',
+      enableSorting: true,
+      cell: ({ row }) => (
+        <span className="line-clamp-1 font-medium text-gray-900">
+          {row.original.title || row.original.description.slice(0, 60)}
+        </span>
+      ),
+    },
+    {
+      accessorFn: (row) => row.fullName,
+      id: 'fullName',
+      header: 'Submitted by',
+      cell: ({ getValue }) => <span className="line-clamp-1">{String(getValue())}</span>,
     },
     {
       accessorFn: (row) => row.region?.name || '—',
@@ -68,7 +81,9 @@ export default function AdminNeedsPage() {
       id: 'actions',
       header: '',
       cell: ({ row }) => (
-        <button onClick={() => router.push(`/admin/needs/${row.original.id}`)} className="text-sm text-blue-600 hover:underline">View</button>
+        <button onClick={() => router.push(`/admin/needs/${row.original.id}`)} className="text-sm text-blue-600 hover:underline">
+          View
+        </button>
       ),
     },
   ];

@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
-import type { PaginatedResponse, PaginationParams, NeedReport, NeedsMapEntry } from '@/types/api';
+import type {
+  PaginatedResponse,
+  PaginationParams,
+  NeedReport,
+  NeedReportEvent,
+  NeedStatus,
+  NeedsMapEntry,
+} from '@/types/api';
 
 interface NeedFilters extends PaginationParams {
   status?: string;
@@ -37,11 +44,12 @@ export function useAdminNeed(id: string) {
 export function useUpdateNeed() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string; status?: string; assignedOrganisationId?: string; tagIds?: string[] }) =>
+    mutationFn: ({ id, ...data }: { id: string; title?: string; status?: NeedStatus; assignedOrganisationId?: string | null; tagIds?: string[] }) =>
       apiClient<NeedReport>(`/admin/needs/${id}`, { method: 'PATCH', body: data }),
     onSuccess: (_, v) => {
       qc.invalidateQueries({ queryKey: ['admin', 'needs'] });
       qc.invalidateQueries({ queryKey: ['admin', 'needs', v.id] });
+      qc.invalidateQueries({ queryKey: ['admin', 'needs', v.id, 'events'] });
     },
   });
 }
@@ -54,6 +62,7 @@ export function useAssignNeed() {
     onSuccess: (_, v) => {
       qc.invalidateQueries({ queryKey: ['admin', 'needs'] });
       qc.invalidateQueries({ queryKey: ['admin', 'needs', v.id] });
+      qc.invalidateQueries({ queryKey: ['admin', 'needs', v.id, 'events'] });
     },
   });
 }
@@ -70,6 +79,26 @@ export function useAdminNeedsMap() {
   return useQuery({
     queryKey: ['admin', 'needs', 'map'],
     queryFn: () => apiClient<NeedsMapEntry[]>('/admin/needs/map'),
+  });
+}
+
+export function useAdminNeedEvents(id: string) {
+  return useQuery({
+    queryKey: ['admin', 'needs', id, 'events'],
+    queryFn: () => apiClient<NeedReportEvent[]>(`/admin/needs/${id}/events`),
+    enabled: !!id,
+  });
+}
+
+export function useAddAdminNeedComment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, content }: { id: string; content: string }) =>
+      apiClient<{ message: string }>(`/admin/needs/${id}/comments`, { method: 'POST', body: { content } }),
+    onSuccess: (_, v) => {
+      qc.invalidateQueries({ queryKey: ['admin', 'needs', v.id, 'events'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'needs', v.id] });
+    },
   });
 }
 
@@ -92,11 +121,12 @@ export function useOrgNeed(id: string) {
 export function useUpdateOrgNeed() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string; status?: string; tagIds?: string[] }) =>
+    mutationFn: ({ id, ...data }: { id: string; title?: string; status?: NeedStatus; tagIds?: string[] }) =>
       apiClient<NeedReport>(`/org/needs/${id}`, { method: 'PATCH', body: data }),
     onSuccess: (_, v) => {
       qc.invalidateQueries({ queryKey: ['org', 'needs'] });
       qc.invalidateQueries({ queryKey: ['org', 'needs', v.id] });
+      qc.invalidateQueries({ queryKey: ['org', 'needs', v.id, 'events'] });
     },
   });
 }
@@ -105,6 +135,26 @@ export function useOrgNeedsMap() {
   return useQuery({
     queryKey: ['org', 'needs', 'map'],
     queryFn: () => apiClient<NeedsMapEntry[]>('/org/needs/map'),
+  });
+}
+
+export function useOrgNeedEvents(id: string) {
+  return useQuery({
+    queryKey: ['org', 'needs', id, 'events'],
+    queryFn: () => apiClient<NeedReportEvent[]>(`/org/needs/${id}/events`),
+    enabled: !!id,
+  });
+}
+
+export function useAddOrgNeedComment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, content }: { id: string; content: string }) =>
+      apiClient<{ message: string }>(`/org/needs/${id}/comments`, { method: 'POST', body: { content } }),
+    onSuccess: (_, v) => {
+      qc.invalidateQueries({ queryKey: ['org', 'needs', v.id, 'events'] });
+      qc.invalidateQueries({ queryKey: ['org', 'needs', v.id] });
+    },
   });
 }
 

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
-import type { PaginatedResponse, PaginationParams, Topic, NeedTag } from '@/types/api';
+import type { PaginatedResponse, PaginationParams, Topic, NeedTag, TargetGroup } from '@/types/api';
 
 // Topics
 export function useTopics(params: PaginationParams = {}) {
@@ -79,5 +79,46 @@ export function useDeleteNeedTag() {
   return useMutation({
     mutationFn: (id: string) => apiClient(`/admin/need-tags/${id}`, { method: 'DELETE' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'need-tags'] }),
+  });
+}
+
+// Target Groups
+export function useTargetGroups(params: PaginationParams = {}) {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) searchParams.set(key, String(value));
+  });
+  const query = searchParams.toString();
+
+  return useQuery({
+    queryKey: ['admin', 'target-groups', params],
+    queryFn: () =>
+      apiClient<PaginatedResponse<TargetGroup>>(`/admin/taxonomy/target-groups${query ? `?${query}` : ''}`),
+  });
+}
+
+export function useCreateTargetGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; status?: 'ACTIVE' | 'INACTIVE' }) =>
+      apiClient<TargetGroup>('/admin/taxonomy/target-groups', { method: 'POST', body: data }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'target-groups'] }),
+  });
+}
+
+export function useUpdateTargetGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string; name?: string; status?: 'ACTIVE' | 'INACTIVE' }) =>
+      apiClient<TargetGroup>(`/admin/taxonomy/target-groups/${id}`, { method: 'PATCH', body: data }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'target-groups'] }),
+  });
+}
+
+export function useDeleteTargetGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient(`/admin/taxonomy/target-groups/${id}`, { method: 'DELETE' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'target-groups'] }),
   });
 }

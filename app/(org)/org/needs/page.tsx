@@ -12,8 +12,8 @@ import type { NeedReport } from '@/types/api';
 
 const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
   NEW: 'neutral',
-  ASSIGNED: 'warning',
-  RESOLVED: 'success',
+  IN_PROGRESS: 'warning',
+  SOLVED: 'success',
   CLOSED: 'danger',
 };
 
@@ -30,11 +30,28 @@ export default function OrgNeedsPage() {
   const { data, isLoading } = useOrgNeeds({ page, perPage, search, sortBy, sortOrder, status: statusFilter || undefined });
 
   const columns: ColumnDef<NeedReport, unknown>[] = [
-    { accessorKey: 'fullName', header: 'Name', enableSorting: true },
     {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ getValue }) => <span className="line-clamp-1">{getValue() as string}</span>,
+      accessorKey: 'id',
+      header: 'ID',
+      cell: ({ getValue }) => (
+        <span className="font-mono text-xs text-gray-500">{String(getValue()).slice(0, 8)}</span>
+      ),
+    },
+    {
+      accessorKey: 'title',
+      header: 'Title',
+      enableSorting: true,
+      cell: ({ row }) => (
+        <span className="line-clamp-1 font-medium text-gray-900">
+          {row.original.title || row.original.description.slice(0, 60)}
+        </span>
+      ),
+    },
+    {
+      accessorFn: (row) => row.fullName,
+      id: 'fullName',
+      header: 'Submitted by',
+      cell: ({ getValue }) => <span className="line-clamp-1">{String(getValue())}</span>,
     },
     {
       accessorFn: (row) => row.region?.name || '—',
@@ -75,8 +92,8 @@ export default function OrgNeedsPage() {
         <div className="flex items-center justify-end gap-3 p-4 pb-0">
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="rounded-md border border-gray-300 px-3 py-2 text-sm">
             <option value="">All statuses</option>
-            <option value="ASSIGNED">Assigned</option>
-            <option value="RESOLVED">Resolved</option>
+            <option value="IN_PROGRESS">In progress</option>
+            <option value="SOLVED">Solved</option>
             <option value="CLOSED">Closed</option>
           </select>
           <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />

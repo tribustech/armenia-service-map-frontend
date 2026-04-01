@@ -119,3 +119,11 @@ export function useOrgOverviewStats() {
     queryFn: () => apiClient<OrgOverviewStats>('/org/analytics/overview'),
   });
 }
+
+export function useOrgDashboardTrends(months = 12) {
+  return useQuery({
+    queryKey: ['org', 'analytics', 'dashboard-trends', months],
+    queryFn: () =>
+      apiClient<DashboardTrendsResponse>(withQuery('/org/analytics/dashboard-trends', { months })),
+  });
+}

@@ -21,6 +21,7 @@ export interface Topic {
   name: string;
   slug: string;
   icon: string | null;
+  status?: 'ACTIVE' | 'INACTIVE';
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -44,6 +45,7 @@ export interface NeedTag {
   id: string;
   name: string;
   slug: string;
+  status?: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
   _count: { needReports: number };
@@ -53,6 +55,15 @@ export interface TargetGroupOption {
   id: string;
   name: string;
   status: string;
+}
+
+export interface TargetGroup {
+  id: string;
+  name: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  createdAt: string;
+  updatedAt: string;
+  _count: { services: number };
 }
 
 export interface Region {
@@ -72,8 +83,19 @@ export interface Organisation {
   country?: string | null;
   streetAddress?: string | null;
   location?: string | null;
+  organisationType?: string | null;
+  uniqueIdentifier?: string | null;
+  category?: string | null;
+  activityDomain?: string | null;
+  legalRepName?: string | null;
+  legalRepEmail?: string | null;
+  legalRepPhone?: string | null;
+  contactPersonName?: string | null;
   contactPersonEmail?: string | null;
   contactPersonPhone?: string | null;
+  legalDocumentUrl?: string | null;
+  observations?: string | null;
+  tags?: string[];
   regionId: string | null;
   status: 'ACTIVE' | 'PENDING' | 'SUSPENDED';
   createdAt: string;
@@ -119,20 +141,47 @@ export interface NeedReportTag {
   needTag: { id: string; name: string; slug: string };
 }
 
+export type NeedStatus = 'NEW' | 'IN_PROGRESS' | 'SOLVED' | 'CLOSED';
+
 export interface NeedReport {
   id: string;
+  title: string;
   description: string;
   fullName: string;
   contactMethod: string;
   contactValue: string;
   regionId: string | null;
-  status: 'NEW' | 'IN_PROGRESS' | 'SOLVED' | 'CLOSED';
+  status: NeedStatus;
   assignedOrganisationId: string | null;
   createdAt: string;
   updatedAt: string;
   region: { id: string; name: string } | null;
   assignedOrganisation: { id: string; name: string } | null;
   tags: NeedReportTag[];
+}
+
+export type NeedReportEventType =
+  | 'COMMENT'
+  | 'STATUS_CHANGE'
+  | 'TAG_ADDED'
+  | 'TAG_REMOVED'
+  | 'ASSIGNED'
+  | 'TITLE_EDITED';
+
+export interface NeedReportEvent {
+  id: string;
+  needReportId: string;
+  userId: string;
+  eventType: NeedReportEventType;
+  content: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
 export interface NeedsMapEntry {
