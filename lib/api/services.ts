@@ -117,7 +117,7 @@ export function useDeleteService() {
 }
 
 // Org-scoped
-export function useOrgServices(params: PaginationParams = {}) {
+export function useOrgServices(params: ServiceFilters = {}) {
   return useQuery({
     queryKey: ['org', 'services', params],
     queryFn: async () => normalizeServicePage(await apiClient<PaginatedResponse<Service>>(`/org/services${buildQuery(params)}`)),
@@ -172,6 +172,14 @@ export function useUnpublishOrgService() {
       qc.invalidateQueries({ queryKey: ['org', 'services'] });
       qc.invalidateQueries({ queryKey: ['org', 'services', id] });
     },
+  });
+}
+
+export function useDeleteOrgService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient(`/org/services/${id}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['org', 'services'] }),
   });
 }
 

@@ -30,6 +30,8 @@ export default function NewOrgServicePage() {
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
     isAvailable: true,
     regionId: '',
+    availabilityStart: '',
+    availabilityEnd: '',
     targetGroupIds: [] as string[],
     topicIds: [] as string[],
   });
@@ -47,6 +49,8 @@ export default function NewOrgServicePage() {
       regionId: form.regionId || undefined,
       targetGroupIds: form.targetGroupIds,
       topicIds: form.topicIds,
+      availabilityStart: form.availabilityStart || undefined,
+      availabilityEnd: form.availabilityEnd || undefined,
     });
     router.push('/org/services');
   }
@@ -85,6 +89,21 @@ export default function NewOrgServicePage() {
               Available
             </label>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Start date"
+            type="date"
+            value={form.availabilityStart}
+            onChange={(event) => updateField('availabilityStart', event.target.value)}
+          />
+          <Input
+            label="End date"
+            type="date"
+            value={form.availabilityEnd}
+            onChange={(event) => updateField('availabilityEnd', event.target.value)}
+          />
         </div>
 
         <div>

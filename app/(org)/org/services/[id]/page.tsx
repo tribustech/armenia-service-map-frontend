@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { ActionButton } from '@/components/ui/action-button';
-import { useOrgService, usePublishOrgService, useUnpublishOrgService } from '@/lib/api/services';
+import { useOrgService, usePublishOrgService, useUnpublishOrgService, useDeleteOrgService } from '@/lib/api/services';
 
 export default function OrgServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +12,7 @@ export default function OrgServiceDetailPage() {
   const { data: service, isLoading } = useOrgService(id);
   const publishService = usePublishOrgService();
   const unpublishService = useUnpublishOrgService();
+  const deleteService = useDeleteOrgService();
 
   if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
   if (!service) return <div className="p-8 text-gray-500">Service not found</div>;
@@ -31,6 +32,14 @@ export default function OrgServiceDetailPage() {
         </div>
         <div className="flex items-center gap-3">
           <ActionButton variant="edit" onClick={() => router.push(`/org/services/${id}/edit`)} />
+          <ActionButton
+            variant="delete"
+            onClick={() => {
+              if (confirm('Delete this service?')) {
+                deleteService.mutate(id, { onSuccess: () => router.push('/org/services') });
+              }
+            }}
+          />
           {service.status === 'PUBLISHED' ? (
             <ActionButton variant="publish" onClick={() => unpublishService.mutate(id)}>
               Unpublish
@@ -58,10 +67,12 @@ export default function OrgServiceDetailPage() {
               <div className="text-sm font-medium text-gray-500">Topics</div>
               <div className="mt-1 flex flex-wrap gap-1">{service.topics.map((t) => <Badge key={t.topic.id} variant="neutral">{t.topic.name}</Badge>)}</div>
             </div>
-            {service.targetGroup.length > 0 && (
+            {(service.targetGroups?.length ?? 0) > 0 && (
               <div>
                 <div className="text-sm font-medium text-gray-500">Target groups</div>
-                <div className="mt-1">{service.targetGroup.join(', ')}</div>
+                <div className="mt-1">
+                  {service.targetGroups.map((entry) => entry.targetGroup.name).join(', ')}
+                </div>
               </div>
             )}
           </div>

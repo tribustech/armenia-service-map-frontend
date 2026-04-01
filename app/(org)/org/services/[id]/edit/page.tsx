@@ -38,6 +38,8 @@ export default function EditOrgServicePage() {
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
     regionId: '',
     isAvailable: true,
+    availabilityStart: '',
+    availabilityEnd: '',
     targetGroupIds: [] as string[],
     topicIds: [] as string[],
   });
@@ -51,6 +53,8 @@ export default function EditOrgServicePage() {
         status: service.status,
         regionId: service.regionId || '',
         isAvailable: service.isAvailable,
+        availabilityStart: service.availabilityStart?.split('T')[0] ?? '',
+        availabilityEnd: service.availabilityEnd?.split('T')[0] ?? '',
         targetGroupIds: service.targetGroups.map((entry) => entry.targetGroup.id),
         topicIds: service.topics.map((t) => t.topic.id),
       });
@@ -71,6 +75,8 @@ export default function EditOrgServicePage() {
       isAvailable: form.isAvailable,
       targetGroupIds: form.targetGroupIds,
       topicIds: form.topicIds,
+      availabilityStart: form.availabilityStart || undefined,
+      availabilityEnd: form.availabilityEnd || undefined,
     });
     router.push(`/org/services/${id}`);
   }
@@ -107,6 +113,21 @@ export default function EditOrgServicePage() {
               Available
             </label>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Start date"
+            type="date"
+            value={form.availabilityStart}
+            onChange={(event) => updateField('availabilityStart', event.target.value)}
+          />
+          <Input
+            label="End date"
+            type="date"
+            value={form.availabilityEnd}
+            onChange={(event) => updateField('availabilityEnd', event.target.value)}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
