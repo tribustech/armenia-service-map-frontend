@@ -12,8 +12,11 @@ interface ServiceFilters extends PaginationParams {
 
 export interface ServiceMutationInput {
   title: string;
+  titleHy?: string;
   shortDescription: string;
+  shortDescriptionHy?: string;
   description: string;
+  descriptionHy?: string;
   organisationId?: string;
   regionId?: string;
   isAvailable?: boolean;

@@ -18,8 +18,11 @@ import { getErrorMessage, mapErrorMessageToField, toPlainText } from '@/lib/vali
 
 type ServiceFormState = {
   title: string;
+  titleHy: string;
   shortDescription: string;
+  shortDescriptionHy: string;
   description: string;
+  descriptionHy: string;
   status: 'DRAFT' | 'PUBLISHED';
   regionId: string;
   isAvailable: boolean;
@@ -31,8 +34,11 @@ type ServiceFormState = {
 
 const EMPTY_FORM: ServiceFormState = {
   title: '',
+  titleHy: '',
   shortDescription: '',
+  shortDescriptionHy: '',
   description: '',
+  descriptionHy: '',
   status: 'DRAFT',
   regionId: '',
   isAvailable: true,
@@ -50,6 +56,7 @@ export default function EditOrgServicePage() {
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
   const { data: targetGroups } = usePublicTargetGroups();
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
   const topicOptions = useMemo(
     () =>
       (topics ?? []).flatMap((topic) => [
@@ -66,8 +73,11 @@ export default function EditOrgServicePage() {
     if (!service) return EMPTY_FORM;
     return {
       title: service.title,
+      titleHy: service.titleHy ?? '',
       shortDescription: service.shortDescription,
+      shortDescriptionHy: service.shortDescriptionHy ?? '',
       description: service.description,
+      descriptionHy: service.descriptionHy ?? '',
       status: service.status,
       regionId: service.regionId || '',
       isAvailable: service.isAvailable,
@@ -110,8 +120,11 @@ export default function EditOrgServicePage() {
       await update.mutateAsync({
         id,
         title: form.title,
+        titleHy: form.titleHy || undefined,
         shortDescription: form.shortDescription,
+        shortDescriptionHy: form.shortDescriptionHy || undefined,
         description: form.description,
+        descriptionHy: form.descriptionHy || undefined,
         status: form.status,
         regionId: form.regionId || undefined,
         isAvailable: form.isAvailable,
@@ -154,25 +167,55 @@ export default function EditOrgServicePage() {
             {submitError}
           </p>
         ) : null}
+        <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+          <button
+            type="button"
+            onClick={() => setActiveLanguage('en')}
+            className={`rounded-md px-3 py-1 text-xs font-medium ${
+              activeLanguage === 'en' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+            }`}
+          >
+            English
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveLanguage('hy')}
+            className={`rounded-md px-3 py-1 text-xs font-medium ${
+              activeLanguage === 'hy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+            }`}
+          >
+            Armenian
+          </button>
+        </div>
         <Input
-          label="Title *"
-          value={form.title}
-          onChange={(e) => updateField('title', e.target.value)}
-          error={errors.title}
-          required
+          label={activeLanguage === 'en' ? 'Title (English) *' : 'Title (Armenian)'}
+          value={activeLanguage === 'en' ? form.title : form.titleHy}
+          onChange={(e) => updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)}
+          error={activeLanguage === 'en' ? errors.title : undefined}
+          required={activeLanguage === 'en'}
         />
         <Input
-          label="Short description *"
-          value={form.shortDescription}
-          onChange={(e) => updateField('shortDescription', e.target.value)}
-          error={errors.shortDescription}
-          required
+          label={activeLanguage === 'en' ? 'Short description (English) *' : 'Short description (Armenian)'}
+          value={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
+          onChange={(e) =>
+            updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', e.target.value)
+          }
+          error={activeLanguage === 'en' ? errors.shortDescription : undefined}
+          required={activeLanguage === 'en'}
         />
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Description *</label>
-          <RichTextEditor content={form.description} onChange={(html) => updateField('description', html)} />
-          {errors.description ? <p className="mt-1 text-xs text-red-600">{errors.description}</p> : null}
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            {activeLanguage === 'en' ? ' *' : ''}
+          </label>
+          <RichTextEditor
+            content={activeLanguage === 'en' ? form.description : form.descriptionHy}
+            onChange={(html) => updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)}
+          />
+          {activeLanguage === 'en' && errors.description ? (
+            <p className="mt-1 text-xs text-red-600">{errors.description}</p>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-2 gap-4">

@@ -194,8 +194,11 @@ export interface NeedsMapEntry {
 export interface Service {
   id: string;
   title: string;
+  titleHy: string | null;
   shortDescription: string;
+  shortDescriptionHy: string | null;
   description: string;
+  descriptionHy: string | null;
   organisationId: string;
   regionId: string | null;
   status: 'DRAFT' | 'PUBLISHED';

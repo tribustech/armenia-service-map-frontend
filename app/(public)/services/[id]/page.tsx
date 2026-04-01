@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { usePublicService } from '@/lib/api/services';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 
 export default function PublicServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const locale = useLocale();
   const t = useTranslations('serviceDetail');
   const tHome = useTranslations('home');
   const tNav = useTranslations('nav');
@@ -34,11 +36,13 @@ export default function PublicServiceDetailPage() {
     );
   }
 
+  const content = getLocalizedServiceContent(service, locale);
+
   const serviceJsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: service.title,
-    description: service.shortDescription?.replace(/<[^>]*>/g, ''),
+    name: content.title,
+    description: content.shortDescription?.replace(/<[^>]*>/g, ''),
     provider: {
       '@type': 'Organization',
       name: service.organisation.name,
@@ -56,7 +60,7 @@ export default function PublicServiceDetailPage() {
           <span>/</span>
           <Link href="/services" className="hover:text-[#155dfc]">{tNav('services')}</Link>
           <span>/</span>
-          <span className="line-clamp-1 text-[#101828]">{service.title}</span>
+          <span className="line-clamp-1 text-[#101828]">{content.title}</span>
         </div>
 
         <article className="rounded-2xl border border-[#e5e7eb] bg-white p-7 shadow-lg md:p-8">
@@ -67,11 +71,11 @@ export default function PublicServiceDetailPage() {
                 {service.organisation.name}
               </div>
 
-              <h1 className="mt-2 text-3xl font-bold text-[#101828]">{service.title}</h1>
+              <h1 className="mt-2 text-3xl font-bold text-[#101828]">{content.title}</h1>
 
               <div
                 className="prose mt-4 max-w-none text-[#4a5565] prose-p:my-2"
-                dangerouslySetInnerHTML={{ __html: service.shortDescription }}
+                dangerouslySetInnerHTML={{ __html: content.shortDescription }}
               />
             </div>
 
@@ -102,7 +106,7 @@ export default function PublicServiceDetailPage() {
 
           <section className="mt-7 rounded-xl border border-[#e5e7eb] bg-[#f9fafb] p-5 md:p-6">
             <h2 className="text-xl font-bold text-[#101828]">{t('aboutService')}</h2>
-            <div className="prose mt-4 max-w-none text-[#4a5565] prose-p:my-2" dangerouslySetInnerHTML={{ __html: service.description }} />
+            <div className="prose mt-4 max-w-none text-[#4a5565] prose-p:my-2" dangerouslySetInnerHTML={{ __html: content.description }} />
           </section>
 
           <div className="mt-8 text-center">

@@ -3,11 +3,12 @@
 import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ArmeniaMap } from '@/components/shared/armenia-map';
 import { Pagination } from '@/components/admin/pagination';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { usePublicRegionServiceCounts, usePublicRegions, usePublicServices, usePublicTopics } from '@/lib/api/services';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 import type { PaginatedResponse, Service } from '@/types/api';
 
 type ViewMode = 'list' | 'map';
@@ -25,6 +26,7 @@ function ServicesContent() {
   const t = useTranslations('services');
   const tHome = useTranslations('home');
   const tNav = useTranslations('nav');
+  const locale = useLocale();
 
   const [view, setView] = useState<ViewMode>('list');
   const [page, setPage] = useState(1);
@@ -53,12 +55,15 @@ function ServicesContent() {
     '@type': 'ItemList',
     name: 'RefugeeSupport Services',
     itemListElement:
-      data?.data.map((service, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        url: `https://refugeesupport.am/services/${service.id}`,
-        name: service.title,
-      })) ?? [],
+      data?.data.map((service, index) => {
+        const content = getLocalizedServiceContent(service, locale);
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: `https://refugeesupport.am/services/${service.id}`,
+          name: content.title,
+        };
+      }) ?? [],
   });
 
   return (
@@ -280,7 +285,9 @@ function ServiceList({
 
 function ServiceCard({ service }: { service: Service }) {
   const t = useTranslations('services');
+  const locale = useLocale();
   const badgeTopics = service.topics.slice(0, 3);
+  const content = getLocalizedServiceContent(service, locale);
 
   return (
     <article className="rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-lg">
@@ -290,7 +297,7 @@ function ServiceCard({ service }: { service: Service }) {
             <MapPinIcon />
             {service.organisation.name}
           </div>
-          <h3 className="mt-2 text-xl font-bold text-[#101828]">{service.title}</h3>
+          <h3 className="mt-2 text-xl font-bold text-[#101828]">{content.title}</h3>
         </div>
 
         {service.isAvailable ? (
@@ -301,7 +308,7 @@ function ServiceCard({ service }: { service: Service }) {
       </div>
 
       <p className="mt-4 text-base leading-6 text-[#4a5565] line-clamp-2">
-        {service.shortDescription?.replace(/<[^>]*>/g, '')}
+        {content.shortDescription?.replace(/<[^>]*>/g, '')}
       </p>
 
       {badgeTopics.length > 0 ? (

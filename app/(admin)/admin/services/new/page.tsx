@@ -33,8 +33,11 @@ export default function NewServicePage() {
 
   const [form, setForm] = useState({
     title: '',
+    titleHy: '',
     shortDescription: '',
+    shortDescriptionHy: '',
     description: '',
+    descriptionHy: '',
     organisationId: '',
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
     isAvailable: true,
@@ -44,6 +47,7 @@ export default function NewServicePage() {
     availabilityStart: '',
     availabilityEnd: '',
   });
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
 
   const updateField = (field: string, value: unknown) => setForm((p) => ({ ...p, [field]: value }));
 
@@ -54,8 +58,11 @@ export default function NewServicePage() {
     e.preventDefault();
     await create.mutateAsync({
       title: form.title,
+      titleHy: form.titleHy || undefined,
       shortDescription: form.shortDescription,
+      shortDescriptionHy: form.shortDescriptionHy || undefined,
       description: form.description,
+      descriptionHy: form.descriptionHy || undefined,
       organisationId: form.organisationId,
       status: form.status,
       isAvailable: form.isAvailable,
@@ -126,7 +133,14 @@ export default function NewServicePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <Input label="Title" value={form.title} onChange={(e) => updateField('title', e.target.value)} required />
+            <Input
+              label={activeLanguage === 'en' ? 'Title (English)' : 'Title (Armenian)'}
+              value={activeLanguage === 'en' ? form.title : form.titleHy}
+              onChange={(e) =>
+                updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)
+              }
+              required={activeLanguage === 'en'}
+            />
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">Location</label>
               <select
@@ -214,19 +228,51 @@ export default function NewServicePage() {
 
           {/* Short description - rich text */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-900">Short description</label>
+            <div className="mb-2 inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+              <button
+                type="button"
+                onClick={() => setActiveLanguage('en')}
+                className={`rounded-md px-3 py-1 text-xs font-medium ${
+                  activeLanguage === 'en' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveLanguage('hy')}
+                className={`rounded-md px-3 py-1 text-xs font-medium ${
+                  activeLanguage === 'hy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                }`}
+              >
+                Armenian
+              </button>
+            </div>
+          </div>
+
+          {/* Short description - rich text */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-900">
+              Short description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            </label>
             <RichTextEditor
-              content={form.shortDescription}
-              onChange={(html) => updateField('shortDescription', html)}
+              content={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
+              onChange={(html) =>
+                updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', html)
+              }
             />
           </div>
 
           {/* Description - rich text */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-900">Description</label>
+            <label className="mb-2 block text-sm font-medium text-gray-900">
+              Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            </label>
             <RichTextEditor
-              content={form.description}
-              onChange={(html) => updateField('description', html)}
+              content={activeLanguage === 'en' ? form.description : form.descriptionHy}
+              onChange={(html) =>
+                updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)
+              }
             />
           </div>
         </div>

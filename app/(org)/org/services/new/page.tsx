@@ -25,8 +25,11 @@ export default function NewOrgServicePage() {
 
   const [form, setForm] = useState({
     title: '',
+    titleHy: '',
     shortDescription: '',
+    shortDescriptionHy: '',
     description: '',
+    descriptionHy: '',
     status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
     isAvailable: true,
     regionId: '',
@@ -35,6 +38,7 @@ export default function NewOrgServicePage() {
     targetGroupIds: [] as string[],
     topicIds: [] as string[],
   });
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
 
   const updateField = (field: string, value: unknown) => setForm((p) => ({ ...p, [field]: value }));
 
@@ -42,8 +46,11 @@ export default function NewOrgServicePage() {
     e.preventDefault();
     await create.mutateAsync({
       title: form.title,
+      titleHy: form.titleHy || undefined,
       shortDescription: form.shortDescription,
+      shortDescriptionHy: form.shortDescriptionHy || undefined,
       description: form.description,
+      descriptionHy: form.descriptionHy || undefined,
       status: form.status,
       isAvailable: form.isAvailable,
       regionId: form.regionId || undefined,
@@ -63,12 +70,51 @@ export default function NewOrgServicePage() {
       <h1 className="text-2xl font-bold">Add new service</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-3xl space-y-4 rounded-lg border bg-white p-6">
-        <Input label="Title *" value={form.title} onChange={(e) => updateField('title', e.target.value)} required />
-        <Input label="Short description *" value={form.shortDescription} onChange={(e) => updateField('shortDescription', e.target.value)} required />
+        <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+          <button
+            type="button"
+            onClick={() => setActiveLanguage('en')}
+            className={`rounded-md px-3 py-1 text-xs font-medium ${
+              activeLanguage === 'en' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+            }`}
+          >
+            English
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveLanguage('hy')}
+            className={`rounded-md px-3 py-1 text-xs font-medium ${
+              activeLanguage === 'hy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+            }`}
+          >
+            Armenian
+          </button>
+        </div>
+
+        <Input
+          label={activeLanguage === 'en' ? 'Title (English) *' : 'Title (Armenian)'}
+          value={activeLanguage === 'en' ? form.title : form.titleHy}
+          onChange={(e) => updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)}
+          required={activeLanguage === 'en'}
+        />
+        <Input
+          label={activeLanguage === 'en' ? 'Short description (English) *' : 'Short description (Armenian)'}
+          value={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
+          onChange={(e) =>
+            updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', e.target.value)
+          }
+          required={activeLanguage === 'en'}
+        />
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Description *</label>
-          <RichTextEditor content={form.description} onChange={(html) => updateField('description', html)} />
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            {activeLanguage === 'en' ? ' *' : ''}
+          </label>
+          <RichTextEditor
+            content={activeLanguage === 'en' ? form.description : form.descriptionHy}
+            onChange={(html) => updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
