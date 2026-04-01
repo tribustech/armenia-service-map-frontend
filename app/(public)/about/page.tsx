@@ -1,42 +1,75 @@
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 
 export default function AboutPage() {
   const t = useTranslations('about');
 
-  const steps = [
-    { title: t('step1Title'), text: t('step1Text') },
-    { title: t('step2Title'), text: t('step2Text') },
-    { title: t('step3Title'), text: t('step3Text') },
-  ];
-
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-3xl font-bold">{t('title')}</h1>
-      <p className="mt-4 text-lg text-gray-600">{t('intro')}</p>
-
-      <section className="mt-12">
-        <h2 className="text-2xl font-bold">{t('mission')}</h2>
-        <p className="mt-3 text-gray-600">{t('missionText')}</p>
+    <div className="bg-[#f9fafb]">
+      {/* Header */}
+      <section className="mx-auto max-w-7xl px-6 pt-12">
+        <h1 className="text-4xl font-extrabold tracking-tight text-black">
+          {t('title')}
+        </h1>
       </section>
 
-      <section className="mt-12">
-        <h2 className="text-2xl font-bold">{t('howItWorks')}</h2>
-        <div className="mt-6 grid gap-6 sm:grid-cols-3">
-          {steps.map((step, i) => (
-            <div key={i} className="rounded-lg border bg-white p-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600">
-                {i + 1}
+      {/* Content */}
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <div className="flex flex-col gap-6 md:flex-row">
+          {/* Text */}
+          <div className="flex flex-1 flex-col gap-5">
+            <p className="text-lg leading-7 text-[#374151]">
+              {t('intro')}
+            </p>
+
+            <div className="space-y-5">
+              <p className="leading-7 text-[#374151]">
+                {t('missionText')}
+              </p>
+
+              <div className="space-y-5">
+                <h2 className="text-2xl font-bold text-black">{t('howItWorks')}</h2>
+                <ul className="space-y-2">
+                  {[
+                    { title: t('step1Title'), text: t('step1Text') },
+                    { title: t('step2Title'), text: t('step2Text') },
+                    { title: t('step3Title'), text: t('step3Text') },
+                  ].map((step, i) => (
+                    <li key={i} className="flex items-start gap-4 pl-1">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#374151]" />
+                      <span className="leading-7 text-[#374151]">
+                        <strong>{step.title}:</strong> {step.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h3 className="mt-3 font-semibold">{step.title}</h3>
-              <p className="mt-2 text-sm text-gray-600">{step.text}</p>
+
+              <p className="leading-7 text-[#374151]">
+                {t('builtBy')}
+              </p>
             </div>
-          ))}
+          </div>
+
+          {/* Image */}
+          <div className="shrink-0 md:w-[560px]">
+            <Image
+              src="/about-image.jpg"
+              alt="About RefugeeSupport"
+              width={560}
+              height={620}
+              className="h-auto w-full rounded-lg object-cover"
+            />
+          </div>
         </div>
       </section>
 
-      <div className="mt-12 rounded-lg bg-gray-50 p-8 text-center text-gray-600">
-        {t('builtBy')}
-      </div>
+      <NeedCtaBanner
+        title={t('ctaTitle')}
+        subtitle={t('ctaSubtitle')}
+        buttonLabel={t('reportNeed')}
+      />
     </div>
   );
 }

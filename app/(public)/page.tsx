@@ -1,126 +1,296 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { usePublicTopics, usePublicServices } from '@/lib/api/services';
+import { NeedCtaBanner } from '@/components/public/need-cta-banner';
+import { usePublicRegions, usePublicServices, usePublicTopics } from '@/lib/api/services';
 import type { Service } from '@/types/api';
+
+const topicColors = [
+  { gradient: 'from-[#2b7fff] to-[#155dfc]', icon: ScaleIcon },
+  { gradient: 'from-[#ff2056] to-[#ec003f]', icon: HeartIcon },
+  { gradient: 'from-[#ad46ff] to-[#9810fa]', icon: LanguageIcon },
+  { gradient: 'from-[#00bc7d] to-[#009966]', icon: BriefcaseIcon },
+  { gradient: 'from-[#fe9a00] to-[#e17100]', icon: HomeIcon },
+  { gradient: 'from-[#615fff] to-[#4f39f6]', icon: UsersIcon },
+  { gradient: 'from-[#00b8db] to-[#0092b8]', icon: BookIcon },
+  { gradient: 'from-[#8e51ff] to-[#7f22fe]', icon: GlobeIcon },
+];
 
 export default function HomePage() {
   const t = useTranslations('home');
   const router = useRouter();
-  const [search, setSearch] = useState('');
-  const { data: topics } = usePublicTopics();
-  const { data: latestServices } = usePublicServices({ perPage: 6, sortBy: 'createdAt', sortOrder: 'desc' });
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (search.trim()) {
-      router.push(`/services?search=${encodeURIComponent(search.trim())}`);
-    }
+  const [search, setSearch] = useState('');
+  const [regionId, setRegionId] = useState('');
+
+  const { data: topics } = usePublicTopics();
+  const { data: regions } = usePublicRegions();
+  const { data: latestServices } = usePublicServices({
+    perPage: 3,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
+
+  function handleSearch(event: React.FormEvent) {
+    event.preventDefault();
+    const params = new URLSearchParams();
+    if (search.trim()) params.set('search', search.trim());
+    if (regionId) params.set('regionId', regionId);
+    router.push(`/services${params.toString() ? `?${params.toString()}` : ''}`);
   }
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-orange-50 to-white px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-3xl font-bold md:text-5xl">{t('title')}</h1>
-          <p className="mt-4 text-lg text-gray-600">{t('subtitle')}</p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Link href="/services">
-              <Button>Browse services</Button>
+    <div className="bg-[#f6f8ff]">
+      <section className="mx-auto max-w-7xl px-6 pb-14 pt-12 md:pt-16">
+        <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
+          <div>
+            <h1>
+              <span className="block bg-gradient-to-r from-[#101828] to-[#364153] bg-clip-text text-5xl font-extrabold leading-tight text-transparent md:text-6xl">
+                {t('heroTitle1')}
+              </span>
+              <span className="block bg-gradient-to-r from-[#155dfc] to-[#4f39f6] bg-clip-text text-5xl font-extrabold leading-tight text-transparent md:text-6xl">
+                {t('heroTitle2')}
+              </span>
+            </h1>
+            <p className="mt-5 max-w-xl text-xl leading-relaxed text-[#4a5565]">{t('subtitle')}</p>
+            <Link
+              href="/services"
+              className="mt-8 inline-flex items-center gap-2 rounded-[14px] bg-gradient-to-r from-[#155dfc] to-[#4f39f6] px-7 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+            >
+              {t('findServices')}
+              <ArrowRightIcon />
             </Link>
-            <Link href="/about">
-              <Button variant="secondary">{t('readMore')}</Button>
-            </Link>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#51a2ff4d] to-[#7c86ff4d] blur-[64px]" />
+            <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+              <Image
+                src="/hero-support.jpg"
+                alt="Refugee support services"
+                width={567}
+                height={450}
+                className="h-auto w-full object-cover"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Search */}
-      <section className="bg-white px-4 py-12">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-bold">{t('searchTitle')}</h2>
-          <form onSubmit={handleSearch} className="mt-6 flex gap-2">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('searchPlaceholder')}
-              className="flex-1 rounded-md border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-            <Button type="submit">Search</Button>
+      <section className="mx-auto max-w-7xl px-6">
+        <div className="rounded-3xl bg-gradient-to-r from-[#155dfc] to-[#4f39f6] px-8 py-10 shadow-2xl md:px-12 md:py-12">
+          <h2 className="text-center text-2xl font-bold text-white md:text-3xl">{t('searchTitle')}</h2>
+          <form onSubmit={handleSearch} className="mx-auto mt-7 grid max-w-4xl gap-4 md:grid-cols-[1fr_1.2fr_auto]">
+            <label className="flex items-center gap-3 rounded-2xl bg-white/95 px-5 py-4 shadow-lg">
+              <MapPinIcon />
+              <select
+                value={regionId}
+                onChange={(event) => setRegionId(event.target.value)}
+                className="w-full bg-transparent font-medium text-[#364153] outline-none"
+              >
+                <option value="">{t('allRegions')}</option>
+                {regions?.map((region) => (
+                  <option key={region.id} value={region.id}>{region.name}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex items-center gap-3 rounded-2xl bg-white/95 px-5 py-4 shadow-lg">
+              <SearchIcon />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={t('searchPlaceholder')}
+                className="w-full bg-transparent text-[#364153] outline-none placeholder:text-[#6a7282]"
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="rounded-2xl bg-white px-6 py-4 text-sm font-semibold text-[#155dfc] shadow-lg transition-colors hover:bg-[#eef2ff]"
+            >
+              {t('findServices')}
+            </button>
           </form>
         </div>
       </section>
 
-      {/* Topics */}
-      {topics && topics.length > 0 && (
-        <section className="bg-gray-50 px-4 py-12">
-          <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-2xl font-bold">{t('browseTopics')}</h2>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {topics.map((topic) => (
+      {topics && topics.length > 0 ? (
+        <section className="mx-auto max-w-7xl px-6 py-20">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold text-[#101828]">{t('browseTopics')}</h2>
+            <p className="mt-4 text-lg text-[#4a5565]">{t('browseTopicsSubtitle')}</p>
+          </div>
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {topics.slice(0, 8).map((topic, index) => {
+              const color = topicColors[index % topicColors.length];
+              const IconComponent = color.icon;
+
+              return (
                 <Link
                   key={topic.id}
                   href={`/services?topicId=${topic.id}`}
-                  className="rounded-lg border bg-white p-4 text-center transition-shadow hover:shadow-md"
+                  className="group rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
                 >
-                  <div className="font-medium">{topic.name}</div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Latest Services */}
-      {latestServices && latestServices.data.length > 0 && (
-        <section className="px-4 py-12">
-          <div className="mx-auto max-w-6xl">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold">{t('latestServices')}</h2>
-              <p className="mt-2 text-gray-600">{t('latestServicesSubtitle')}</p>
-            </div>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {latestServices.data.map((service: Service) => (
-                <Link key={service.id} href={`/services/${service.id}`} className="rounded-lg border bg-white p-5 transition-shadow hover:shadow-md">
-                  <h3 className="font-semibold">{service.title}</h3>
-                  <p className="mt-1 text-sm text-gray-500">{service.organisation.name}</p>
-                  <p className="mt-2 text-sm text-gray-600 line-clamp-2">{service.shortDescription}</p>
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {service.topics.map((st) => (
-                      <Badge key={st.topic.id} variant="neutral">{st.topic.name}</Badge>
-                    ))}
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-[14px] bg-gradient-to-br ${color.gradient} shadow-lg`}>
+                    <IconComponent />
+                  </div>
+                  <h3 className="mt-6 text-lg font-semibold text-[#101828]">{topic.name}</h3>
+                  <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#155dfc]">
+                    {t('learnMore')}
+                    <ArrowRightIcon className="h-4 w-4" />
                   </div>
                 </Link>
-              ))}
-            </div>
-            <div className="mt-8 text-center">
-              <Link href="/services">
-                <Button variant="secondary">{t('viewAllServices')}</Button>
-              </Link>
-            </div>
+              );
+            })}
           </div>
         </section>
-      )}
+      ) : null}
 
-      {/* CTA */}
-      <section className="bg-orange-50 px-4 py-16">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-bold">{t('ctaTitle')}</h2>
-          <p className="mt-3 text-gray-600">{t('ctaSubtitle')}</p>
-          <div className="mt-6">
-            <Link href="/report-a-need">
-              <Button>{t('reportNeed')}</Button>
+      {latestServices && latestServices.data.length > 0 ? (
+        <section className="mx-auto max-w-7xl px-6 pb-20">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold text-[#101828]">{t('latestServices')}</h2>
+            <p className="mt-4 text-lg text-[#4a5565]">{t('latestServicesSubtitle')}</p>
+          </div>
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {latestServices.data.map((service: Service) => (
+              <article key={service.id} className="flex flex-col rounded-2xl border border-[#e5e7eb] bg-white p-7 shadow-lg">
+                <div className="flex items-center gap-2 text-sm text-[#4a5565]">
+                  <MapPinIcon />
+                  <span>{service.region?.name || t('anywhereInArmenia')}</span>
+                </div>
+                <h3 className="mt-4 text-xl font-semibold text-[#101828]">{service.title}</h3>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-[#4a5565] line-clamp-4">
+                  {service.shortDescription?.replace(/<[^>]*>/g, '')}
+                </p>
+                <Link
+                  href={`/services/${service.id}`}
+                  className="mt-5 inline-flex items-center justify-center rounded-[14px] border border-[#d1d5db] bg-[#f9fafb] px-5 py-2.5 text-sm font-semibold text-[#364153] transition-colors hover:bg-[#eef2ff]"
+                >
+                  {t('seeDetails')}
+                </Link>
+              </article>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link
+              href="/services"
+              className="inline-flex items-center rounded-[14px] bg-[#dbeafe] px-8 py-3 text-base font-semibold text-[#1447e6] transition-colors hover:bg-[#bfdbfe]"
+            >
+              {t('viewAllServices')}
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
+
+      <NeedCtaBanner
+        title={t('ctaTitle')}
+        subtitle={t('ctaSubtitle')}
+        buttonLabel={t('reportNeed')}
+      />
     </div>
+  );
+}
+
+function SearchIcon({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="#6a7282" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="11" cy="11" r="8" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#6a7282" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+function ScaleIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1zM2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1zM7 21h10M12 3v18M12 3a2.4 2.4 0 00-2 1 2.4 2.4 0 01-2 1h8a2.4 2.4 0 01-2-1 2.4 2.4 0 00-2-1z" />
+    </svg>
+  );
+}
+
+function HeartIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+    </svg>
+  );
+}
+
+function LanguageIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6" />
+    </svg>
+  );
+}
+
+function BriefcaseIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+      <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+    </svg>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+
+function UsersIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+    </svg>
+  );
+}
+
+function GlobeIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+    </svg>
   );
 }

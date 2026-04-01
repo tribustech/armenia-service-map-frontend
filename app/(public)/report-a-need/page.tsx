@@ -1,18 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { useSubmitNeed } from '@/lib/api/needs';
 import { usePublicRegions } from '@/lib/api/services';
-import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 
 export default function ReportANeedPage() {
+  const t = useTranslations('reportNeedPage');
+  const tHome = useTranslations('home');
+
   const router = useRouter();
   const submit = useSubmitNeed();
   const { data: regions } = usePublicRegions();
-  const [submitted, setSubmitted] = useState(false);
 
+  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     fullName: '',
     contactMethod: '',
@@ -21,16 +25,27 @@ export default function ReportANeedPage() {
     regionId: '',
   });
 
-  const updateField = (field: string, value: string) => setForm((p) => ({ ...p, [field]: value }));
+  const isValid = useMemo(() => {
+    const hasBaseFields = Boolean(form.description.trim() && form.fullName.trim());
+    const hasContact = form.contactMethod ? Boolean(form.contactValue.trim()) : true;
+    return hasBaseFields && hasContact;
+  }, [form]);
 
-  const isValid = form.description.trim() && form.fullName.trim();
+  function updateField(field: keyof typeof form, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!isValid) {
+      return;
+    }
+
     await submit.mutateAsync({
       ...form,
       regionId: form.regionId || undefined,
     });
+
     setSubmitted(true);
   }
 
@@ -39,20 +54,25 @@ export default function ReportANeedPage() {
       <div className="bg-[#f9fafb]">
         <div className="mx-auto max-w-7xl px-8 py-24 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#eff6ff]">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M20 6L9 17l-5-5" />
             </svg>
           </div>
-          <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-black">Thank you</h1>
-          <p className="mt-4 text-xl text-[#374151]">Your need has been submitted. We will review it and connect you with available support services.</p>
+          <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-[#101828]">{t('successTitle')}</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-xl text-[#374151]">{t('successText')}</p>
           <button
             onClick={() => router.push('/')}
             className="mt-8 rounded-md bg-[#1e40af] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1e3a8a]"
           >
-            Return home
+            {t('returnHome')}
           </button>
         </div>
-        <NeedCtaBanner />
+
+        <NeedCtaBanner
+          title={tHome('ctaTitle')}
+          subtitle={tHome('ctaSubtitle')}
+          buttonLabel={tHome('reportNeed')}
+        />
       </div>
     );
   }
@@ -60,106 +80,101 @@ export default function ReportANeedPage() {
   return (
     <div className="bg-[#f9fafb]">
       <div className="mx-auto max-w-7xl px-8 py-16">
-        {/* Page header */}
-        <div className="mb-16">
-          <h1 className="text-4xl font-extrabold tracking-tight text-black">Report a need</h1>
-          <p className="mt-4 text-xl text-[#374151]">
-            Tell us what your needs are and you will be contacted and provided with the available resources.
-          </p>
+        <div className="mb-14">
+          <h1 className="text-4xl font-extrabold tracking-tight text-[#101828]">{t('title')}</h1>
+          <p className="mt-4 max-w-3xl text-xl text-[#374151]">{t('subtitle')}</p>
         </div>
 
-        {/* Two-column layout */}
         <div className="flex gap-6">
-          {/* Left: Form */}
           <div className="flex flex-1 flex-col gap-9">
-            {/* Info well */}
             <div className="rounded-lg bg-[#eff6ff] p-4">
-              <p className="text-base text-[#374151]">
-                If you have already submitted a need report and have not been contacted, call +374 00 000 000 or email help@example.com.
-              </p>
+              <p className="text-base text-[#374151]">{t('infoBox')}</p>
             </div>
 
-            {/* Form intro */}
             <div className="max-w-lg">
-              <h2 className="text-2xl text-black">Tell us what you need</h2>
-              <p className="mt-3 text-lg text-[#6b7280]">
-                Let us know your needs, and we will reach out to connect you with the most appropriate services available.
-              </p>
+              <h2 className="text-2xl text-[#101828]">{t('formTitle')}</h2>
+              <p className="mt-3 text-lg text-[#6b7280]">{t('formSubtitle')}</p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-9">
-              {/* Textarea */}
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-[#374151]">How can we help you?</label>
+            <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-7">
+              <Field label={t('needDescription')} required>
                 <textarea
                   value={form.description}
-                  onChange={(e) => updateField('description', e.target.value)}
+                  onChange={(event) => updateField('description', event.target.value)}
                   rows={8}
                   required
                   className="w-full max-w-lg resize-y rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                 />
-              </div>
+              </Field>
 
-              {/* Full name */}
-              <div className="flex max-w-lg flex-col gap-1">
-                <label className="text-sm font-medium text-[#374151]">Full name *</label>
+              <Field label={t('fullName')} required>
                 <input
                   type="text"
                   value={form.fullName}
-                  onChange={(e) => updateField('fullName', e.target.value)}
+                  onChange={(event) => updateField('fullName', event.target.value)}
                   required
-                  className="rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
+                  className="max-w-lg rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                 />
-              </div>
+              </Field>
 
-              {/* Contact method */}
-              <div className="flex max-w-lg flex-col gap-1">
-                <label className="text-sm font-medium text-[#374151]">How would you like to be contacted?</label>
+              <Field label={t('contactMethod')}>
                 <select
                   value={form.contactMethod}
-                  onChange={(e) => updateField('contactMethod', e.target.value)}
-                  className="rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
+                  onChange={(event) => {
+                    updateField('contactMethod', event.target.value);
+                    if (!event.target.value) updateField('contactValue', '');
+                  }}
+                  className="max-w-lg rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                 >
-                  <option value="">Select...</option>
-                  <option value="email">Email</option>
-                  <option value="phone">Phone</option>
-                  <option value="whatsapp">WhatsApp</option>
+                  <option value="">{t('selectOption')}</option>
+                  <option value="email">{t('contactEmail')}</option>
+                  <option value="phone">{t('contactPhone')}</option>
+                  <option value="whatsapp">{t('contactWhatsapp')}</option>
                 </select>
-              </div>
+              </Field>
 
-              {/* Location */}
-              <div className="flex max-w-lg flex-col gap-1">
-                <label className="text-sm font-medium text-[#374151]">Location</label>
+              {form.contactMethod ? (
+                <Field label={t('contactValue')} required>
+                  <input
+                    type={form.contactMethod === 'email' ? 'email' : 'text'}
+                    value={form.contactValue}
+                    onChange={(event) => updateField('contactValue', event.target.value)}
+                    required
+                    className="max-w-lg rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
+                  />
+                </Field>
+              ) : null}
+
+              <Field label={t('location')}>
                 <select
                   value={form.regionId}
-                  onChange={(e) => updateField('regionId', e.target.value)}
-                  className="rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
+                  onChange={(event) => updateField('regionId', event.target.value)}
+                  className="max-w-lg rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                 >
-                  <option value="">Select...</option>
-                  {regions?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                  <option value="">{t('selectOption')}</option>
+                  {regions?.map((region) => (
+                    <option key={region.id} value={region.id}>{region.name}</option>
+                  ))}
                 </select>
-              </div>
+              </Field>
 
-              {/* Submit */}
               <div>
                 <button
                   type="submit"
                   disabled={!isValid || submit.isPending}
                   className="rounded-md bg-[#1e40af] px-4 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:bg-[#1e3a8a] disabled:opacity-50"
                 >
-                  {submit.isPending ? 'Sending...' : 'Send need report'}
+                  {submit.isPending ? t('sending') : t('submit')}
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Right: Banner image */}
           <div className="hidden w-[560px] shrink-0 lg:block">
             <div className="relative h-full min-h-[780px] overflow-hidden rounded-lg">
               <Image
                 src="/report-need-banner.jpg"
-                alt="People helping each other"
+                alt={t('imageAlt')}
                 fill
                 className="object-cover"
               />
@@ -167,7 +182,31 @@ export default function ReportANeedPage() {
           </div>
         </div>
       </div>
-      <NeedCtaBanner />
+
+      <NeedCtaBanner
+        title={tHome('ctaTitle')}
+        subtitle={tHome('ctaSubtitle')}
+        buttonLabel={tHome('reportNeed')}
+      />
     </div>
+  );
+}
+
+function Field({
+  label,
+  required = false,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="flex max-w-lg flex-col gap-1">
+      <span className="text-sm font-medium text-[#374151]">
+        {label}{required ? ' *' : ''}
+      </span>
+      {children}
+    </label>
   );
 }
