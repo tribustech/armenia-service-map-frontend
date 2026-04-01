@@ -34,8 +34,22 @@ export default function PublicServiceDetailPage() {
     );
   }
 
+  const serviceJsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: service.title,
+    description: service.shortDescription?.replace(/<[^>]*>/g, ''),
+    provider: {
+      '@type': 'Organization',
+      name: service.organisation.name,
+    },
+    areaServed: service.region?.name || t('allRegions'),
+    url: `https://refugeesupport.am/services/${service.id}`,
+  });
+
   return (
     <div className="min-h-screen bg-[#f9fafb]">
+      <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: serviceJsonLd }} />
       <div className="mx-auto max-w-5xl px-6 py-8">
         <div className="mb-6 flex items-center gap-2 text-sm text-[#6a7282]">
           <Link href="/" className="hover:text-[#155dfc]">{tNav('home')}</Link>

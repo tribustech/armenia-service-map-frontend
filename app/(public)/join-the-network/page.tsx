@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { usePublicRegions } from '@/lib/api/services';
+import { isValidEmail, isValidPhone } from '@/lib/validation';
 
 interface FormState {
   organisationName: string;
@@ -31,6 +32,7 @@ export default function JoinTheNetworkPage() {
 
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
+  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
   const hasRequiredFields = useMemo(() => {
     return (
@@ -43,13 +45,43 @@ export default function JoinTheNetworkPage() {
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function validate() {
+    const nextErrors: Partial<Record<keyof FormState, string>> = {};
+
+    if (!form.organisationName.trim()) nextErrors.organisationName = t('errors.organisationNameRequired');
+    if (!form.contactName.trim()) nextErrors.contactName = t('errors.contactNameRequired');
+
+    if (!form.email.trim()) {
+      nextErrors.email = t('errors.emailRequired');
+    } else if (!isValidEmail(form.email)) {
+      nextErrors.email = t('errors.emailInvalid');
+    }
+
+    if (form.phone.trim() && !isValidPhone(form.phone)) {
+      nextErrors.phone = t('errors.phoneInvalid');
+    }
+
+    if (!form.servicesDescription.trim()) {
+      nextErrors.servicesDescription = t('errors.servicesDescriptionRequired');
+    } else if (form.servicesDescription.trim().length < 10) {
+      nextErrors.servicesDescription = t('errors.servicesDescriptionTooShort');
+    }
+
+    return nextErrors;
   }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (!hasRequiredFields) {
+    const validationErrors = validate();
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0 || !hasRequiredFields) {
       return;
     }
+
     setSubmitted(true);
     setForm(initialForm);
   }
@@ -68,7 +100,7 @@ export default function JoinTheNetworkPage() {
             <p className="mt-2 text-sm text-[#6a7282]">{t('formSubtitle')}</p>
 
             {submitted ? (
-              <p className="mt-6 rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-4 text-sm text-[#166534]">
+              <p className="mt-6 rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-4 text-sm text-[#166534]" role="status" aria-live="polite">
                 {t('success')}
               </p>
             ) : null}
@@ -80,14 +112,22 @@ export default function JoinTheNetworkPage() {
                   value={form.organisationName}
                   onChange={(event) => updateField('organisationName', event.target.value)}
                   required
+                  aria-invalid={Boolean(errors.organisationName)}
+                  aria-describedby={errors.organisationName ? 'join-org-name-error' : undefined}
                   className="w-full rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#155dfc] focus:outline-none focus:ring-1 focus:ring-[#155dfc]"
                 />
+                {errors.organisationName ? (
+                  <p id="join-org-name-error" className="mt-1 text-xs text-[#b91c1c]">
+                    {errors.organisationName}
+                  </p>
+                ) : null}
               </Field>
 
               <Field label={t('regionOfActivity')}>
                 <select
                   value={form.regionId}
                   onChange={(event) => updateField('regionId', event.target.value)}
+                  aria-label={t('regionOfActivity')}
                   className="w-full rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#155dfc] focus:outline-none focus:ring-1 focus:ring-[#155dfc]"
                 >
                   <option value="">{t('selectRegion')}</option>
@@ -104,8 +144,15 @@ export default function JoinTheNetworkPage() {
                     value={form.contactName}
                     onChange={(event) => updateField('contactName', event.target.value)}
                     required
+                    aria-invalid={Boolean(errors.contactName)}
+                    aria-describedby={errors.contactName ? 'join-contact-name-error' : undefined}
                     className="w-full rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#155dfc] focus:outline-none focus:ring-1 focus:ring-[#155dfc]"
                   />
+                  {errors.contactName ? (
+                    <p id="join-contact-name-error" className="mt-1 text-xs text-[#b91c1c]">
+                      {errors.contactName}
+                    </p>
+                  ) : null}
                 </Field>
 
                 <Field label={t('email')} required>
@@ -114,8 +161,15 @@ export default function JoinTheNetworkPage() {
                     value={form.email}
                     onChange={(event) => updateField('email', event.target.value)}
                     required
+                    aria-invalid={Boolean(errors.email)}
+                    aria-describedby={errors.email ? 'join-email-error' : undefined}
                     className="w-full rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#155dfc] focus:outline-none focus:ring-1 focus:ring-[#155dfc]"
                   />
+                  {errors.email ? (
+                    <p id="join-email-error" className="mt-1 text-xs text-[#b91c1c]">
+                      {errors.email}
+                    </p>
+                  ) : null}
                 </Field>
               </div>
 
@@ -124,8 +178,15 @@ export default function JoinTheNetworkPage() {
                   type="tel"
                   value={form.phone}
                   onChange={(event) => updateField('phone', event.target.value)}
+                  aria-invalid={Boolean(errors.phone)}
+                  aria-describedby={errors.phone ? 'join-phone-error' : undefined}
                   className="w-full rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#155dfc] focus:outline-none focus:ring-1 focus:ring-[#155dfc]"
                 />
+                {errors.phone ? (
+                  <p id="join-phone-error" className="mt-1 text-xs text-[#b91c1c]">
+                    {errors.phone}
+                  </p>
+                ) : null}
               </Field>
 
               <Field label={t('servicesDescription')} required>
@@ -134,8 +195,15 @@ export default function JoinTheNetworkPage() {
                   onChange={(event) => updateField('servicesDescription', event.target.value)}
                   rows={5}
                   required
+                  aria-invalid={Boolean(errors.servicesDescription)}
+                  aria-describedby={errors.servicesDescription ? 'join-services-description-error' : undefined}
                   className="w-full rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#155dfc] focus:outline-none focus:ring-1 focus:ring-[#155dfc]"
                 />
+                {errors.servicesDescription ? (
+                  <p id="join-services-description-error" className="mt-1 text-xs text-[#b91c1c]">
+                    {errors.servicesDescription}
+                  </p>
+                ) : null}
               </Field>
 
               <button

@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { useSubmitNeed } from '@/lib/api/needs';
 import { usePublicRegions } from '@/lib/api/services';
+import { ApiError } from '@/lib/api/client';
+import { isValidEmail, isValidPhone } from '@/lib/validation';
 
 export default function ReportANeedPage() {
   const t = useTranslations('reportNeedPage');
@@ -24,6 +26,8 @@ export default function ReportANeedPage() {
     description: '',
     regionId: '',
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({});
+  const [submitError, setSubmitError] = useState('');
 
   const isValid = useMemo(() => {
     const hasBaseFields = Boolean(form.description.trim() && form.fullName.trim());
@@ -33,20 +37,65 @@ export default function ReportANeedPage() {
 
   function updateField(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setSubmitError('');
+  }
+
+  function validate() {
+    const nextErrors: Partial<Record<keyof typeof form, string>> = {};
+
+    if (!form.description.trim()) nextErrors.description = t('errors.needDescriptionRequired');
+    if (!form.fullName.trim()) nextErrors.fullName = t('errors.fullNameRequired');
+
+    if (form.contactMethod) {
+      if (!form.contactValue.trim()) {
+        nextErrors.contactValue = t('errors.contactValueRequired');
+      } else if (form.contactMethod === 'email' && !isValidEmail(form.contactValue)) {
+        nextErrors.contactValue = t('errors.contactEmailInvalid');
+      } else if ((form.contactMethod === 'phone' || form.contactMethod === 'whatsapp') && !isValidPhone(form.contactValue)) {
+        nextErrors.contactValue = t('errors.contactPhoneInvalid');
+      }
+    }
+
+    return nextErrors;
+  }
+
+  function mapServerErrorToField(errorMessage: string) {
+    const value = errorMessage.toLowerCase();
+    if (value.includes('description')) return { description: errorMessage };
+    if (value.includes('name')) return { fullName: errorMessage };
+    if (value.includes('contact')) return { contactValue: errorMessage };
+    if (value.includes('region')) return { regionId: errorMessage };
+    return null;
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (!isValid) {
+
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0 || !isValid) {
       return;
     }
 
-    await submit.mutateAsync({
-      ...form,
-      regionId: form.regionId || undefined,
-    });
-
-    setSubmitted(true);
+    try {
+      await submit.mutateAsync({
+        ...form,
+        regionId: form.regionId || undefined,
+      });
+      setSubmitted(true);
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : t('errors.submitFallback');
+      const mappedField = mapServerErrorToField(message);
+      if (mappedField) {
+        setErrors((prev) => ({ ...prev, ...mappedField }));
+      } else {
+        setSubmitError(message);
+      }
+    }
   }
 
   if (submitted) {
@@ -103,8 +152,15 @@ export default function ReportANeedPage() {
                   onChange={(event) => updateField('description', event.target.value)}
                   rows={8}
                   required
+                  aria-invalid={Boolean(errors.description)}
+                  aria-describedby={errors.description ? 'need-description-error' : undefined}
                   className="w-full max-w-lg resize-y rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                 />
+                {errors.description ? (
+                  <p id="need-description-error" className="mt-1 text-xs text-[#b91c1c]">
+                    {errors.description}
+                  </p>
+                ) : null}
               </Field>
 
               <Field label={t('fullName')} required>
@@ -113,8 +169,15 @@ export default function ReportANeedPage() {
                   value={form.fullName}
                   onChange={(event) => updateField('fullName', event.target.value)}
                   required
+                  aria-invalid={Boolean(errors.fullName)}
+                  aria-describedby={errors.fullName ? 'need-full-name-error' : undefined}
                   className="max-w-lg rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                 />
+                {errors.fullName ? (
+                  <p id="need-full-name-error" className="mt-1 text-xs text-[#b91c1c]">
+                    {errors.fullName}
+                  </p>
+                ) : null}
               </Field>
 
               <Field label={t('contactMethod')}>
@@ -140,8 +203,15 @@ export default function ReportANeedPage() {
                     value={form.contactValue}
                     onChange={(event) => updateField('contactValue', event.target.value)}
                     required
+                    aria-invalid={Boolean(errors.contactValue)}
+                    aria-describedby={errors.contactValue ? 'need-contact-value-error' : undefined}
                     className="max-w-lg rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                   />
+                  {errors.contactValue ? (
+                    <p id="need-contact-value-error" className="mt-1 text-xs text-[#b91c1c]">
+                      {errors.contactValue}
+                    </p>
+                  ) : null}
                 </Field>
               ) : null}
 
@@ -149,6 +219,8 @@ export default function ReportANeedPage() {
                 <select
                   value={form.regionId}
                   onChange={(event) => updateField('regionId', event.target.value)}
+                  aria-invalid={Boolean(errors.regionId)}
+                  aria-describedby={errors.regionId ? 'need-region-error' : undefined}
                   className="max-w-lg rounded-md border border-[#d1d5db] bg-white px-3 py-2 text-sm shadow-sm focus:border-[#1e40af] focus:outline-none focus:ring-1 focus:ring-[#1e40af]"
                 >
                   <option value="">{t('selectOption')}</option>
@@ -156,7 +228,18 @@ export default function ReportANeedPage() {
                     <option key={region.id} value={region.id}>{region.name}</option>
                   ))}
                 </select>
+                {errors.regionId ? (
+                  <p id="need-region-error" className="mt-1 text-xs text-[#b91c1c]">
+                    {errors.regionId}
+                  </p>
+                ) : null}
               </Field>
+
+              {submitError ? (
+                <p className="max-w-lg rounded-md border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm text-[#b91c1c]" role="alert">
+                  {submitError}
+                </p>
+              ) : null}
 
               <div>
                 <button

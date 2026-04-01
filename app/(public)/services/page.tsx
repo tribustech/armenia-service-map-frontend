@@ -48,9 +48,22 @@ function ServicesContent() {
 
   const totalServices = data?.meta.total ?? 0;
   const selectedRegionName = regions?.find((region) => region.id === selectedRegionId)?.name;
+  const servicesJsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'RefugeeSupport Services',
+    itemListElement:
+      data?.data.map((service, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `https://refugeesupport.am/services/${service.id}`,
+        name: service.title,
+      })) ?? [],
+  });
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">
+      <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: servicesJsonLd }} />
       <div className="mx-auto max-w-7xl px-6 pb-6 pt-8">
         <div className="mb-5 flex items-center gap-2 text-sm text-[#6a7282]">
           <Link href="/" className="hover:text-[#155dfc]">{tNav('home')}</Link>
@@ -132,6 +145,7 @@ function ServicesContent() {
                   setPage(1);
                 }}
                 className="h-4 w-4 rounded border-[#9ca3af] text-[#155dfc] focus:ring-[#155dfc]"
+                aria-label={t('onlyAvailable')}
               />
               {t('onlyAvailable')}
             </label>
@@ -144,6 +158,7 @@ function ServicesContent() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setView('list')}
+                  aria-label={t('list')}
                   className={`inline-flex items-center gap-2 rounded-[10px] px-4 py-2 text-sm font-medium transition-colors ${
                     view === 'list' ? 'bg-[#155dfc] text-white' : 'bg-[#f3f4f6] text-[#364153]'
                   }`}
@@ -153,6 +168,7 @@ function ServicesContent() {
                 </button>
                 <button
                   onClick={() => setView('map')}
+                  aria-label={t('map')}
                   className={`inline-flex items-center gap-2 rounded-[10px] px-4 py-2 text-sm font-medium transition-colors ${
                     view === 'map' ? 'bg-[#155dfc] text-white' : 'bg-[#f3f4f6] text-[#364153]'
                   }`}

@@ -127,7 +127,16 @@
     "servicesDescription": "Brief description of services",
     "submit": "Submit request",
     "success": "Request received. We will contact you at the email address provided.",
-    "imageAlt": "Join the network"
+    "imageAlt": "Join the network",
+    "errors": {
+      "organisationNameRequired": "Organisation name is required.",
+      "contactNameRequired": "Contact person name is required.",
+      "emailRequired": "Email address is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneInvalid": "Please enter a valid phone number.",
+      "servicesDescriptionRequired": "Service description is required.",
+      "servicesDescriptionTooShort": "Service description should be at least 10 characters."
+    }
   },
   "reportNeedPage": {
     "title": "Report a need",
@@ -149,7 +158,15 @@
     "successTitle": "Thank you",
     "successText": "Your need has been submitted. We will review it and connect you with available support services.",
     "returnHome": "Return home",
-    "imageAlt": "People helping each other"
+    "imageAlt": "People helping each other",
+    "errors": {
+      "needDescriptionRequired": "Please describe your need.",
+      "fullNameRequired": "Full name is required.",
+      "contactValueRequired": "Please provide contact details.",
+      "contactEmailInvalid": "Please enter a valid email address.",
+      "contactPhoneInvalid": "Please enter a valid phone number.",
+      "submitFallback": "Unable to submit your request right now. Please try again."
+    }
   },
   "auth": {
     "email": "Email",

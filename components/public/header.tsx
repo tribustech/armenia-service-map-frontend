@@ -39,9 +39,16 @@ export function PublicHeader() {
         setLangOpen(false);
       }
     }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setLangOpen(false);
+    }
 
     document.addEventListener('mousedown', handlePointerDown);
-    return () => document.removeEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, []);
 
   function isActive(href: string) {
@@ -129,6 +136,8 @@ export function PublicHeader() {
               onClick={() => setLangOpen((open) => !open)}
               className="flex items-center gap-1 rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm font-medium text-[#364153] transition-colors hover:bg-[#f3f4f6]"
               aria-label={tHeader('languageAria')}
+              aria-haspopup="menu"
+              aria-expanded={langOpen}
             >
               {currentLang.label}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${langOpen ? 'rotate-180' : ''} transition-transform`}>
@@ -137,11 +146,12 @@ export function PublicHeader() {
             </button>
 
             {langOpen ? (
-              <div className="absolute right-0 top-full mt-1 min-w-[132px] rounded-lg border border-[#e5e7eb] bg-white py-1 shadow-lg">
+              <div role="menu" className="absolute right-0 top-full mt-1 min-w-[132px] rounded-lg border border-[#e5e7eb] bg-white py-1 shadow-lg">
                 {languages.map((language) => (
                   <button
                     key={language.code}
                     onClick={() => switchLocale(language.code)}
+                    role="menuitem"
                     className={`block w-full px-4 py-2 text-left text-sm transition-colors hover:bg-[#f3f4f6] ${
                       language.code === locale ? 'font-semibold text-[#155dfc]' : 'text-[#364153]'
                     }`}
@@ -157,7 +167,8 @@ export function PublicHeader() {
         <button
           onClick={() => setMobileOpen((open) => !open)}
           className="rounded-lg border border-[#e5e7eb] p-2 text-[#364153] transition-colors hover:bg-[#f3f4f6] md:hidden"
-          aria-label="Toggle menu"
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileOpen}
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {mobileOpen ? (
