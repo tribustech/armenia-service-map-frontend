@@ -11,6 +11,7 @@ import { CheckCircleIcon, XCircleIcon, Cog6ToothIcon } from '@heroicons/react/24
 import { useAdminServices } from '@/lib/api/services';
 import type { Service } from '@/types/api';
 import { Badge } from '@/components/ui/badge';
+import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 export default function AdminServicesPage() {
   const router = useRouter();
@@ -137,7 +138,9 @@ export default function AdminServicesPage() {
         </div>
 
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
+          <div className="p-4">
+            <TableLoadingSkeleton />
+          </div>
         ) : (
           <>
             <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />

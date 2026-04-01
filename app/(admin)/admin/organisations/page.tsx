@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useOrganisations } from '@/lib/api/organisations';
 import type { Organisation } from '@/types/api';
+import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 const accountBadge: Record<Organisation['status'], 'success' | 'warning' | 'danger'> = {
   ACTIVE: 'success',
@@ -83,7 +84,9 @@ export default function OrganisationsPage() {
         </div>
 
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
+          <div className="p-4">
+            <TableLoadingSkeleton />
+          </div>
         ) : (
           <>
             <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />

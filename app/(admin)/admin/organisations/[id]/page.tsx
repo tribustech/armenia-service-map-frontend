@@ -7,6 +7,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { DetailPageLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useOrganisation, useUpdateOrganisation } from '@/lib/api/organisations';
 import { useUsers } from '@/lib/api/users';
 import type { User } from '@/types/api';
@@ -29,7 +30,7 @@ export default function OrganisationDetailPage() {
   const { data: org, isLoading } = useOrganisation(id);
   const updateOrg = useUpdateOrganisation();
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
+  if (isLoading) return <DetailPageLoadingSkeleton />;
   if (!org) return <div className="p-8 text-gray-500">Organisation not found</div>;
 
   return (
@@ -164,7 +165,9 @@ function OrgUsersTab({ organisationId }: { organisationId: string }) {
         </Button>
       </div>
       {isLoading ? (
-        <div className="p-8 text-center text-gray-500">Loading...</div>
+        <div className="p-4">
+          <TableLoadingSkeleton />
+        </div>
       ) : (
         <DataTable columns={columns} data={data?.data ?? []} />
       )}

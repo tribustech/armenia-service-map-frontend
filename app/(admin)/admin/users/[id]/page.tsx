@@ -5,13 +5,14 @@ import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useUser, useDeleteUser } from '@/lib/api/users';
+import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: user, isLoading } = useUser(id);
   const deleteUser = useDeleteUser();
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
+  if (isLoading) return <DetailPageLoadingSkeleton />;
   if (!user) return <div className="p-8 text-gray-500">User not found</div>;
 
   return (

@@ -103,3 +103,51 @@ export function TableLoadingSkeleton({ rows = 6 }: { rows?: number }) {
     </div>
   );
 }
+
+export function AnalyticsLoadingSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <SkeletonBlock className="h-24 w-full" />
+        <SkeletonBlock className="h-24 w-full" />
+        <SkeletonBlock className="h-24 w-full" />
+      </div>
+      <div className="grid gap-4 xl:grid-cols-3">
+        <SkeletonBlock className="h-72 w-full" />
+        <SkeletonBlock className="h-72 w-full" />
+        <SkeletonBlock className="h-72 w-full" />
+      </div>
+      <TableLoadingSkeleton rows={8} />
+      <div className="grid gap-4 xl:grid-cols-2">
+        <SkeletonBlock className="h-72 w-full" />
+        <SkeletonBlock className="h-72 w-full" />
+      </div>
+      <SkeletonBlock className="h-80 w-full" />
+    </div>
+  );
+}
+
+export function NeedsMapLoadingSkeleton() {
+  return (
+    <div className="mt-6 flex flex-col gap-6 lg:flex-row">
+      <div className="lg:w-2/3">
+        <div className="overflow-hidden rounded-lg border bg-white p-4">
+          <SkeletonBlock className="h-[420px] w-full" />
+        </div>
+        <SkeletonBlock className="mt-3 h-4 w-64" />
+      </div>
+      <div className="lg:w-1/3">
+        <div className="rounded-lg border bg-white p-4">
+          <SkeletonBlock className="h-4 w-36" />
+          <div className="mt-3 space-y-2">
+            <SkeletonBlock className="h-10 w-full" />
+            <SkeletonBlock className="h-10 w-full" />
+            <SkeletonBlock className="h-10 w-full" />
+            <SkeletonBlock className="h-10 w-full" />
+            <SkeletonBlock className="h-10 w-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

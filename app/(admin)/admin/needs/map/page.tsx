@@ -8,6 +8,7 @@ import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { NeedsMapLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAdminNeeds, useAdminNeedsMap } from '@/lib/api/needs';
 import type { NeedReport } from '@/types/api';
 
@@ -124,7 +125,7 @@ export default function AdminNeedsMapPage() {
       ) : null}
 
       {mapLoading ? (
-        <div className="mt-8 text-gray-500">Loading map...</div>
+        <NeedsMapLoadingSkeleton />
       ) : (
         <div className="mt-6 flex flex-col gap-6 lg:flex-row">
           <div className="lg:w-2/3">
@@ -192,7 +193,9 @@ export default function AdminNeedsMapPage() {
         </div>
 
         {needsQuery.isLoading ? (
-          <div className="p-8 text-center text-gray-500">Loading need reports...</div>
+          <div className="p-4">
+            <TableLoadingSkeleton />
+          </div>
         ) : (
           <>
             <DataTable columns={columns} data={needsQuery.data?.data ?? []} />

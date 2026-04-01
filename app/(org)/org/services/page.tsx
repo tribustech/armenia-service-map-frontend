@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircleIcon, Cog6ToothIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { useOrgServices } from '@/lib/api/services';
 import type { Service } from '@/types/api';
+import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 export default function OrgServicesPage() {
   const router = useRouter();
@@ -120,7 +121,9 @@ export default function OrgServicesPage() {
           <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
         </div>
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
+          <div className="p-4">
+            <TableLoadingSkeleton />
+          </div>
         ) : (
           <>
             <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />

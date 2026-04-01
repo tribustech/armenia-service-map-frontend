@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useCreateUser } from '@/lib/api/users';
 import { getErrorMessage, isValidEmail, mapErrorMessageToField } from '@/lib/validation';
 
@@ -153,7 +154,7 @@ function NewUserForm() {
 
 export default function NewUserPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-gray-500">Loading...</div>}>
+    <Suspense fallback={<DetailPageLoadingSkeleton />}>
       <NewUserForm />
     </Suspense>
   );

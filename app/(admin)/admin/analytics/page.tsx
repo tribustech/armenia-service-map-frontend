@@ -22,6 +22,7 @@ import {
   useTopQueries,
   useZeroResultQueries,
 } from '@/lib/api/analytics';
+import { AnalyticsLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Tooltip, Legend);
 
@@ -115,7 +116,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {loading ? (
-        <div className="rounded-2xl border border-[#f0ece6] bg-white p-8 text-sm text-[#8f7a62]">Loading analytics…</div>
+        <AnalyticsLoadingSkeleton />
       ) : (
         <>
           <section className="grid gap-4 md:grid-cols-3">

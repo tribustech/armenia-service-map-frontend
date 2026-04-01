@@ -7,6 +7,7 @@ import { Pagination } from '@/components/admin/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import {
   useTopics,
   useCreateTopic,
@@ -166,7 +167,9 @@ function TopicsSection() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-gray-500">Loading...</div>
+        <div className="p-4">
+          <TableLoadingSkeleton />
+        </div>
       ) : (
         <>
           <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />
@@ -288,7 +291,9 @@ function NeedTagsSection() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-gray-500">Loading...</div>
+        <div className="p-4">
+          <TableLoadingSkeleton />
+        </div>
       ) : (
         <>
           <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />
@@ -427,7 +432,9 @@ function TargetGroupsSection() {
       </div>
 
       {isLoading ? (
-        <div className="p-8 text-center text-gray-500">Loading...</div>
+        <div className="p-4">
+          <TableLoadingSkeleton />
+        </div>
       ) : (
         <>
           <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />

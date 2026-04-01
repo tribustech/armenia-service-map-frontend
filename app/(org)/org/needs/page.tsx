@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useOrgNeeds } from '@/lib/api/needs';
 import type { NeedReport } from '@/types/api';
+import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
   NEW: 'neutral',
@@ -100,7 +101,9 @@ export default function OrgNeedsPage() {
         </div>
 
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
+          <div className="p-4">
+            <TableLoadingSkeleton />
+          </div>
         ) : (
           <>
             <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />

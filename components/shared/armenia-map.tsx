@@ -122,6 +122,7 @@ export function ArmeniaMap({
 }: ArmeniaMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
+  const [focusedRegion, setFocusedRegion] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
   // Compute zoom transform: scale + translate to center the selected region
@@ -156,29 +157,41 @@ export function ArmeniaMap({
     setTooltipPos(null);
   }, []);
 
-  const activeTooltipRegion = hoveredRegion || selectedRegionId;
+  const activeTooltipRegion = hoveredRegion || focusedRegion || selectedRegionId;
   const tooltipData = activeTooltipRegion ? REGIONS.find((r) => r.id === activeTooltipRegion) : null;
   const tooltipCount = activeTooltipRegion ? regionCounts[activeTooltipRegion] || 0 : 0;
 
+  const getTooltipStyleFromCenter = useCallback(
+    (regionId: string | null) => {
+      if (!regionId) return null;
+      const center = REGION_CENTERS[regionId];
+      if (!center) return null;
+      const leftPercent = ((center.cx * zoomTransform.scale + zoomTransform.tx) / 1000) * 100;
+      const topPercent = ((center.cy * zoomTransform.scale + zoomTransform.ty) / 1000) * 100;
+      return {
+        left: `${leftPercent}%`,
+        top: `calc(${topPercent}% - 12px)`,
+      };
+    },
+    [zoomTransform.scale, zoomTransform.tx, zoomTransform.ty],
+  );
+
   // For selected region tooltip (not hovered), compute position in SVG percentage space
-  const selectedTooltipStyle = selectedRegionId && !hoveredRegion ? (() => {
-    const center = REGION_CENTERS[selectedRegionId];
-    if (!center) return null;
-    const leftPercent = ((center.cx * zoomTransform.scale + zoomTransform.tx) / 1000) * 100;
-    const topPercent = ((center.cy * zoomTransform.scale + zoomTransform.ty) / 1000) * 100;
-    return {
-      left: `${leftPercent}%`,
-      top: `calc(${topPercent}% - 12px)`,
-    };
-  })() : null;
+  const selectedTooltipStyle =
+    selectedRegionId && !hoveredRegion && !focusedRegion
+      ? getTooltipStyleFromCenter(selectedRegionId)
+      : null;
+  const focusedTooltipStyle = focusedRegion ? getTooltipStyleFromCenter(focusedRegion) : null;
 
   const hoveredTooltipStyle = tooltipPos ? { left: tooltipPos.x, top: tooltipPos.y } : null;
-  const finalTooltipStyle = hoveredTooltipStyle ?? selectedTooltipStyle;
+  const finalTooltipStyle = hoveredTooltipStyle ?? focusedTooltipStyle ?? selectedTooltipStyle;
 
   return (
     <div className="relative select-none overflow-hidden">
       {selectedRegionId && (
         <button
+          type="button"
+          aria-label="Reset map zoom"
           onClick={() => onRegionClick?.(selectedRegionId)}
           className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-medium text-[#364153] shadow-md backdrop-blur-sm transition-colors hover:bg-white"
         >
@@ -207,21 +220,39 @@ export function ArmeniaMap({
             const count = regionCounts[region.id] || 0;
             const isSelected = selectedRegionId === region.id;
             const hasCount = count > 0;
+            const countLabel = count === 1 ? countLabelSingular : countLabelPlural;
+            const ariaLabel = `${region.name}: ${count} ${countLabel}`;
 
             return (
               <g
                 key={region.id}
-                onClick={() => onRegionClick?.(region.id)}
-                onMouseMove={(e) => handleMouseMove(e, region.id)}
-                onMouseLeave={handleMouseLeave}
                 className="cursor-pointer"
               >
                 <path
                   d={region.d}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={ariaLabel}
+                  aria-pressed={isSelected}
+                  onClick={() => onRegionClick?.(region.id)}
+                  onMouseMove={(e) => handleMouseMove(e, region.id)}
+                  onMouseLeave={handleMouseLeave}
+                  onFocus={() => {
+                    setFocusedRegion(region.id);
+                    setHoveredRegion(null);
+                    setTooltipPos(null);
+                  }}
+                  onBlur={() => setFocusedRegion(null)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onRegionClick?.(region.id);
+                    }
+                  }}
                   fill={getRegionFillColor(count, isSelected, hasCount, densityMode)}
                   stroke="#ffffff"
                   strokeWidth={1.5}
-                  className="transition-colors hover:fill-[#93c5fd]"
+                  className="transition-colors hover:fill-[#93c5fd] focus:fill-[#93c5fd] focus:outline-none"
                 />
               </g>
             );
