@@ -176,6 +176,17 @@ export interface SearchFrequencyPoint {
   count: number;
 }
 
+export interface DashboardTrendPoint {
+  month: string;
+  count: number;
+}
+
+export interface DashboardTrendsResponse {
+  months: string[];
+  needReports: DashboardTrendPoint[];
+  services: DashboardTrendPoint[];
+}
+
 export interface SearchLogItem {
   id: string;
   query: string;

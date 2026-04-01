@@ -12,6 +12,7 @@ import type {
   FilterHeatmapResponse,
   PaginatedResponse,
   PaginationParams,
+  DashboardTrendsResponse,
 } from '@/types/api';
 
 function withQuery(path: string, params: Record<string, string | number | undefined>) {
@@ -35,6 +36,14 @@ export function useTopQueries(limit = 10) {
   return useQuery({
     queryKey: ['admin', 'analytics', 'top-queries', limit],
     queryFn: () => apiClient<QueryCount[]>(withQuery('/admin/analytics/top-queries', { limit })),
+  });
+}
+
+export function useDashboardTrends(months = 12) {
+  return useQuery({
+    queryKey: ['admin', 'analytics', 'dashboard-trends', months],
+    queryFn: () =>
+      apiClient<DashboardTrendsResponse>(withQuery('/admin/analytics/dashboard-trends', { months })),
   });
 }
 
