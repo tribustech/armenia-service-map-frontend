@@ -11,6 +11,12 @@ import { Badge } from '@/components/ui/badge';
 import { useOrganisations } from '@/lib/api/organisations';
 import type { Organisation } from '@/types/api';
 
+const accountBadge: Record<Organisation['status'], 'success' | 'warning' | 'danger'> = {
+  ACTIVE: 'success',
+  PENDING: 'warning',
+  SUSPENDED: 'danger',
+};
+
 export default function OrganisationsPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
@@ -26,11 +32,11 @@ export default function OrganisationsPage() {
   const columns: ColumnDef<Organisation, unknown>[] = [
     { accessorKey: 'name', header: 'Name', enableSorting: true },
     {
-      accessorKey: 'isActive',
+      accessorKey: 'status',
       header: 'Account',
       cell: ({ getValue }) => (
-        <Badge variant={getValue() ? 'success' : 'danger'}>
-          {getValue() ? 'Active' : 'Inactive'}
+        <Badge variant={accountBadge[getValue() as Organisation['status']]}>
+          {String(getValue()).toLowerCase().replace('_', ' ')}
         </Badge>
       ),
       enableSorting: true,

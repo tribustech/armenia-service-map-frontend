@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AdminSidebar } from '@/components/admin/sidebar';
+import { AdminTopbar } from '@/components/admin/topbar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -22,9 +23,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!isAuthenticated) return null;
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-[#fdf7ee]">
       <AdminSidebar />
-      <main className="flex-1 overflow-y-auto bg-gray-50 p-8">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <AdminTopbar />
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
+      </div>
     </div>
   );
 }

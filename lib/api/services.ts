@@ -18,18 +18,34 @@ function buildQuery(params: object) {
   return q ? `?${q}` : '';
 }
 
+function normalizeService(service: Service): Service {
+  const targetGroupFromRelation =
+    service.targetGroups?.map((entry) => entry.targetGroup?.name).filter(Boolean) ?? [];
+  return {
+    ...service,
+    targetGroup: service.targetGroup?.length ? service.targetGroup : targetGroupFromRelation,
+  };
+}
+
+function normalizeServicePage(response: PaginatedResponse<Service>): PaginatedResponse<Service> {
+  return {
+    ...response,
+    data: response.data.map(normalizeService),
+  };
+}
+
 // Admin
 export function useAdminServices(params: ServiceFilters = {}) {
   return useQuery({
     queryKey: ['admin', 'services', params],
-    queryFn: () => apiClient<PaginatedResponse<Service>>(`/admin/services${buildQuery(params)}`),
+    queryFn: async () => normalizeServicePage(await apiClient<PaginatedResponse<Service>>(`/admin/services${buildQuery(params)}`)),
   });
 }
 
 export function useAdminService(id: string) {
   return useQuery({
     queryKey: ['admin', 'services', id],
-    queryFn: () => apiClient<Service>(`/admin/services/${id}`),
+    queryFn: async () => normalizeService(await apiClient<Service>(`/admin/services/${id}`)),
     enabled: !!id,
   });
 }
@@ -67,14 +83,14 @@ export function useDeleteService() {
 export function useOrgServices(params: PaginationParams = {}) {
   return useQuery({
     queryKey: ['org', 'services', params],
-    queryFn: () => apiClient<PaginatedResponse<Service>>(`/org/services${buildQuery(params)}`),
+    queryFn: async () => normalizeServicePage(await apiClient<PaginatedResponse<Service>>(`/org/services${buildQuery(params)}`)),
   });
 }
 
 export function useOrgService(id: string) {
   return useQuery({
     queryKey: ['org', 'services', id],
-    queryFn: () => apiClient<Service>(`/org/services/${id}`),
+    queryFn: async () => normalizeService(await apiClient<Service>(`/org/services/${id}`)),
     enabled: !!id,
   });
 }
@@ -104,14 +120,14 @@ export function useUpdateOrgService() {
 export function usePublicServices(params: ServiceFilters = {}) {
   return useQuery({
     queryKey: ['public', 'services', params],
-    queryFn: () => apiClient<PaginatedResponse<Service>>(`/public/services${buildQuery(params)}`),
+    queryFn: async () => normalizeServicePage(await apiClient<PaginatedResponse<Service>>(`/public/services${buildQuery(params)}`)),
   });
 }
 
 export function usePublicService(id: string) {
   return useQuery({
     queryKey: ['public', 'services', id],
-    queryFn: () => apiClient<Service>(`/public/services/${id}`),
+    queryFn: async () => normalizeService(await apiClient<Service>(`/public/services/${id}`)),
     enabled: !!id,
   });
 }
@@ -120,6 +136,13 @@ export function usePublicRegions() {
   return useQuery({
     queryKey: ['public', 'regions'],
     queryFn: () => apiClient<{ id: string; name: string; slug: string; svgPathId: string }[]>('/public/regions'),
+  });
+}
+
+export function usePublicRegionServiceCounts() {
+  return useQuery({
+    queryKey: ['public', 'regions', 'service-counts'],
+    queryFn: () => apiClient<Record<string, number>>('/public/regions/service-counts'),
   });
 }
 

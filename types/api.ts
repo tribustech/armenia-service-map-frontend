@@ -49,11 +49,14 @@ export interface Organisation {
   description: string | null;
   logoUrl: string | null;
   website: string | null;
-  contactEmail: string | null;
-  contactPhone: string | null;
-  address: string | null;
+  legalName?: string | null;
+  country?: string | null;
+  streetAddress?: string | null;
+  location?: string | null;
+  contactPersonEmail?: string | null;
+  contactPersonPhone?: string | null;
   regionId: string | null;
-  isActive: boolean;
+  status: 'ACTIVE' | 'PENDING' | 'SUSPENDED';
   createdAt: string;
   updatedAt: string;
   region: Region | null;
@@ -78,6 +81,9 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  phone: string | null;
+  status: 'ACTIVE' | 'PENDING' | 'SUSPENDED';
+  lastAccessAt: string | null;
   role: string;
   organisationId: string | null;
   avatarUrl: string | null;
@@ -101,7 +107,7 @@ export interface NeedReport {
   contactMethod: string;
   contactValue: string;
   regionId: string | null;
-  status: 'NEW' | 'ASSIGNED' | 'RESOLVED' | 'CLOSED';
+  status: 'NEW' | 'IN_PROGRESS' | 'SOLVED' | 'CLOSED';
   assignedOrganisationId: string | null;
   createdAt: string;
   updatedAt: string;
@@ -124,10 +130,12 @@ export interface Service {
   description: string;
   organisationId: string;
   regionId: string | null;
+  status: 'DRAFT' | 'PUBLISHED';
   isAvailable: boolean;
   availabilityStart: string | null;
   availabilityEnd: string | null;
   targetGroup: string[];
+  targetGroups: { targetGroup: { id: string; name: string; status: string } }[];
   createdAt: string;
   updatedAt: string;
   organisation: { id: string; name: string };
@@ -140,6 +148,8 @@ export interface OverviewStats {
   totalOrganisations: number;
   totalNeedReports: number;
   totalSearches: number;
+  totalZeroResultSearches?: number;
+  totalUniqueSearches?: number;
   newNeeds: number;
   resolvedNeeds: number;
 }
@@ -153,6 +163,73 @@ export interface SearchStats {
 export interface FilterStats {
   regionUsage: { regionId: string; regionName: string; svgPathId: string; count: number }[];
   topicUsage: { topicId: string; topicName: string; count: number }[];
+}
+
+export interface QueryCount {
+  query: string;
+  count: number;
+}
+
+export interface SearchFrequencyPoint {
+  period: 'day' | 'week' | 'month';
+  bucketStart: string;
+  count: number;
+}
+
+export interface SearchLogItem {
+  id: string;
+  query: string;
+  regionId: string | null;
+  topicIds: string[];
+  resultsCount: number;
+  createdAt: string;
+}
+
+export interface FilterUsageEntry {
+  count: number;
+}
+
+export interface RegionFilterUsage extends FilterUsageEntry {
+  regionId: string;
+  regionName: string;
+  svgPathId: string | null;
+}
+
+export interface TopicFilterUsage extends FilterUsageEntry {
+  topicId: string;
+  topicName: string;
+}
+
+export interface FilterUsageResponse {
+  regionUsage: RegionFilterUsage[];
+  topicUsage: TopicFilterUsage[];
+}
+
+export interface FilterHeatmapMatrixEntry {
+  topicId: string;
+  regionId: string;
+  count: number;
+}
+
+export interface FilterHeatmapResponse {
+  regions: { id: string; name: string }[];
+  topics: { id: string; name: string }[];
+  matrix: FilterHeatmapMatrixEntry[];
+}
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  readAt: string | null;
+  createdAt: string;
+  metadata?: Record<string, unknown> | null;
+}
+
+export interface UnreadCountResponse {
+  unreadCount: number;
 }
 
 export interface OrgOverviewStats {

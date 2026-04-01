@@ -12,8 +12,8 @@ import type { NeedReport } from '@/types/api';
 
 const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
   NEW: 'neutral',
-  ASSIGNED: 'warning',
-  RESOLVED: 'success',
+  IN_PROGRESS: 'warning',
+  SOLVED: 'success',
   CLOSED: 'danger',
 };
 
@@ -85,8 +85,8 @@ export default function AdminNeedsPage() {
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="rounded-md border border-gray-300 px-3 py-2 text-sm">
             <option value="">All statuses</option>
             <option value="NEW">New</option>
-            <option value="ASSIGNED">Assigned</option>
-            <option value="RESOLVED">Resolved</option>
+            <option value="IN_PROGRESS">In progress</option>
+            <option value="SOLVED">Solved</option>
             <option value="CLOSED">Closed</option>
           </select>
           <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />

@@ -7,7 +7,7 @@ import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { CheckCircleIcon, XCircleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useAdminServices } from '@/lib/api/services';
 import type { Service } from '@/types/api';
 
@@ -24,40 +24,67 @@ export default function AdminServicesPage() {
   const { data, isLoading } = useAdminServices({ page, perPage, search, sortBy, sortOrder });
 
   const columns: ColumnDef<Service, unknown>[] = [
-    { accessorKey: 'title', header: 'Service', enableSorting: true },
+    { accessorKey: 'title', header: 'Title', enableSorting: true },
     {
       accessorFn: (row) => row.organisation.name,
       id: 'organisation',
       header: 'Organisation',
     },
     {
-      accessorFn: (row) => row.topics.map((t) => t.topic.name).join(', '),
-      id: 'topics',
-      header: 'Topics',
+      accessorFn: (row) => row.region?.name ?? '',
+      id: 'location',
+      header: 'Location',
+      enableSorting: true,
     },
     {
       accessorKey: 'isAvailable',
-      header: 'Status',
+      header: 'Availability',
+      enableSorting: true,
       cell: ({ getValue }) => (
-        <Badge variant={getValue() ? 'success' : 'danger'}>
-          {getValue() ? 'Available' : 'Unavailable'}
-        </Badge>
+        getValue() ? (
+          <CheckCircleIcon className="h-5 w-5 text-green-500" />
+        ) : (
+          <XCircleIcon className="h-5 w-5 text-red-400" />
+        )
       ),
     },
     {
+      accessorFn: (row) => row.targetGroups?.map((item) => item.targetGroup.name).join(', ') ?? '',
+      id: 'targetGroup',
+      header: 'Target group',
+      enableSorting: true,
+    },
+    {
+      id: 'topics',
+      header: 'Topics',
+      enableSorting: true,
+      cell: ({ row }) => {
+        const firstTopic = row.original.topics?.[0]?.topic;
+        if (!firstTopic) return null;
+        return (
+          <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+            {firstTopic.name}
+          </span>
+        );
+      },
+    },
+    {
       accessorKey: 'updatedAt',
-      header: 'Updated',
-      cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
+      header: 'Last Updated',
+      cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       enableSorting: true,
     },
     {
       id: 'actions',
       header: '',
       cell: ({ row }) => (
-        <div className="flex gap-2">
-          <button onClick={() => router.push(`/admin/services/${row.original.id}`)} className="text-sm text-blue-600 hover:underline">View</button>
-          <button onClick={() => router.push(`/admin/services/${row.original.id}/edit`)} className="text-sm text-blue-600 hover:underline">Edit</button>
-        </div>
+        <button
+          onClick={() => router.push(`/admin/services/${row.original.id}`)}
+          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+        >
+          <Cog6ToothIcon className="h-4 w-4" />
+          View
+        </button>
       ),
     },
   ];
@@ -66,7 +93,7 @@ export default function AdminServicesPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Service directory</h1>
-        <Button onClick={() => router.push('/admin/services/new')}>Add service</Button>
+        <Button onClick={() => router.push('/admin/services/new')}>Add new service</Button>
       </div>
 
       <div className="mt-6 rounded-lg border bg-white">

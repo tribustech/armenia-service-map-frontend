@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
@@ -11,6 +12,16 @@ import { useUsers } from '@/lib/api/users';
 import type { User } from '@/types/api';
 
 type Tab = 'details' | 'users';
+const statusLabel: Record<'ACTIVE' | 'PENDING' | 'SUSPENDED', string> = {
+  ACTIVE: 'Active',
+  PENDING: 'Pending',
+  SUSPENDED: 'Suspended',
+};
+const statusVariant: Record<'ACTIVE' | 'PENDING' | 'SUSPENDED', 'success' | 'warning' | 'danger'> = {
+  ACTIVE: 'success',
+  PENDING: 'warning',
+  SUSPENDED: 'danger',
+};
 
 export default function OrganisationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,20 +36,26 @@ export default function OrganisationDetailPage() {
   return (
     <div>
       <div className="mb-2 text-sm text-gray-500">
-        <a href="/admin/organisations" className="hover:underline">Users management</a>
+        <Link href="/admin/organisations" className="hover:underline">Users management</Link>
         {' > '}
         <span>{org.name}</span>
       </div>
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{org.name}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">{org.name}</h1>
+          <Badge variant={statusVariant[org.status]}>{statusLabel[org.status]}</Badge>
+        </div>
         <Button
           variant="danger"
           onClick={() => {
-            updateOrg.mutate({ id: org.id, isActive: !org.isActive });
+            updateOrg.mutate({
+              id: org.id,
+              status: org.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED',
+            });
           }}
         >
-          {org.isActive ? 'Deactivate organisation' : 'Activate organisation'}
+          {org.status === 'SUSPENDED' ? 'Activate organisation' : 'Deactivate organisation'}
         </Button>
       </div>
 
@@ -78,11 +95,11 @@ export default function OrganisationDetailPage() {
               </div>
               <div>
                 <div className="text-sm font-medium text-gray-500">Contact email</div>
-                <div className="mt-1">{org.contactEmail || '—'}</div>
+                <div className="mt-1">{org.contactPersonEmail || '—'}</div>
               </div>
               <div>
                 <div className="text-sm font-medium text-gray-500">Contact phone</div>
-                <div className="mt-1">{org.contactPhone || '—'}</div>
+                <div className="mt-1">{org.contactPersonPhone || '—'}</div>
               </div>
               <div>
                 <div className="text-sm font-medium text-gray-500">Website</div>
@@ -90,7 +107,7 @@ export default function OrganisationDetailPage() {
               </div>
               <div>
                 <div className="text-sm font-medium text-gray-500">Address</div>
-                <div className="mt-1">{org.address || '—'}</div>
+                <div className="mt-1">{org.streetAddress || '—'}</div>
               </div>
               <div className="col-span-2">
                 <div className="text-sm font-medium text-gray-500">Description</div>
