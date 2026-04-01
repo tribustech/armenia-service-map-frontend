@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { OrgSidebar } from '@/components/org/sidebar';
 import { OrgTopbar } from '@/components/org/topbar';
+import { ShellLoadingScreen } from '@/components/shared/loading-skeletons';
 
 export default function OrgLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -17,7 +18,7 @@ export default function OrgLayout({ children }: { children: React.ReactNode }) {
   }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <ShellLoadingScreen tone="org" />;
   }
 
   if (!isAuthenticated) return null;

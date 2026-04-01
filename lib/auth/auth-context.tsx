@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useCallback, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useCallback, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getProfile, login as loginApi, logout as logoutApi, type UserProfile, type LoginRequest } from '../api/auth';
 
@@ -16,11 +16,9 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(!!localStorage.getItem('accessToken'));
-  }, []);
+  const [hasToken, setHasToken] = useState(
+    () => typeof window !== 'undefined' && !!localStorage.getItem('accessToken'),
+  );
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['auth', 'profile'],

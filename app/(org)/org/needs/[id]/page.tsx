@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NeedEventsTimeline } from '@/components/shared/need-events-timeline';
+import { DetailPageLoadingSkeleton, TimelineLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import {
   useOrgNeed,
   useUpdateOrgNeed,
@@ -33,14 +35,11 @@ export default function OrgNeedDetailPage() {
   const updateNeed = useUpdateOrgNeed();
   const addComment = useAddOrgNeedComment();
 
-  const [status, setStatus] = useState<NeedStatus>('IN_PROGRESS');
+  const [draftStatus, setDraftStatus] = useState<NeedStatus | null>(null);
   const [comment, setComment] = useState('');
+  const status = draftStatus ?? need?.status ?? 'IN_PROGRESS';
 
-  useEffect(() => {
-    if (need) setStatus(need.status);
-  }, [need]);
-
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
+  if (isLoading) return <DetailPageLoadingSkeleton />;
   if (!need) return <div className="p-8 text-gray-500">Need report not found</div>;
 
   async function handleSaveStatus() {
@@ -57,7 +56,7 @@ export default function OrgNeedDetailPage() {
   return (
     <div>
       <div className="mb-3 text-sm text-gray-500">
-        <a href="/org/needs" className="hover:underline">Assigned needs</a>{' > '}
+        <Link href="/org/needs" className="hover:underline">Assigned needs</Link>{' > '}
         {need.title || `Need ${need.id.slice(0, 8)}`}
       </div>
 
@@ -97,7 +96,7 @@ export default function OrgNeedDetailPage() {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Activity timeline</h2>
             <div className="mt-3">
               {eventsLoading ? (
-                <div className="text-sm text-gray-500">Loading timeline...</div>
+                <TimelineLoadingSkeleton />
               ) : (
                 <NeedEventsTimeline events={events ?? []} emptyLabel="No activity events yet." />
               )}
@@ -113,7 +112,7 @@ export default function OrgNeedDetailPage() {
                 <label className="mb-1 block font-medium text-gray-700">Status</label>
                 <select
                   value={status}
-                  onChange={(event) => setStatus(event.target.value as NeedStatus)}
+                  onChange={(event) => setDraftStatus(event.target.value as NeedStatus)}
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                 >
                   {statusOptions.map((option) => (

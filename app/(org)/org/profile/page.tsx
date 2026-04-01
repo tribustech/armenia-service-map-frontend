@@ -1,16 +1,41 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DetailPageLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useOrgProfile, useOrgProfileUsers, useUpdateOrgProfile } from '@/lib/api/org-profile';
+import { getErrorMessage, isValidEmail, isValidPhone, mapErrorMessageToField } from '@/lib/validation';
 import type { User } from '@/types/api';
 
 type Tab = 'details' | 'users';
+type ProfileFormState = {
+  name: string;
+  description: string;
+  website: string;
+  location: string;
+  category: string;
+  activityDomain: string;
+  contactPersonName: string;
+  contactPersonEmail: string;
+  contactPersonPhone: string;
+};
+
+const EMPTY_PROFILE_FORM: ProfileFormState = {
+  name: '',
+  description: '',
+  website: '',
+  location: '',
+  category: '',
+  activityDomain: '',
+  contactPersonName: '',
+  contactPersonEmail: '',
+  contactPersonPhone: '',
+};
 
 export default function OrgProfilePage() {
   const { user } = useAuth();
@@ -28,21 +53,12 @@ export default function OrgProfilePage() {
   });
   const updateProfile = useUpdateOrgProfile();
 
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    website: '',
-    location: '',
-    category: '',
-    activityDomain: '',
-    contactPersonName: '',
-    contactPersonEmail: '',
-    contactPersonPhone: '',
-  });
-
-  useEffect(() => {
-    if (!profile) return;
-    setForm({
+  const [draftForm, setDraftForm] = useState<ProfileFormState | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof ProfileFormState, string>>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const getBaseForm = (): ProfileFormState => {
+    if (!profile) return EMPTY_PROFILE_FORM;
+    return {
       name: profile.name ?? '',
       description: profile.description ?? '',
       website: profile.website ?? '',
@@ -52,8 +68,29 @@ export default function OrgProfilePage() {
       contactPersonName: profile.contactPersonName ?? '',
       contactPersonEmail: profile.contactPersonEmail ?? '',
       contactPersonPhone: profile.contactPersonPhone ?? '',
-    });
-  }, [profile]);
+    };
+  };
+  const form = draftForm ?? getBaseForm();
+  const updateField = (field: keyof ProfileFormState, value: string) =>
+    setDraftForm((previous) => ({ ...(previous ?? getBaseForm()), [field]: value }));
+
+  function handleFieldChange(field: keyof ProfileFormState, value: string) {
+    updateField(field, value);
+    setErrors((previous) => ({ ...previous, [field]: undefined }));
+    setSubmitError(null);
+  }
+
+  function validate(values: ProfileFormState) {
+    const nextErrors: Partial<Record<keyof ProfileFormState, string>> = {};
+    if (!values.name.trim()) nextErrors.name = 'Organisation name is required.';
+    if (values.contactPersonEmail.trim() && !isValidEmail(values.contactPersonEmail)) {
+      nextErrors.contactPersonEmail = 'Enter a valid contact email.';
+    }
+    if (values.contactPersonPhone.trim() && !isValidPhone(values.contactPersonPhone)) {
+      nextErrors.contactPersonPhone = 'Enter a valid contact phone number.';
+    }
+    return nextErrors;
+  }
 
   const userColumns: ColumnDef<User, unknown>[] = [
     {
@@ -85,20 +122,39 @@ export default function OrgProfilePage() {
   ];
 
   async function handleSave() {
-    await updateProfile.mutateAsync({
-      name: form.name || undefined,
-      description: form.description || undefined,
-      website: form.website || undefined,
-      location: form.location || undefined,
-      category: form.category || undefined,
-      activityDomain: form.activityDomain || undefined,
-      contactPersonName: form.contactPersonName || undefined,
-      contactPersonEmail: form.contactPersonEmail || undefined,
-      contactPersonPhone: form.contactPersonPhone || undefined,
-    });
+    const validationErrors = validate(form);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return;
+
+    try {
+      await updateProfile.mutateAsync({
+        name: form.name || undefined,
+        description: form.description || undefined,
+        website: form.website || undefined,
+        location: form.location || undefined,
+        category: form.category || undefined,
+        activityDomain: form.activityDomain || undefined,
+        contactPersonName: form.contactPersonName || undefined,
+        contactPersonEmail: form.contactPersonEmail || undefined,
+        contactPersonPhone: form.contactPersonPhone || undefined,
+      });
+    } catch (error) {
+      const message = getErrorMessage(error, 'Unable to update organisation profile. Please try again.');
+      const mappedField = mapErrorMessageToField<keyof ProfileFormState>(message, [
+        { field: 'name', pattern: /name|organisation/i },
+        { field: 'website', pattern: /website|url/i },
+        { field: 'contactPersonEmail', pattern: /email/i },
+        { field: 'contactPersonPhone', pattern: /phone|telephone/i },
+      ]);
+      if (mappedField) {
+        setErrors((previous) => ({ ...previous, [mappedField]: message }));
+      } else {
+        setSubmitError(message);
+      }
+    }
   }
 
-  if (isLoading) return <div className="rounded-lg border bg-white p-6 text-sm text-gray-500">Loading organisation profile...</div>;
+  if (isLoading) return <DetailPageLoadingSkeleton />;
   if (!profile) return <div className="rounded-lg border bg-white p-6 text-sm text-gray-500">Organisation profile not available.</div>;
 
   return (
@@ -127,53 +183,66 @@ export default function OrgProfilePage() {
 
       {activeTab === 'details' ? (
         <section className="mt-6 rounded-lg border bg-white p-6">
+          {submitError ? (
+            <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {submitError}
+            </p>
+          ) : null}
           <div className="grid gap-4 md:grid-cols-2">
             <Input
               label="Organisation name"
               value={form.name}
-              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              onChange={(event) => handleFieldChange('name', event.target.value)}
+              error={errors.name}
               disabled={!canEdit}
             />
             <Input
               label="Website"
               value={form.website}
-              onChange={(event) => setForm((prev) => ({ ...prev, website: event.target.value }))}
+              onChange={(event) => handleFieldChange('website', event.target.value)}
+              error={errors.website}
               disabled={!canEdit}
             />
             <Input
               label="Location"
               value={form.location}
-              onChange={(event) => setForm((prev) => ({ ...prev, location: event.target.value }))}
+              onChange={(event) => handleFieldChange('location', event.target.value)}
+              error={errors.location}
               disabled={!canEdit}
             />
             <Input
               label="Category"
               value={form.category}
-              onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))}
+              onChange={(event) => handleFieldChange('category', event.target.value)}
+              error={errors.category}
               disabled={!canEdit}
             />
             <Input
               label="Activity domain"
               value={form.activityDomain}
-              onChange={(event) => setForm((prev) => ({ ...prev, activityDomain: event.target.value }))}
+              onChange={(event) => handleFieldChange('activityDomain', event.target.value)}
+              error={errors.activityDomain}
               disabled={!canEdit}
             />
             <Input
               label="Contact person name"
               value={form.contactPersonName}
-              onChange={(event) => setForm((prev) => ({ ...prev, contactPersonName: event.target.value }))}
+              onChange={(event) => handleFieldChange('contactPersonName', event.target.value)}
+              error={errors.contactPersonName}
               disabled={!canEdit}
             />
             <Input
               label="Contact person email"
               value={form.contactPersonEmail}
-              onChange={(event) => setForm((prev) => ({ ...prev, contactPersonEmail: event.target.value }))}
+              onChange={(event) => handleFieldChange('contactPersonEmail', event.target.value)}
+              error={errors.contactPersonEmail}
               disabled={!canEdit}
             />
             <Input
               label="Contact person phone"
               value={form.contactPersonPhone}
-              onChange={(event) => setForm((prev) => ({ ...prev, contactPersonPhone: event.target.value }))}
+              onChange={(event) => handleFieldChange('contactPersonPhone', event.target.value)}
+              error={errors.contactPersonPhone}
               disabled={!canEdit}
             />
           </div>
@@ -182,11 +251,12 @@ export default function OrgProfilePage() {
             <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
             <textarea
               value={form.description}
-              onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+              onChange={(event) => handleFieldChange('description', event.target.value)}
               rows={4}
               disabled={!canEdit}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-50"
             />
+            {errors.description ? <p className="mt-1 text-xs text-red-600">{errors.description}</p> : null}
           </div>
 
           <div className="mt-6 flex items-center justify-between">
@@ -210,7 +280,9 @@ export default function OrgProfilePage() {
           </div>
 
           {usersQuery.isLoading ? (
-            <div className="p-8 text-center text-gray-500">Loading users...</div>
+            <div className="p-4">
+              <TableLoadingSkeleton />
+            </div>
           ) : (
             <>
               <DataTable columns={userColumns} data={usersQuery.data?.data ?? []} />

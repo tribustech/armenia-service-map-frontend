@@ -160,20 +160,20 @@ export function ArmeniaMap({
   const tooltipData = activeTooltipRegion ? REGIONS.find((r) => r.id === activeTooltipRegion) : null;
   const tooltipCount = activeTooltipRegion ? regionCounts[activeTooltipRegion] || 0 : 0;
 
-  // For selected region tooltip (not hovered), compute position from center point
-  const selectedTooltipPos = selectedRegionId && !hoveredRegion ? (() => {
-    const svg = svgRef.current;
-    if (!svg) return null;
+  // For selected region tooltip (not hovered), compute position in SVG percentage space
+  const selectedTooltipStyle = selectedRegionId && !hoveredRegion ? (() => {
     const center = REGION_CENTERS[selectedRegionId];
     if (!center) return null;
-    const rect = svg.getBoundingClientRect();
-    // Convert SVG coordinates to screen coordinates (accounting for zoom transform)
-    const screenX = (center.cx * zoomTransform.scale + zoomTransform.tx) / 1000 * rect.width;
-    const screenY = (center.cy * zoomTransform.scale + zoomTransform.ty) / 1000 * rect.height - 12;
-    return { x: screenX, y: screenY };
+    const leftPercent = ((center.cx * zoomTransform.scale + zoomTransform.tx) / 1000) * 100;
+    const topPercent = ((center.cy * zoomTransform.scale + zoomTransform.ty) / 1000) * 100;
+    return {
+      left: `${leftPercent}%`,
+      top: `calc(${topPercent}% - 12px)`,
+    };
   })() : null;
 
-  const finalTooltipPos = tooltipPos || selectedTooltipPos;
+  const hoveredTooltipStyle = tooltipPos ? { left: tooltipPos.x, top: tooltipPos.y } : null;
+  const finalTooltipStyle = hoveredTooltipStyle ?? selectedTooltipStyle;
 
   return (
     <div className="relative select-none overflow-hidden">
@@ -230,10 +230,10 @@ export function ArmeniaMap({
       </svg>
 
       {/* Tooltip */}
-      {tooltipData && finalTooltipPos && (
+      {tooltipData && finalTooltipStyle && (
         <div
           className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg bg-[#1f2937] px-3 py-2 text-sm text-white shadow-lg"
-          style={{ left: finalTooltipPos.x, top: finalTooltipPos.y }}
+          style={finalTooltipStyle}
         >
           <div className="font-semibold">{tooltipData.name}</div>
           <div className="text-xs text-[#9ca3af]">

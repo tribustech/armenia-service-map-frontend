@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,13 +17,13 @@ export default function UserDetailPage() {
   return (
     <div>
       <div className="mb-2 text-sm text-gray-500">
-        <a href="/admin/organisations" className="hover:underline">Users management</a>
+        <Link href="/admin/users" className="hover:underline">Users management</Link>
         {user.organisation && (
           <>
             {' > '}
-            <a href={`/admin/organisations/${user.organisationId}`} className="hover:underline">
+            <Link href={`/admin/organisations/${user.organisationId}`} className="hover:underline">
               {user.organisation.name}
-            </a>
+            </Link>
           </>
         )}
         {' > '}

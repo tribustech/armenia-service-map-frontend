@@ -25,7 +25,6 @@ const statusVariant: Record<'ACTIVE' | 'PENDING' | 'SUSPENDED', 'success' | 'war
 
 export default function OrganisationDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('details');
   const { data: org, isLoading } = useOrganisation(id);
   const updateOrg = useUpdateOrganisation();

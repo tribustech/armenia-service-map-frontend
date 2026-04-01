@@ -1,13 +1,41 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RichTextEditor } from '@/components/shared/rich-text-editor';
+import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAdminService, useUpdateService, usePublicRegions, usePublicTargetGroups, usePublicTopics } from '@/lib/api/services';
+import { getErrorMessage, mapErrorMessageToField, toPlainText } from '@/lib/validation';
+
+type ServiceFormState = {
+  title: string;
+  shortDescription: string;
+  description: string;
+  status: 'DRAFT' | 'PUBLISHED';
+  regionId: string;
+  isAvailable: boolean;
+  targetGroupIds: string[];
+  topicIds: string[];
+  availabilityStart: string;
+  availabilityEnd: string;
+};
+
+const EMPTY_FORM: ServiceFormState = {
+  title: '',
+  shortDescription: '',
+  description: '',
+  status: 'DRAFT',
+  regionId: '',
+  isAvailable: true,
+  targetGroupIds: [],
+  topicIds: [],
+  availabilityStart: '',
+  availabilityEnd: '',
+};
 
 export default function EditServicePage() {
   const { id } = useParams<{ id: string }>();
@@ -30,60 +58,90 @@ export default function EditServicePage() {
     [topics],
   );
 
-  const [form, setForm] = useState({
-    title: '',
-    shortDescription: '',
-    description: '',
-    status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
-    regionId: '',
-    isAvailable: true,
-    targetGroupIds: [] as string[],
-    topicIds: [] as string[],
-    availabilityStart: '',
-    availabilityEnd: '',
-  });
+  const [draftForm, setDraftForm] = useState<ServiceFormState | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof ServiceFormState, string>>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const getBaseForm = (): ServiceFormState => {
+    if (!service) return EMPTY_FORM;
+    return {
+      title: service.title,
+      shortDescription: service.shortDescription,
+      description: service.description,
+      status: service.status,
+      regionId: service.regionId || '',
+      isAvailable: service.isAvailable,
+      targetGroupIds: service.targetGroups.map((entry) => entry.targetGroup.id),
+      topicIds: service.topics.map((entry) => entry.topic.id),
+      availabilityStart: service.availabilityStart?.split('T')[0] ?? '',
+      availabilityEnd: service.availabilityEnd?.split('T')[0] ?? '',
+    };
+  };
+  const form = draftForm ?? getBaseForm();
 
-  useEffect(() => {
-    if (service) {
-      setForm({
-        title: service.title,
-        shortDescription: service.shortDescription,
-        description: service.description,
-        status: service.status,
-        regionId: service.regionId || '',
-        isAvailable: service.isAvailable,
-        targetGroupIds: service.targetGroups.map((entry) => entry.targetGroup.id),
-        topicIds: service.topics.map((t) => t.topic.id),
-        availabilityStart: service.availabilityStart?.split('T')[0] ?? '',
-        availabilityEnd: service.availabilityEnd?.split('T')[0] ?? '',
-      });
+  const updateField = (field: keyof ServiceFormState, value: ServiceFormState[keyof ServiceFormState]) => {
+    setDraftForm((previous) => ({ ...(previous ?? getBaseForm()), [field]: value }));
+    setErrors((previous) => ({ ...previous, [field]: undefined }));
+    setSubmitError(null);
+  };
+
+  function validate(values: ServiceFormState) {
+    const nextErrors: Partial<Record<keyof ServiceFormState, string>> = {};
+    if (!values.title.trim()) nextErrors.title = 'Title is required.';
+    if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = 'Short description is required.';
+    if (!toPlainText(values.description)) nextErrors.description = 'Description is required.';
+    if (
+      values.availabilityStart &&
+      values.availabilityEnd &&
+      values.availabilityEnd < values.availabilityStart
+    ) {
+      nextErrors.availabilityEnd = 'End date cannot be before start date.';
     }
-  }, [service]);
-
-  const updateField = (field: string, value: unknown) => setForm((p) => ({ ...p, [field]: value }));
+    return nextErrors;
+  }
 
   const selectClasses =
     'w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06)] focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 appearance-none';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await update.mutateAsync({
-      id,
-      title: form.title,
-      shortDescription: form.shortDescription,
-      description: form.description,
-      status: form.status,
-      regionId: form.regionId || undefined,
-      isAvailable: form.isAvailable,
-      targetGroupIds: form.targetGroupIds,
-      topicIds: form.topicIds,
-      availabilityStart: form.availabilityStart || undefined,
-      availabilityEnd: form.availabilityEnd || undefined,
-    });
-    router.push(`/admin/services/${id}`);
+    const validationErrors = validate(form);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return;
+
+    try {
+      await update.mutateAsync({
+        id,
+        title: form.title,
+        shortDescription: form.shortDescription,
+        description: form.description,
+        status: form.status,
+        regionId: form.regionId || undefined,
+        isAvailable: form.isAvailable,
+        targetGroupIds: form.targetGroupIds,
+        topicIds: form.topicIds,
+        availabilityStart: form.availabilityStart || undefined,
+        availabilityEnd: form.availabilityEnd || undefined,
+      });
+      router.push(`/admin/services/${id}`);
+    } catch (error) {
+      const message = getErrorMessage(error, 'Unable to update service. Please try again.');
+      const mappedField = mapErrorMessageToField<keyof ServiceFormState>(message, [
+        { field: 'title', pattern: /title/i },
+        { field: 'shortDescription', pattern: /short.?description/i },
+        { field: 'description', pattern: /description/i },
+        { field: 'regionId', pattern: /region|location/i },
+        { field: 'availabilityStart', pattern: /start/i },
+        { field: 'availabilityEnd', pattern: /end/i },
+      ]);
+      if (mappedField) {
+        setErrors((previous) => ({ ...previous, [mappedField]: message }));
+      } else {
+        setSubmitError(message);
+      }
+    }
   }
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
+  if (isLoading) return <DetailPageLoadingSkeleton />;
 
   return (
     <div className="mx-auto max-w-[1220px] pb-12">
@@ -103,6 +161,11 @@ export default function EditServicePage() {
       <h1 className="mt-3 text-3xl font-bold text-gray-900">Edit service</h1>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        {submitError ? (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {submitError}
+          </p>
+        ) : null}
         {/* Form card */}
         <div className="space-y-10 rounded-xl bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06),0px_0px_0px_0px_#ececee]">
           {/* Title + Location */}
@@ -128,6 +191,7 @@ export default function EditServicePage() {
 
           <div className="grid grid-cols-2 gap-6">
             <Input label="Title" value={form.title} onChange={(e) => updateField('title', e.target.value)} required />
+            {errors.title ? <p className="-mt-4 text-xs text-red-600">{errors.title}</p> : null}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900">Location</label>
               <select
@@ -140,6 +204,7 @@ export default function EditServicePage() {
                   <option key={r.id} value={r.id}>{r.name}</option>
                 ))}
               </select>
+              {errors.regionId ? <p className="mt-1 text-xs text-red-600">{errors.regionId}</p> : null}
             </div>
           </div>
 
@@ -202,12 +267,14 @@ export default function EditServicePage() {
               type="date"
               value={form.availabilityStart}
               onChange={(e) => updateField('availabilityStart', e.target.value)}
+              error={errors.availabilityStart}
             />
             <Input
               label="End date"
               type="date"
               value={form.availabilityEnd}
               onChange={(e) => updateField('availabilityEnd', e.target.value)}
+              error={errors.availabilityEnd}
             />
           </div>
 
@@ -218,6 +285,7 @@ export default function EditServicePage() {
               content={form.shortDescription}
               onChange={(html) => updateField('shortDescription', html)}
             />
+            {errors.shortDescription ? <p className="mt-1 text-xs text-red-600">{errors.shortDescription}</p> : null}
           </div>
 
           {/* Description - rich text */}
@@ -227,6 +295,7 @@ export default function EditServicePage() {
               content={form.description}
               onChange={(html) => updateField('description', html)}
             />
+            {errors.description ? <p className="mt-1 text-xs text-red-600">{errors.description}</p> : null}
           </div>
         </div>
 

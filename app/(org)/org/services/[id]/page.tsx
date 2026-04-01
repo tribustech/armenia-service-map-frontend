@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { ActionButton } from '@/components/ui/action-button';
+import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useOrgService, usePublishOrgService, useUnpublishOrgService, useDeleteOrgService } from '@/lib/api/services';
 
 export default function OrgServiceDetailPage() {
@@ -14,7 +15,7 @@ export default function OrgServiceDetailPage() {
   const unpublishService = useUnpublishOrgService();
   const deleteService = useDeleteOrgService();
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
+  if (isLoading) return <DetailPageLoadingSkeleton />;
   if (!service) return <div className="p-8 text-gray-500">Service not found</div>;
 
   return (

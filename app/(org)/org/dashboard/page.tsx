@@ -13,6 +13,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { useOrgOverviewStats, useOrgDashboardTrends } from '@/lib/api/analytics';
 import { useAuth } from '@/lib/auth/auth-context';
+import { DashboardLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -43,7 +44,7 @@ export default function OrgDashboardPage() {
   const { data: trends, isLoading: trendsLoading } = useOrgDashboardTrends(12);
 
   if (statsLoading || trendsLoading) {
-    return <div className="rounded-2xl border border-[#e4efe7] bg-white p-8 text-sm text-[#658371]">Loading dashboard…</div>;
+    return <DashboardLoadingSkeleton tone="org" />;
   }
 
   const labels = trends?.months.map((month) => {
@@ -62,7 +63,7 @@ export default function OrgDashboardPage() {
           {user?.firstName} {user?.lastName}
         </h1>
         <p className="mt-2 text-sm text-[#5f7f6e]">
-          Track your organisation's service activity and assigned need-report progress.
+          Track your organisation&apos;s service activity and assigned need-report progress.
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
           <Link href="/org/services/new" className="rounded-lg border border-[#cfe6d8] bg-white px-3 py-2 text-[#245942] hover:bg-[#f2faf6]">

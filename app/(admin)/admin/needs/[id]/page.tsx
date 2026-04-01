@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { NeedEventsTimeline } from '@/components/shared/need-events-timeline';
+import { DetailPageLoadingSkeleton, TimelineLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import {
   useAdminNeed,
   useUpdateNeed,
@@ -31,6 +33,13 @@ const statusOptions: Array<{ value: NeedStatus; label: string }> = [
   { value: 'CLOSED', label: 'Closed' },
 ];
 
+type NeedDraft = {
+  title: string;
+  status: NeedStatus;
+  assignedOrganisationId: string;
+  selectedTagIds: string[];
+};
+
 export default function AdminNeedDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -44,32 +53,37 @@ export default function AdminNeedDetailPage() {
   const { data: tagsData } = useNeedTags({ perPage: 200, sortBy: 'name', sortOrder: 'asc' });
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [title, setTitle] = useState('');
-  const [status, setStatus] = useState<NeedStatus>('NEW');
-  const [assignedOrganisationId, setAssignedOrganisationId] = useState<string>('');
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [draft, setDraft] = useState<NeedDraft | null>(null);
   const [comment, setComment] = useState('');
+  const initialSelectedTagIds = useMemo(
+    () => need?.tags.map((tag) => tag.needTag.id) ?? [],
+    [need],
+  );
 
-  useEffect(() => {
-    if (!need) return;
-    setTitle(need.title ?? '');
-    setStatus(need.status);
-    setAssignedOrganisationId(need.assignedOrganisationId ?? '');
-    setSelectedTagIds(need.tags.map((tag) => tag.needTag.id));
-  }, [need]);
+  const getInitialDraft = (): NeedDraft => ({
+    title: need?.title ?? '',
+    status: need?.status ?? 'NEW',
+    assignedOrganisationId: need?.assignedOrganisationId ?? '',
+    selectedTagIds: initialSelectedTagIds,
+  });
+
+  const title = draft?.title ?? need?.title ?? '';
+  const status = draft?.status ?? need?.status ?? 'NEW';
+  const assignedOrganisationId = draft?.assignedOrganisationId ?? need?.assignedOrganisationId ?? '';
+  const selectedTagIds = draft?.selectedTagIds ?? initialSelectedTagIds;
 
   const hasSidebarChanges = useMemo(() => {
     if (!need) return false;
-    const currentTags = need.tags.map((tag) => tag.needTag.id).sort();
+    const currentTags = [...initialSelectedTagIds].sort();
     const nextTags = [...selectedTagIds].sort();
     return (
       status !== need.status ||
       assignedOrganisationId !== (need.assignedOrganisationId ?? '') ||
       JSON.stringify(currentTags) !== JSON.stringify(nextTags)
     );
-  }, [need, status, assignedOrganisationId, selectedTagIds]);
+  }, [need, initialSelectedTagIds, status, assignedOrganisationId, selectedTagIds]);
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
+  if (isLoading) return <DetailPageLoadingSkeleton />;
   if (!need) return <div className="p-8 text-gray-500">Need report not found</div>;
 
   async function handleSaveTitle() {
@@ -94,15 +108,19 @@ export default function AdminNeedDetailPage() {
   }
 
   function toggleTag(tagId: string) {
-    setSelectedTagIds((prev) =>
-      prev.includes(tagId) ? prev.filter((idValue) => idValue !== tagId) : [...prev, tagId],
-    );
+    setDraft((prev) => {
+      const base = prev ?? getInitialDraft();
+      const nextTagIds = base.selectedTagIds.includes(tagId)
+        ? base.selectedTagIds.filter((idValue) => idValue !== tagId)
+        : [...base.selectedTagIds, tagId];
+      return { ...base, selectedTagIds: nextTagIds };
+    });
   }
 
   return (
     <div>
       <div className="mb-3 text-sm text-gray-500">
-        <a href="/admin/needs" className="hover:underline">Need reports</a>{' > '}
+        <Link href="/admin/needs" className="hover:underline">Need reports</Link>{' > '}
         {need.title || `Need ${need.id.slice(0, 8)}`}
       </div>
 
@@ -142,7 +160,9 @@ export default function AdminNeedDetailPage() {
               <Input
                 label="Need title"
                 value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...(prev ?? getInitialDraft()), title: event.target.value }))
+                }
                 placeholder="Add a clear title for this need"
               />
             </div>
@@ -184,7 +204,7 @@ export default function AdminNeedDetailPage() {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Activity timeline</h2>
             <div className="mt-3">
               {eventsLoading ? (
-                <div className="text-sm text-gray-500">Loading timeline...</div>
+                <TimelineLoadingSkeleton />
               ) : (
                 <NeedEventsTimeline events={events ?? []} emptyLabel="No activity events yet." />
               )}
@@ -200,7 +220,12 @@ export default function AdminNeedDetailPage() {
                 <label className="mb-1 block font-medium text-gray-700">Status</label>
                 <select
                   value={status}
-                  onChange={(event) => setStatus(event.target.value as NeedStatus)}
+                  onChange={(event) =>
+                    setDraft((prev) => ({
+                      ...(prev ?? getInitialDraft()),
+                      status: event.target.value as NeedStatus,
+                    }))
+                  }
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                 >
                   {statusOptions.map((option) => (
@@ -213,7 +238,12 @@ export default function AdminNeedDetailPage() {
                 <label className="mb-1 block font-medium text-gray-700">Assignee</label>
                 <select
                   value={assignedOrganisationId}
-                  onChange={(event) => setAssignedOrganisationId(event.target.value)}
+                  onChange={(event) =>
+                    setDraft((prev) => ({
+                      ...(prev ?? getInitialDraft()),
+                      assignedOrganisationId: event.target.value,
+                    }))
+                  }
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                 >
                   <option value="">Unassigned</option>

@@ -14,6 +14,7 @@ import { Line } from 'react-chartjs-2';
 import { BookOpenIcon, CodeBracketSquareIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useOverviewStats, useDashboardTrends } from '@/lib/api/analytics';
 import { useAuth } from '@/lib/auth/auth-context';
+import { DashboardLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -23,7 +24,7 @@ export default function AdminDashboardPage() {
   const { data: trends, isLoading: trendsLoading } = useDashboardTrends(12);
 
   if (statsLoading || trendsLoading) {
-    return <div className="rounded-2xl border border-[#f0ece6] bg-white p-8 text-sm text-[#8f7a62]">Loading dashboard…</div>;
+    return <DashboardLoadingSkeleton tone="admin" />;
   }
 
   const labels = trends?.months.map((month) => {
