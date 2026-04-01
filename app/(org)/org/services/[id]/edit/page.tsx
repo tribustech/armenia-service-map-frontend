@@ -117,14 +117,18 @@ export default function EditOrgServicePage() {
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
+      const normalizedTitleHy = form.titleHy.trim() ? form.titleHy : null;
+      const normalizedShortDescriptionHy = form.shortDescriptionHy.trim() ? form.shortDescriptionHy : null;
+      const normalizedDescriptionHy = toPlainText(form.descriptionHy) ? form.descriptionHy : null;
+
       await update.mutateAsync({
         id,
         title: form.title,
-        titleHy: form.titleHy || undefined,
+        titleHy: normalizedTitleHy,
         shortDescription: form.shortDescription,
-        shortDescriptionHy: form.shortDescriptionHy || undefined,
+        shortDescriptionHy: normalizedShortDescriptionHy,
         description: form.description,
-        descriptionHy: form.descriptionHy || undefined,
+        descriptionHy: normalizedDescriptionHy,
         status: form.status,
         regionId: form.regionId || undefined,
         isAvailable: form.isAvailable,
