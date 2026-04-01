@@ -1,15 +1,18 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { useAdminService, useDeleteService } from '@/lib/api/services';
+import { ActionButton } from '@/components/ui/action-button';
+import { useAdminService, useDeleteService, usePublishService, useUnpublishService } from '@/lib/api/services';
 
 export default function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: service, isLoading } = useAdminService(id);
   const deleteService = useDeleteService();
+  const publishService = usePublishService();
+  const unpublishService = useUnpublishService();
 
   if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
   if (!service) return <div className="p-8 text-gray-500">Service not found</div>;
@@ -17,14 +20,28 @@ export default function ServiceDetailPage() {
   return (
     <div>
       <div className="mb-2 text-sm text-gray-500">
-        <a href="/admin/services" className="hover:underline">Service directory</a>{' > '}{service.title}
+        <Link href="/admin/services" className="hover:underline">Service directory</Link>{' > '}{service.title}
       </div>
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{service.title}</h1>
-        <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => router.push(`/admin/services/${id}/edit`)}>Edit</Button>
-          <Button variant="danger" onClick={() => { if (confirm('Delete this service?')) { deleteService.mutate(id); router.push('/admin/services'); } }}>Delete</Button>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">{service.title}</h1>
+          <Badge variant={service.status === 'PUBLISHED' ? 'success' : 'warning'}>
+            {service.status}
+          </Badge>
+        </div>
+        <div className="flex gap-4">
+          <ActionButton variant="edit" onClick={() => router.push(`/admin/services/${id}/edit`)} />
+          <ActionButton variant="delete" onClick={() => { if (confirm('Delete this service?')) { deleteService.mutate(id); router.push('/admin/services'); } }} />
+          {service.status === 'PUBLISHED' ? (
+            <ActionButton variant="publish" onClick={() => unpublishService.mutate(id)}>
+              Unpublish
+            </ActionButton>
+          ) : (
+            <ActionButton variant="publish" onClick={() => publishService.mutate(id)}>
+              Publish
+            </ActionButton>
+          )}
         </div>
       </div>
 
@@ -58,7 +75,7 @@ export default function ServiceDetailPage() {
 
         <div className="rounded-lg border bg-white p-6">
           <div className="text-sm font-medium text-gray-500 mb-2">Short description</div>
-          <p>{service.shortDescription}</p>
+          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: service.shortDescription }} />
         </div>
 
         <div className="rounded-lg border bg-white p-6">

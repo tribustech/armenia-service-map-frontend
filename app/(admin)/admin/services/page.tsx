@@ -10,18 +10,27 @@ import { Input } from '@/components/ui/input';
 import { CheckCircleIcon, XCircleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useAdminServices } from '@/lib/api/services';
 import type { Service } from '@/types/api';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminServicesPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
+  const [status, setStatus] = useState<'DRAFT' | 'PUBLISHED' | ''>('');
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const sortBy = sorting[0]?.id;
   const sortOrder = sorting[0]?.desc ? 'desc' : 'asc';
 
-  const { data, isLoading } = useAdminServices({ page, perPage, search, sortBy, sortOrder });
+  const { data, isLoading } = useAdminServices({
+    page,
+    perPage,
+    search,
+    sortBy,
+    sortOrder,
+    status: status || undefined,
+  });
 
   const columns: ColumnDef<Service, unknown>[] = [
     { accessorKey: 'title', header: 'Title', enableSorting: true },
@@ -29,6 +38,7 @@ export default function AdminServicesPage() {
       accessorFn: (row) => row.organisation.name,
       id: 'organisation',
       header: 'Organisation',
+      enableSorting: false,
     },
     {
       accessorFn: (row) => row.region?.name ?? '',
@@ -49,15 +59,28 @@ export default function AdminServicesPage() {
       ),
     },
     {
+      accessorKey: 'status',
+      header: 'State',
+      enableSorting: true,
+      cell: ({ getValue }) => {
+        const value = String(getValue());
+        return (
+          <Badge variant={value === 'PUBLISHED' ? 'success' : 'warning'}>
+            {value === 'PUBLISHED' ? 'Published' : 'Draft'}
+          </Badge>
+        );
+      },
+    },
+    {
       accessorFn: (row) => row.targetGroups?.map((item) => item.targetGroup.name).join(', ') ?? '',
       id: 'targetGroup',
       header: 'Target group',
-      enableSorting: true,
+      enableSorting: false,
     },
     {
       id: 'topics',
       header: 'Topics',
-      enableSorting: true,
+      enableSorting: false,
       cell: ({ row }) => {
         const firstTopic = row.original.topics?.[0]?.topic;
         if (!firstTopic) return null;
@@ -97,7 +120,19 @@ export default function AdminServicesPage() {
       </div>
 
       <div className="mt-6 rounded-lg border bg-white">
-        <div className="flex justify-end p-4 pb-0">
+        <div className="flex items-center justify-end gap-2 p-4 pb-0">
+          <select
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value as 'DRAFT' | 'PUBLISHED' | '');
+              setPage(1);
+            }}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          >
+            <option value="">All states</option>
+            <option value="DRAFT">Draft</option>
+            <option value="PUBLISHED">Published</option>
+          </select>
           <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
         </div>
 

@@ -1,14 +1,17 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { useOrgService } from '@/lib/api/services';
+import { ActionButton } from '@/components/ui/action-button';
+import { useOrgService, usePublishOrgService, useUnpublishOrgService } from '@/lib/api/services';
 
 export default function OrgServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: service, isLoading } = useOrgService(id);
+  const publishService = usePublishOrgService();
+  const unpublishService = useUnpublishOrgService();
 
   if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
   if (!service) return <div className="p-8 text-gray-500">Service not found</div>;
@@ -16,12 +19,28 @@ export default function OrgServiceDetailPage() {
   return (
     <div>
       <div className="mb-2 text-sm text-gray-500">
-        <a href="/org/services" className="hover:underline">Services</a>{' > '}{service.title}
+        <Link href="/org/services" className="hover:underline">Services</Link>{' > '}{service.title}
       </div>
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{service.title}</h1>
-        <Button variant="secondary" onClick={() => router.push(`/org/services/${id}/edit`)}>Edit</Button>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">{service.title}</h1>
+          <Badge variant={service.status === 'PUBLISHED' ? 'success' : 'warning'}>
+            {service.status}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-3">
+          <ActionButton variant="edit" onClick={() => router.push(`/org/services/${id}/edit`)} />
+          {service.status === 'PUBLISHED' ? (
+            <ActionButton variant="publish" onClick={() => unpublishService.mutate(id)}>
+              Unpublish
+            </ActionButton>
+          ) : (
+            <ActionButton variant="publish" onClick={() => publishService.mutate(id)}>
+              Publish
+            </ActionButton>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 space-y-4">
@@ -50,7 +69,7 @@ export default function OrgServiceDetailPage() {
 
         <div className="rounded-lg border bg-white p-6">
           <div className="text-sm font-medium text-gray-500 mb-2">Short description</div>
-          <p>{service.shortDescription}</p>
+          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: service.shortDescription }} />
         </div>
 
         <div className="rounded-lg border bg-white p-6">

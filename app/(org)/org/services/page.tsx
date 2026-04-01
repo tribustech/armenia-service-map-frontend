@@ -30,8 +30,16 @@ export default function OrgServicesPage() {
       header: 'Topics',
     },
     {
+      accessorKey: 'status',
+      header: 'Publication',
+      cell: ({ getValue }) => {
+        const value = String(getValue());
+        return <Badge variant={value === 'PUBLISHED' ? 'success' : 'warning'}>{value}</Badge>;
+      },
+    },
+    {
       accessorKey: 'isAvailable',
-      header: 'Status',
+      header: 'Availability',
       cell: ({ getValue }) => <Badge variant={getValue() ? 'success' : 'danger'}>{getValue() ? 'Available' : 'Unavailable'}</Badge>,
     },
     {

@@ -1,12 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
-import type { PaginatedResponse, PaginationParams, Service } from '@/types/api';
+import type { PaginatedResponse, PaginationParams, PublicTopic, Service, TargetGroupOption } from '@/types/api';
 
 interface ServiceFilters extends PaginationParams {
   organisationId?: string;
   regionId?: string;
   topicId?: string;
   isAvailable?: boolean;
+  status?: 'DRAFT' | 'PUBLISHED';
+}
+
+export interface ServiceMutationInput {
+  title: string;
+  shortDescription: string;
+  description: string;
+  organisationId?: string;
+  regionId?: string;
+  isAvailable?: boolean;
+  status?: 'DRAFT' | 'PUBLISHED';
+  availabilityStart?: string;
+  availabilityEnd?: string;
+  topicIds?: string[];
+  targetGroupIds?: string[];
 }
 
 function buildQuery(params: object) {
@@ -53,7 +68,7 @@ export function useAdminService(id: string) {
 export function useCreateService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<Service> & { topicIds?: string[] }) =>
+    mutationFn: (data: ServiceMutationInput) =>
       apiClient<Service>('/admin/services', { method: 'POST', body: data }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'services'] }),
   });
@@ -62,11 +77,33 @@ export function useCreateService() {
 export function useUpdateService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Partial<Service> & { topicIds?: string[] }) =>
+    mutationFn: ({ id, ...data }: { id: string } & Partial<ServiceMutationInput>) =>
       apiClient<Service>(`/admin/services/${id}`, { method: 'PATCH', body: data }),
     onSuccess: (_, v) => {
       qc.invalidateQueries({ queryKey: ['admin', 'services'] });
       qc.invalidateQueries({ queryKey: ['admin', 'services', v.id] });
+    },
+  });
+}
+
+export function usePublishService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient<Service>(`/admin/services/${id}/publish`, { method: 'POST' }),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ['admin', 'services'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'services', id] });
+    },
+  });
+}
+
+export function useUnpublishService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient<Service>(`/admin/services/${id}/unpublish`, { method: 'POST' }),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ['admin', 'services'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'services', id] });
     },
   });
 }
@@ -98,7 +135,7 @@ export function useOrgService(id: string) {
 export function useCreateOrgService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Partial<Service>, 'organisationId'> & { topicIds?: string[] }) =>
+    mutationFn: (data: Omit<ServiceMutationInput, 'organisationId'>) =>
       apiClient<Service>('/org/services', { method: 'POST', body: data }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['org', 'services'] }),
   });
@@ -107,11 +144,33 @@ export function useCreateOrgService() {
 export function useUpdateOrgService() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Partial<Service> & { topicIds?: string[] }) =>
+    mutationFn: ({ id, ...data }: { id: string } & Partial<Omit<ServiceMutationInput, 'organisationId'>>) =>
       apiClient<Service>(`/org/services/${id}`, { method: 'PATCH', body: data }),
     onSuccess: (_, v) => {
       qc.invalidateQueries({ queryKey: ['org', 'services'] });
       qc.invalidateQueries({ queryKey: ['org', 'services', v.id] });
+    },
+  });
+}
+
+export function usePublishOrgService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient<Service>(`/org/services/${id}/publish`, { method: 'POST' }),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ['org', 'services'] });
+      qc.invalidateQueries({ queryKey: ['org', 'services', id] });
+    },
+  });
+}
+
+export function useUnpublishOrgService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient<Service>(`/org/services/${id}/unpublish`, { method: 'POST' }),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ['org', 'services'] });
+      qc.invalidateQueries({ queryKey: ['org', 'services', id] });
     },
   });
 }
@@ -149,6 +208,13 @@ export function usePublicRegionServiceCounts() {
 export function usePublicTopics() {
   return useQuery({
     queryKey: ['public', 'topics'],
-    queryFn: () => apiClient<{ id: string; name: string; slug: string }[]>('/public/topics'),
+    queryFn: () => apiClient<PublicTopic[]>('/public/topics'),
+  });
+}
+
+export function usePublicTargetGroups() {
+  return useQuery({
+    queryKey: ['public', 'target-groups'],
+    queryFn: () => apiClient<TargetGroupOption[]>('/public/target-groups'),
   });
 }

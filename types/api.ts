@@ -27,6 +27,19 @@ export interface Topic {
   _count: { services: number };
 }
 
+export interface PublicTopic {
+  id: string;
+  name: string;
+  slug: string;
+  children?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    status?: string;
+    sortOrder?: number;
+  }>;
+}
+
 export interface NeedTag {
   id: string;
   name: string;
@@ -34,6 +47,12 @@ export interface NeedTag {
   createdAt: string;
   updatedAt: string;
   _count: { needReports: number };
+}
+
+export interface TargetGroupOption {
+  id: string;
+  name: string;
+  status: string;
 }
 
 export interface Region {
