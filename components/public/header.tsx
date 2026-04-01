@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -30,6 +30,7 @@ export function PublicHeader() {
   const [search, setSearch] = useState('');
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const langMenuId = useId();
 
   const currentLang = languages.find((item) => item.code === locale) ?? languages[0];
 
@@ -40,7 +41,10 @@ export function PublicHeader() {
       }
     }
     function handleEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape') setLangOpen(false);
+      if (event.key === 'Escape') {
+        setLangOpen(false);
+        setMobileOpen(false);
+      }
     }
 
     document.addEventListener('mousedown', handlePointerDown);
@@ -101,11 +105,12 @@ export function PublicHeader() {
             <Image src="/logo.svg" alt="RefugeeSupport" width={152} height={40} className="h-10 w-auto" priority />
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Public navigation" className="hidden items-center gap-1 md:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   isActive(item.href)
                     ? 'bg-[#eff6ff] text-[#155dfc]'
@@ -133,11 +138,13 @@ export function PublicHeader() {
 
           <div className="relative" ref={langRef}>
             <button
+              type="button"
               onClick={() => setLangOpen((open) => !open)}
               className="flex items-center gap-1 rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm font-medium text-[#364153] transition-colors hover:bg-[#f3f4f6]"
               aria-label={tHeader('languageAria')}
               aria-haspopup="menu"
               aria-expanded={langOpen}
+              aria-controls={langMenuId}
             >
               {currentLang.label}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${langOpen ? 'rotate-180' : ''} transition-transform`}>
@@ -146,12 +153,19 @@ export function PublicHeader() {
             </button>
 
             {langOpen ? (
-              <div role="menu" className="absolute right-0 top-full mt-1 min-w-[132px] rounded-lg border border-[#e5e7eb] bg-white py-1 shadow-lg">
+              <div
+                id={langMenuId}
+                role="menu"
+                aria-label={tHeader('languageAria')}
+                className="absolute right-0 top-full mt-1 min-w-[132px] rounded-lg border border-[#e5e7eb] bg-white py-1 shadow-lg"
+              >
                 {languages.map((language) => (
                   <button
                     key={language.code}
+                    type="button"
                     onClick={() => switchLocale(language.code)}
-                    role="menuitem"
+                    role="menuitemradio"
+                    aria-checked={language.code === locale}
                     className={`block w-full px-4 py-2 text-left text-sm transition-colors hover:bg-[#f3f4f6] ${
                       language.code === locale ? 'font-semibold text-[#155dfc]' : 'text-[#364153]'
                     }`}
@@ -165,6 +179,7 @@ export function PublicHeader() {
         </div>
 
         <button
+          type="button"
           onClick={() => setMobileOpen((open) => !open)}
           className="rounded-lg border border-[#e5e7eb] p-2 text-[#364153] transition-colors hover:bg-[#f3f4f6] md:hidden"
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
@@ -182,12 +197,13 @@ export function PublicHeader() {
 
       {mobileOpen ? (
         <div className="border-t border-[#e5e7eb] bg-white px-6 py-4 md:hidden">
-          <nav className="space-y-1">
+          <nav aria-label="Mobile navigation" className="space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
+                aria-current={isActive(item.href) ? 'page' : undefined}
                 className={`block rounded-lg px-3 py-2 text-base ${
                   isActive(item.href)
                     ? 'bg-[#eff6ff] font-medium text-[#155dfc]'
@@ -206,15 +222,18 @@ export function PublicHeader() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={tCommon('search')}
+              aria-label={tHeader('searchAria')}
               className="flex-1 bg-transparent text-sm text-[#364153] placeholder:text-[#6a7282] focus:outline-none"
             />
           </form>
 
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex gap-2" role="group" aria-label={tHeader('languageAria')}>
             {languages.map((language) => (
               <button
                 key={language.code}
+                type="button"
                 onClick={() => switchLocale(language.code)}
+                aria-pressed={language.code === locale}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   language.code === locale
                     ? 'bg-[#155dfc] text-white'

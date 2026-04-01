@@ -25,10 +25,11 @@ export default function OrgLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen bg-[#f5fbf7]">
+      <a href="#org-main-content" className="skip-link">Skip to main content</a>
       <OrgSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <OrgTopbar />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
+        <main id="org-main-content" className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

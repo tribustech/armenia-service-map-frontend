@@ -59,8 +59,18 @@ export default function OrganisationDetailPage() {
         </Button>
       </div>
 
-      <div className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1" style={{ width: 'fit-content' }}>
+      <div
+        className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1"
+        style={{ width: 'fit-content' }}
+        role="tablist"
+        aria-label="Organisation detail sections"
+      >
         <button
+          type="button"
+          role="tab"
+          id="admin-org-tab-details"
+          aria-selected={activeTab === 'details'}
+          aria-controls="admin-org-panel-details"
           onClick={() => setActiveTab('details')}
           className={`rounded-md px-4 py-2 text-sm font-medium ${
             activeTab === 'details' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600'
@@ -69,6 +79,11 @@ export default function OrganisationDetailPage() {
           Organisation details
         </button>
         <button
+          type="button"
+          role="tab"
+          id="admin-org-tab-users"
+          aria-selected={activeTab === 'users'}
+          aria-controls="admin-org-panel-users"
           onClick={() => setActiveTab('users')}
           className={`rounded-md px-4 py-2 text-sm font-medium ${
             activeTab === 'users' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600'
@@ -80,7 +95,12 @@ export default function OrganisationDetailPage() {
 
       <div className="mt-6">
         {activeTab === 'details' ? (
-          <div className="rounded-lg border bg-white p-6">
+          <section
+            id="admin-org-panel-details"
+            role="tabpanel"
+            aria-labelledby="admin-org-tab-details"
+            className="rounded-lg border bg-white p-6"
+          >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold">Organisation details</h2>
             </div>
@@ -114,9 +134,15 @@ export default function OrganisationDetailPage() {
                 <div className="mt-1">{org.description || '—'}</div>
               </div>
             </div>
-          </div>
+          </section>
         ) : (
-          <OrgUsersTab organisationId={org.id} />
+          <section
+            id="admin-org-panel-users"
+            role="tabpanel"
+            aria-labelledby="admin-org-tab-users"
+          >
+            <OrgUsersTab organisationId={org.id} />
+          </section>
         )}
       </div>
     </div>

@@ -27,7 +27,7 @@ export function OrgTopbar() {
   return (
     <header className="sticky top-0 z-20 border-b border-[#e4efe7] bg-[#f8fcfa]/95 px-6 py-4 backdrop-blur">
       <div className="flex items-center justify-between gap-4">
-        <nav className="flex min-w-0 items-center gap-2 text-sm text-[#61806f]">
+        <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm text-[#61806f]">
           {breadcrumbs.map((label, index) => (
             <Fragment key={`${label}-${index}`}>
               {index > 0 ? <ChevronRightIcon className="h-4 w-4 text-[#9ab7a8]" /> : null}

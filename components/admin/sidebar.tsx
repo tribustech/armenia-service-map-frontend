@@ -50,15 +50,28 @@ const adminNav: NavSection[] = [
   },
 ];
 
-function SectionHeader({ title, open, onToggle }: { title: string; open: boolean; onToggle: () => void }) {
+function SectionHeader({
+  title,
+  open,
+  onToggle,
+  controlsId,
+}: {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  controlsId: string;
+}) {
   return (
     <button
+      type="button"
       onClick={onToggle}
       className="flex h-10 w-full items-center gap-3 px-3 text-sm font-semibold text-[#8f7357]"
+      aria-expanded={open}
+      aria-controls={controlsId}
     >
       <span className="flex-1 text-left">{title}</span>
       <svg
-        className={`h-3.5 w-3.5 text-[#bc9d7b] transition-transform ${open ? '' : 'rotate-180'}`}
+        className={`h-3.5 w-3.5 text-[#8f7357] transition-transform ${open ? '' : 'rotate-180'}`}
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={2}
@@ -105,21 +118,25 @@ export function AdminSidebar() {
       </div>
 
       <div className="px-5 pt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#b89169]">Navigation</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8f7357]">Navigation</p>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-2">
+      <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-2" aria-label="Admin navigation">
         {adminNav.map((section, i) => (
           <div key={i} className="py-3">
-            {section.title && (
+            {section.title ? (
               <SectionHeader
                 title={section.title}
                 open={isSectionOpen(section.title)}
+                controlsId={`admin-sidebar-section-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                 onToggle={() => toggleSection(section.title!)}
               />
-            )}
-            {(!section.title || isSectionOpen(section.title)) && (
-              <div className="flex flex-col gap-1">
+            ) : null}
+            {(!section.title || isSectionOpen(section.title)) ? (
+              <div
+                className="flex flex-col gap-1"
+                id={section.title ? `admin-sidebar-section-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined}
+              >
                 {section.items.map((item) => {
                   const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                   const Icon = item.icon;
@@ -127,19 +144,20 @@ export function AdminSidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      aria-current={isActive ? 'page' : undefined}
                       className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                         isActive
                           ? 'bg-[#fff3e2] text-[#b65d0d]'
                           : 'text-[#5f5141] hover:bg-[#fff8f0] hover:text-[#3f3428]'
                       }`}
                     >
-                      <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#e47417]' : 'text-[#ad8f70]'}`} />
+                      <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#e47417]' : 'text-[#8f7357]'}`} />
                       {item.label}
                     </Link>
                   );
                 })}
               </div>
-            )}
+            ) : null}
           </div>
         ))}
       </nav>

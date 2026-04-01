@@ -37,22 +37,46 @@ export function DataTable<TData>({
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="border-b border-gray-200">
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="px-4 py-3 text-xs font-medium text-gray-500"
-                  onClick={header.column.getToggleSortingHandler()}
-                  style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
-                >
-                  <div className="flex items-center gap-1">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                    {header.column.getIsSorted() === 'asc' && ' ↑'}
-                    {header.column.getIsSorted() === 'desc' && ' ↓'}
-                  </div>
-                </th>
-              ))}
+              {headerGroup.headers.map((header) => {
+                const isSorted = header.column.getIsSorted();
+                const canSort = header.column.getCanSort();
+                const ariaSort =
+                  isSorted === 'asc'
+                    ? 'ascending'
+                    : isSorted === 'desc'
+                      ? 'descending'
+                      : 'none';
+                const headerLabel =
+                  typeof header.column.columnDef.header === 'string'
+                    ? header.column.columnDef.header
+                    : header.id;
+
+                return (
+                  <th
+                    key={header.id}
+                    scope="col"
+                    aria-sort={ariaSort}
+                    className="px-4 py-3 text-xs font-medium text-gray-500"
+                  >
+                    {header.isPlaceholder ? null : canSort ? (
+                      <button
+                        type="button"
+                        onClick={header.column.getToggleSortingHandler()}
+                        className="inline-flex items-center gap-1 text-left"
+                        aria-label={`Sort by ${headerLabel}`}
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {isSorted === 'asc' && ' ↑'}
+                        {isSorted === 'desc' && ' ↓'}
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                      </div>
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           ))}
         </thead>

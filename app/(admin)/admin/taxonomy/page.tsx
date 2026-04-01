@@ -33,8 +33,18 @@ export default function TaxonomyPage() {
     <div>
       <h1 className="text-2xl font-bold">Nomenclature</h1>
 
-      <div className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1" style={{ width: 'fit-content' }}>
+      <div
+        className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1"
+        style={{ width: 'fit-content' }}
+        role="tablist"
+        aria-label="Taxonomy sections"
+      >
         <button
+          type="button"
+          role="tab"
+          id="taxonomy-tab-topics"
+          aria-selected={activeTab === 'topics'}
+          aria-controls="taxonomy-panel-topics"
           onClick={() => setActiveTab('topics')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'topics' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
@@ -43,6 +53,11 @@ export default function TaxonomyPage() {
           Service topics
         </button>
         <button
+          type="button"
+          role="tab"
+          id="taxonomy-tab-need-tags"
+          aria-selected={activeTab === 'need-tags'}
+          aria-controls="taxonomy-panel-need-tags"
           onClick={() => setActiveTab('need-tags')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'need-tags' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
@@ -51,6 +66,11 @@ export default function TaxonomyPage() {
           Need tags
         </button>
         <button
+          type="button"
+          role="tab"
+          id="taxonomy-tab-target-groups"
+          aria-selected={activeTab === 'target-groups'}
+          aria-controls="taxonomy-panel-target-groups"
           onClick={() => setActiveTab('target-groups')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'target-groups' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
@@ -61,11 +81,30 @@ export default function TaxonomyPage() {
       </div>
 
       <div className="mt-6">
-        {activeTab === 'topics'
-          ? <TopicsSection />
-          : activeTab === 'need-tags'
-            ? <NeedTagsSection />
-            : <TargetGroupsSection />}
+        <section
+          role="tabpanel"
+          id="taxonomy-panel-topics"
+          aria-labelledby="taxonomy-tab-topics"
+          hidden={activeTab !== 'topics'}
+        >
+          {activeTab === 'topics' ? <TopicsSection /> : null}
+        </section>
+        <section
+          role="tabpanel"
+          id="taxonomy-panel-need-tags"
+          aria-labelledby="taxonomy-tab-need-tags"
+          hidden={activeTab !== 'need-tags'}
+        >
+          {activeTab === 'need-tags' ? <NeedTagsSection /> : null}
+        </section>
+        <section
+          role="tabpanel"
+          id="taxonomy-panel-target-groups"
+          aria-labelledby="taxonomy-tab-target-groups"
+          hidden={activeTab !== 'target-groups'}
+        >
+          {activeTab === 'target-groups' ? <TargetGroupsSection /> : null}
+        </section>
       </div>
     </div>
   );

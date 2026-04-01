@@ -91,6 +91,7 @@ function ServicesContent() {
                   setSelectedRegionId(event.target.value);
                   setPage(1);
                 }}
+                aria-label={t('allRegions')}
                 className="flex-1 bg-transparent text-[#364153] outline-none"
               >
                 <option value="">{t('allRegions')}</option>
@@ -110,6 +111,7 @@ function ServicesContent() {
                   setPage(1);
                 }}
                 placeholder={t('searchPlaceholder')}
+                aria-label={t('searchPlaceholder')}
                 className="flex-1 bg-transparent text-[#364153] outline-none placeholder:text-[#6a7282]"
               />
             </label>
@@ -124,6 +126,8 @@ function ServicesContent() {
               {topics?.map((topic) => (
                 <button
                   key={topic.id}
+                  type="button"
+                  aria-pressed={selectedTopicId === topic.id}
                   onClick={() => {
                     setSelectedTopicId((current) => (current === topic.id ? '' : topic.id));
                     setPage(1);
@@ -162,8 +166,10 @@ function ServicesContent() {
 
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => setView('list')}
                   aria-label={t('list')}
+                  aria-pressed={view === 'list'}
                   className={`inline-flex items-center gap-2 rounded-[10px] px-4 py-2 text-sm font-medium transition-colors ${
                     view === 'list' ? 'bg-[#155dfc] text-white' : 'bg-[#f3f4f6] text-[#364153]'
                   }`}
@@ -172,8 +178,10 @@ function ServicesContent() {
                   {t('list')}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setView('map')}
                   aria-label={t('map')}
+                  aria-pressed={view === 'map'}
                   className={`inline-flex items-center gap-2 rounded-[10px] px-4 py-2 text-sm font-medium transition-colors ${
                     view === 'map' ? 'bg-[#155dfc] text-white' : 'bg-[#f3f4f6] text-[#364153]'
                   }`}

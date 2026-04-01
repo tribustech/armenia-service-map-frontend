@@ -56,7 +56,7 @@ export function OrgSidebar() {
         <p className="mt-2 line-clamp-2 text-sm font-semibold text-[#214736]">{organisationName}</p>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-3">
+      <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-3" aria-label="Organisation navigation">
         {orgNav.map((section, idx) => (
           <div key={idx} className="py-2">
             {section.title ? (
@@ -72,6 +72,7 @@ export function OrgSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                       isActive
                         ? 'bg-[#e5f6eb] text-[#1f6a47]'

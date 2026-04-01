@@ -162,8 +162,18 @@ export default function OrgProfilePage() {
       <h1 className="text-2xl font-bold text-gray-900">Organisation profile</h1>
       <p className="mt-1 text-sm text-gray-600">Review your organisation details and team members.</p>
 
-      <div className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1" style={{ width: 'fit-content' }}>
+      <div
+        className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1"
+        style={{ width: 'fit-content' }}
+        role="tablist"
+        aria-label="Organisation profile sections"
+      >
         <button
+          type="button"
+          role="tab"
+          id="org-profile-tab-details"
+          aria-selected={activeTab === 'details'}
+          aria-controls="org-profile-panel-details"
           onClick={() => setActiveTab('details')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'details' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-600 hover:text-gray-800'
@@ -172,6 +182,11 @@ export default function OrgProfilePage() {
           Organisation details
         </button>
         <button
+          type="button"
+          role="tab"
+          id="org-profile-tab-users"
+          aria-selected={activeTab === 'users'}
+          aria-controls="org-profile-panel-users"
           onClick={() => setActiveTab('users')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'users' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-600 hover:text-gray-800'
@@ -182,7 +197,12 @@ export default function OrgProfilePage() {
       </div>
 
       {activeTab === 'details' ? (
-        <section className="mt-6 rounded-lg border bg-white p-6">
+        <section
+          id="org-profile-panel-details"
+          role="tabpanel"
+          aria-labelledby="org-profile-tab-details"
+          className="mt-6 rounded-lg border bg-white p-6"
+        >
           {submitError ? (
             <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {submitError}
@@ -248,8 +268,9 @@ export default function OrgProfilePage() {
           </div>
 
           <div className="mt-4">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
+            <label htmlFor="org-profile-description" className="mb-1 block text-sm font-medium text-gray-700">Description</label>
             <textarea
+              id="org-profile-description"
               value={form.description}
               onChange={(event) => handleFieldChange('description', event.target.value)}
               rows={4}
@@ -273,7 +294,12 @@ export default function OrgProfilePage() {
           </div>
         </section>
       ) : (
-        <section className="mt-6 rounded-lg border bg-white">
+        <section
+          id="org-profile-panel-users"
+          role="tabpanel"
+          aria-labelledby="org-profile-tab-users"
+          className="mt-6 rounded-lg border bg-white"
+        >
           <div className="border-b p-4">
             <h2 className="text-lg font-semibold text-gray-900">Organisation users</h2>
             <p className="text-sm text-gray-500">Managed by super admins. This view is read-only.</p>
