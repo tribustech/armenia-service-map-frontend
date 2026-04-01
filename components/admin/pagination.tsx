@@ -42,6 +42,7 @@ export function Pagination({
           <select
             value={perPage}
             onChange={(e) => onPerPageChange(Number(e.target.value))}
+            aria-label="Rows per page"
             className="rounded border border-gray-300 px-2 py-1 text-sm"
           >
             {[5, 10, 25, 50].map((n) => (
@@ -61,7 +62,10 @@ export function Pagination({
             ) : (
               <button
                 key={p}
+                type="button"
                 onClick={() => onPageChange(p)}
+                aria-label={`Go to page ${p}`}
+                aria-current={p === page ? 'page' : undefined}
                 className={`rounded px-3 py-1 text-sm ${
                   p === page
                     ? 'bg-blue-600 text-white'

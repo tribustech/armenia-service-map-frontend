@@ -49,15 +49,18 @@ const labels: Record<ActionVariant, string> = {
 };
 
 export const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
-  ({ variant, className = '', children, ...props }, ref) => {
+  ({ variant, className = '', children, type = 'button', ...props }, ref) => {
     const Icon = icons[variant];
     return (
       <button
         ref={ref}
+        type={type}
         className={`inline-flex items-center justify-center gap-1.5 rounded-lg border bg-white px-4 py-2 text-sm font-semibold transition-colors duration-150 disabled:opacity-50 ${variantClasses[variant]} ${className}`}
         {...props}
       >
-        <Icon className="h-[18px] w-[18px]" />
+        <span aria-hidden="true">
+          <Icon className="h-[18px] w-[18px]" />
+        </span>
         {children ?? labels[variant]}
       </button>
     );

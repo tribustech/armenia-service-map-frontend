@@ -32,6 +32,8 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       <div className="flex gap-1 border-b border-gray-200 p-2">
         <button
           type="button"
+          aria-label="Toggle bold"
+          title="Bold"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={`rounded px-2 py-1 text-sm ${editor.isActive('bold') ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
         >
@@ -39,6 +41,8 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         </button>
         <button
           type="button"
+          aria-label="Toggle italic"
+          title="Italic"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={`rounded px-2 py-1 text-sm italic ${editor.isActive('italic') ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
         >
@@ -46,6 +50,8 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         </button>
         <button
           type="button"
+          aria-label="Toggle bullet list"
+          title="Bullet list"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={`rounded px-2 py-1 text-sm ${editor.isActive('bulletList') ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
         >
@@ -53,6 +59,8 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         </button>
         <button
           type="button"
+          aria-label="Toggle heading level 3"
+          title="Heading 3"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           className={`rounded px-2 py-1 text-sm ${editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
         >
