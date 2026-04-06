@@ -9,10 +9,7 @@ export default function NewOrgServicePage() {
   const router = useRouter();
   const create = useCreateOrgService();
   async function handleSubmit(payload: Parameters<typeof create.mutateAsync>[0]) {
-    await create.mutateAsync({
-      ...payload,
-      organisationId: undefined,
-    });
+    await create.mutateAsync(payload);
     router.push('/org/services');
   }
 

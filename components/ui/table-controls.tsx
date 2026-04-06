@@ -6,7 +6,7 @@ function joinClasses(...classes: Array<string | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
 
-interface TableSearchInputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface TableSearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
   size?: 'default' | 'compact';
