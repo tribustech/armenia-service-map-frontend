@@ -24,8 +24,8 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login({ email, password });
-      router.push('/admin/dashboard');
+      const profile = await login({ email, password });
+      router.push(profile.role === 'SUPER_ADMIN' ? '/admin/dashboard' : '/org/dashboard');
     } catch {
       setError(t('invalidCredentials'));
     } finally {

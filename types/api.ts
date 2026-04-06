@@ -21,11 +21,41 @@ export interface Topic {
   name: string;
   slug: string;
   icon: string | null;
-  status?: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE';
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
+  parent?: { id: string; name: string } | null;
+  children?: Array<{ id: string; name: string; status: 'ACTIVE' | 'INACTIVE' }>;
   _count: { services: number };
+}
+
+export interface TopicChildDetail {
+  id: string;
+  name: string;
+  slug: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt: string;
+  _count: { services: number };
+}
+
+export interface TopicDetail extends Topic {
+  children: TopicChildDetail[];
+}
+
+export interface TopicFormPayload {
+  name: string;
+  slug?: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  subtopics: Array<{
+    id?: string;
+    name: string;
+    status: 'ACTIVE' | 'INACTIVE';
+    sortOrder: number;
+  }>;
+  removedSubtopicIds?: string[];
 }
 
 export interface PublicTopic {
@@ -45,7 +75,7 @@ export interface NeedTag {
   id: string;
   name: string;
   slug: string;
-  status?: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
   updatedAt: string;
   _count: { needReports: number };
@@ -64,6 +94,12 @@ export interface TargetGroup {
   createdAt: string;
   updatedAt: string;
   _count: { services: number };
+}
+
+export interface TaxonomyEntityFormPayload {
+  name: string;
+  slug?: string;
+  status: 'ACTIVE' | 'INACTIVE';
 }
 
 export interface Region {

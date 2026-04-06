@@ -110,8 +110,8 @@ export default function AdminAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-[#3f3428]">Analytics</h1>
-          <p className="mt-1 text-sm text-[#7b6a56]">Search behavior, filter usage, and quality insights.</p>
+          <h1 className="text-2xl font-semibold text-[#111827]">Analytics</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">Search behavior, filter usage, and quality insights.</p>
         </div>
       </div>
 
@@ -144,11 +144,11 @@ export default function AdminAnalyticsPage() {
             </Panel>
           </section>
 
-          <section className="rounded-2xl border border-[#f0ece6] bg-white">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f7f2eb] px-5 py-4">
+          <section className="admin-panel">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f0f0f0] px-5 py-4">
               <div>
-                <h2 className="text-lg font-semibold text-[#3f3428]">All searches</h2>
-                <p className="text-xs text-[#8f7a62]">Date, term, and result count for operational review.</p>
+                <h2 className="text-lg font-semibold text-[#111827]">All searches</h2>
+                <p className="text-xs text-[#6b7280]">Date, term, and result count for operational review.</p>
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -158,7 +158,7 @@ export default function AdminAnalyticsPage() {
                     setPage(1);
                   }}
                   placeholder="Search query text..."
-                  className="rounded-xl border border-[#e8dfd4] px-3 py-2 text-sm text-[#4f4437] outline-none focus:border-[#df9a53]"
+                  className="rounded-xl border border-[#d1d5db] px-3 py-2 text-sm text-[#374151] outline-none focus:border-[#E8922D]"
                 />
                 <button
                   type="button"
@@ -171,7 +171,7 @@ export default function AdminAnalyticsPage() {
                       })) ?? [];
                     downloadCsv('analytics-searches.csv', rows);
                   }}
-                  className="rounded-xl bg-[#e87c15] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#ca6406]"
+                  className="rounded-xl bg-[#E8922D] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#d4801f]"
                 >
                   Download CSV
                 </button>
@@ -180,7 +180,7 @@ export default function AdminAnalyticsPage() {
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#f7f2eb] bg-[#fffaf4] text-left text-[#8a765f]">
+                  <tr className="border-b border-[#f0f0f0] bg-white text-left text-[#6b7280]">
                     <th className="px-5 py-3 font-medium">Date</th>
                     <th className="px-5 py-3 font-medium">Query</th>
                     <th className="px-5 py-3 font-medium"># Results</th>
@@ -188,7 +188,7 @@ export default function AdminAnalyticsPage() {
                 </thead>
                 <tbody>
                   {allSearches?.data.map((item) => (
-                    <tr key={item.id} className="border-b border-[#faf4ed] text-[#4f4437]">
+                    <tr key={item.id} className="border-b border-[#f0f0f0] text-[#374151]">
                       <td className="px-5 py-3">{new Date(item.createdAt).toLocaleString()}</td>
                       <td className="px-5 py-3">{item.query}</td>
                       <td className="px-5 py-3">{item.resultsCount}</td>
@@ -198,7 +198,7 @@ export default function AdminAnalyticsPage() {
               </table>
             </div>
             {allSearches ? (
-              <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-xs text-[#8f7a62]">
+              <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-xs text-[#6b7280]">
                 <span>
                   Page {allSearches.meta.page} / {allSearches.meta.totalPages} ({allSearches.meta.total} rows)
                 </span>
@@ -207,7 +207,7 @@ export default function AdminAnalyticsPage() {
                     type="button"
                     disabled={allSearches.meta.page <= 1}
                     onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                    className="rounded-lg border border-[#e6dbcf] px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-lg border border-[#d1d5db] px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Prev
                   </button>
@@ -215,7 +215,7 @@ export default function AdminAnalyticsPage() {
                     type="button"
                     disabled={allSearches.meta.page >= allSearches.meta.totalPages}
                     onClick={() => setPage((prev) => prev + 1)}
-                    className="rounded-lg border border-[#e6dbcf] px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-lg border border-[#d1d5db] px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Next
                   </button>
@@ -225,7 +225,7 @@ export default function AdminAnalyticsPage() {
                       setPerPage(Number(event.target.value));
                       setPage(1);
                     }}
-                    className="rounded-lg border border-[#e6dbcf] px-2 py-1 text-xs"
+                    className="rounded-lg border border-[#d1d5db] px-2 py-1 text-xs"
                   >
                     <option value={12}>12</option>
                     <option value={24}>24</option>
@@ -290,16 +290,16 @@ export default function AdminAnalyticsPage() {
             </Panel>
           </section>
 
-          <section className="rounded-2xl border border-[#f0ece6] bg-white p-5">
-            <h2 className="text-lg font-semibold text-[#3f3428]">Filter combinations heatmap</h2>
-            <p className="mt-1 text-xs text-[#8f7a62]">Topics (rows) x Regions (columns).</p>
+          <section className="admin-panel p-5">
+            <h2 className="text-lg font-semibold text-[#111827]">Filter combinations heatmap</h2>
+            <p className="mt-1 text-xs text-[#6b7280]">Topics (rows) x Regions (columns).</p>
             <div className="mt-4 overflow-x-auto">
               <table className="min-w-full border-separate border-spacing-1 text-xs">
                 <thead>
                   <tr>
-                    <th className="px-2 py-1 text-left text-[#7b6a56]">Topic \\ Region</th>
+                    <th className="px-2 py-1 text-left text-[#6b7280]">Topic \\ Region</th>
                     {heatmapData?.regions.map((region) => (
-                      <th key={region.id} className="px-2 py-1 text-left text-[#7b6a56]">
+                      <th key={region.id} className="px-2 py-1 text-left text-[#6b7280]">
                         {region.name}
                       </th>
                     ))}
@@ -308,7 +308,7 @@ export default function AdminAnalyticsPage() {
                 <tbody>
                   {heatmapData?.topics.map((topic) => (
                     <tr key={topic.id}>
-                      <td className="px-2 py-1 font-medium text-[#5f5141]">{topic.name}</td>
+                      <td className="px-2 py-1 font-medium text-[#374151]">{topic.name}</td>
                       {heatmapData.regions.map((region) => {
                         const count = heatmapLookup.get(`${topic.id}:${region.id}`) ?? 0;
                         const intensity = Math.min(count / 10, 1);
@@ -316,7 +316,7 @@ export default function AdminAnalyticsPage() {
                         return (
                           <td
                             key={`${topic.id}:${region.id}`}
-                            className="rounded px-2 py-1 text-center text-[#4f4437]"
+                            className="rounded px-2 py-1 text-center text-[#374151]"
                             style={{ background }}
                           >
                             {count}
@@ -335,16 +335,9 @@ export default function AdminAnalyticsPage() {
   );
 }
 
-function StatCard({ title, value, tone }: { title: string; value: number; tone: 'amber' | 'teal' | 'rose' }) {
-  const toneClass =
-    tone === 'amber'
-      ? 'from-[#fff1dd] to-[#ffe4be] text-[#8a4d11]'
-      : tone === 'teal'
-        ? 'from-[#e8f8f3] to-[#d4f0e8] text-[#1b6d58]'
-        : 'from-[#ffecee] to-[#ffd8de] text-[#932642]';
-
+function StatCard({ title, value }: { title: string; value: number; tone: 'amber' | 'teal' | 'rose' }) {
   return (
-    <div className={`rounded-2xl border border-white/60 bg-gradient-to-br p-5 shadow-sm ${toneClass}`}>
+    <div className="rounded-xl border border-[#e8e8e8] bg-white p-5 text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
       <p className="text-sm font-medium">{title}</p>
       <p className="mt-2 text-3xl font-semibold">{value}</p>
     </div>
@@ -353,9 +346,9 @@ function StatCard({ title, value, tone }: { title: string; value: number; tone: 
 
 function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[#f0ece6] bg-white p-5">
-      <h2 className="text-base font-semibold text-[#3f3428]">{title}</h2>
-      <p className="mt-1 text-xs text-[#8f7a62]">{subtitle}</p>
+    <section className="admin-panel p-5">
+      <h2 className="text-base font-semibold text-[#111827]">{title}</h2>
+      <p className="mt-1 text-xs text-[#6b7280]">{subtitle}</p>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -371,7 +364,7 @@ function QueryList({
   danger?: boolean;
 }) {
   if (!rows.length) {
-    return <p className="text-sm text-[#9f9385]">{empty}</p>;
+    return <p className="text-sm text-[#6b7280]">{empty}</p>;
   }
 
   return (
@@ -380,11 +373,11 @@ function QueryList({
         <div
           key={item.query}
           className={`flex items-center justify-between rounded-xl border px-3 py-2 text-sm ${
-            danger ? 'border-[#f3d8dc] bg-[#fff3f5]' : 'border-[#f2eadf] bg-[#fffcf8]'
+            danger ? 'border-[#f3d0d6] bg-[#fff1f2]' : 'border-[#e8e8e8] bg-white'
           }`}
         >
-          <span className="truncate text-[#4f4437]">{item.query}</span>
-          <span className={`ml-2 font-semibold ${danger ? 'text-[#b5495e]' : 'text-[#8d6840]'}`}>{item.count}</span>
+          <span className="truncate text-[#374151]">{item.query}</span>
+          <span className={`ml-2 font-semibold ${danger ? 'text-[#be123c]' : 'text-[#111827]'}`}>{item.count}</span>
         </div>
       ))}
     </div>

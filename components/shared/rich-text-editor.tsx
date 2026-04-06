@@ -28,14 +28,14 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
   if (!editor) return null;
 
   return (
-    <div className="rounded-md border border-gray-300 focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500">
-      <div className="flex gap-1 border-b border-gray-200 p-2">
+    <div className="admin-panel overflow-hidden focus-within:ring-2 focus-within:ring-[#E8922D]">
+      <div className="admin-toolbar m-3 flex flex-wrap gap-1 p-2">
         <button
           type="button"
           aria-label="Toggle bold"
           title="Bold"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`rounded px-2 py-1 text-sm ${editor.isActive('bold') ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+          className={`rounded-lg px-2.5 py-1.5 text-sm ${editor.isActive('bold') ? 'bg-[#fef3e2] text-[#E8922D]' : 'text-[#6b7280] hover:bg-[#f5f5f4]'}`}
         >
           B
         </button>
@@ -44,7 +44,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           aria-label="Toggle italic"
           title="Italic"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`rounded px-2 py-1 text-sm italic ${editor.isActive('italic') ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+          className={`rounded-lg px-2.5 py-1.5 text-sm italic ${editor.isActive('italic') ? 'bg-[#fef3e2] text-[#E8922D]' : 'text-[#6b7280] hover:bg-[#f5f5f4]'}`}
         >
           I
         </button>
@@ -53,7 +53,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           aria-label="Toggle bullet list"
           title="Bullet list"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`rounded px-2 py-1 text-sm ${editor.isActive('bulletList') ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+          className={`rounded-lg px-2.5 py-1.5 text-sm ${editor.isActive('bulletList') ? 'bg-[#fef3e2] text-[#E8922D]' : 'text-[#6b7280] hover:bg-[#f5f5f4]'}`}
         >
           List
         </button>
@@ -62,12 +62,14 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           aria-label="Toggle heading level 3"
           title="Heading 3"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={`rounded px-2 py-1 text-sm ${editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+          className={`rounded-lg px-2.5 py-1.5 text-sm ${editor.isActive('heading', { level: 3 }) ? 'bg-[#fef3e2] text-[#E8922D]' : 'text-[#6b7280] hover:bg-[#f5f5f4]'}`}
         >
           H3
         </button>
       </div>
-      <EditorContent editor={editor} />
+      <div className="px-3 pb-3">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

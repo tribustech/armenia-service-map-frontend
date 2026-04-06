@@ -1,21 +1,25 @@
-import { type InputHTMLAttributes, forwardRef } from 'react';
+import { type InputHTMLAttributes, forwardRef, useId } from 'react';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className = '', ...props }, ref) => {
+  ({ label, error, className = '', id, ...props }, ref) => {
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
+
     return (
       <div>
         {label && (
-          <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>
+          <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-[#374151]">{label}</label>
         )}
         <input
           ref={ref}
-          className={`w-full rounded-md border px-3 py-2 text-sm transition-colors focus:border-[#155dfc] focus:outline-none focus:ring-1 focus:ring-[#155dfc] ${
-            error ? 'border-red-500' : 'border-gray-300'
+          id={inputId}
+          className={`admin-control w-full px-4 py-3 text-sm text-[#111827] transition focus:outline-none focus:ring-2 ${
+            error ? 'border-[#fca5a5] ring-red-300 focus:ring-[#E8922D]' : 'border-[#d7dde5] focus:ring-[#E8922D]'
           } ${className}`}
           {...props}
         />

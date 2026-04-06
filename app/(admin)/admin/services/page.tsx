@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
+import { AdminPageHeader, AdminPanel, AdminToolbar } from '@/components/admin/admin-surface';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { CheckCircleIcon, XCircleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useAdminServices } from '@/lib/api/services';
 import type { Service } from '@/types/api';
 import { Badge } from '@/components/ui/badge';
+import { TableSearchInput, TableSelect } from '@/components/ui/table-controls';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 export default function AdminServicesPage() {
@@ -86,7 +87,7 @@ export default function AdminServicesPage() {
         const firstTopic = row.original.topics?.[0]?.topic;
         if (!firstTopic) return null;
         return (
-          <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+          <span className="text-sm font-medium text-[#E8922D]">
             {firstTopic.name}
           </span>
         );
@@ -104,7 +105,7 @@ export default function AdminServicesPage() {
       cell: ({ row }) => (
         <button
           onClick={() => router.push(`/admin/services/${row.original.id}`)}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+          className="flex items-center gap-1 text-sm text-[#6b7280] hover:text-[#374151]"
         >
           <Cog6ToothIcon className="h-4 w-4" />
           View
@@ -115,27 +116,30 @@ export default function AdminServicesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Service directory</h1>
+      <AdminPageHeader>
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">Service directory</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">Review publication state, coverage, and availability across partner services.</p>
+        </div>
         <Button onClick={() => router.push('/admin/services/new')}>Add new service</Button>
-      </div>
+      </AdminPageHeader>
 
-      <div className="mt-6 rounded-lg border bg-white">
-        <div className="flex items-center justify-end gap-2 p-4 pb-0">
-          <select
+      <AdminPanel className="mt-6 overflow-hidden">
+        <AdminToolbar>
+          <TableSelect
             value={status}
             onChange={(event) => {
               setStatus(event.target.value as 'DRAFT' | 'PUBLISHED' | '');
               setPage(1);
             }}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="sm:w-[194px]"
           >
             <option value="">All states</option>
             <option value="DRAFT">Draft</option>
             <option value="PUBLISHED">Published</option>
-          </select>
-          <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
-        </div>
+          </TableSelect>
+          <TableSearchInput placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="sm:w-72" />
+        </AdminToolbar>
 
         {isLoading ? (
           <div className="p-4">
@@ -143,13 +147,39 @@ export default function AdminServicesPage() {
           </div>
         ) : (
           <>
-            <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />
+            <DataTable
+              columns={columns}
+              data={data?.data ?? []}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              mobileCard={(row) => ({
+                title: row.title,
+                badges: (
+                  <>
+                    <Badge variant={row.status === 'PUBLISHED' ? 'success' : 'warning'}>
+                      {row.status === 'PUBLISHED' ? 'Published' : 'Draft'}
+                    </Badge>
+                    <Badge variant={row.isAvailable ? 'success' : 'danger'}>
+                      {row.isAvailable ? 'Available' : 'Unavailable'}
+                    </Badge>
+                  </>
+                ),
+                fields: [
+                  { label: 'Organisation', value: row.organisation.name },
+                  { label: 'Location', value: row.region?.name || '—' },
+                  { label: 'Target groups', value: row.targetGroups?.map((item) => item.targetGroup.name).join(', ') || '—' },
+                  { label: 'Topics', value: row.topics?.length ? `${row.topics[0].topic.name}${row.topics.length > 1 ? ` +${row.topics.length - 1}` : ''}` : '—' },
+                  { label: 'Last updated', value: new Date(row.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
+                ],
+                action: <button type="button" onClick={() => router.push(`/admin/services/${row.id}`)} className="admin-link-button">View</button>,
+              })}
+            />
             {data && (
               <Pagination page={data.meta.page} totalPages={data.meta.totalPages} total={data.meta.total} perPage={data.meta.perPage} onPageChange={setPage} onPerPageChange={(pp) => { setPerPage(pp); setPage(1); }} />
             )}
           </>
         )}
-      </div>
+      </AdminPanel>
     </div>
   );
 }

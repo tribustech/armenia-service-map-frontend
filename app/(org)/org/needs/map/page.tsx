@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { NeedsMapLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useOrgNeeds, useOrgNeedsMap } from '@/lib/api/needs';
+import { formatStatusLabel } from '@/lib/formatting/status-label';
 import type { NeedReport } from '@/types/api';
 
 const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
@@ -49,13 +50,13 @@ export default function OrgNeedsMapPage() {
     {
       accessorKey: 'id',
       header: 'ID',
-      cell: ({ getValue }) => <span className="font-mono text-xs text-gray-500">{String(getValue()).slice(0, 8)}</span>,
+      cell: ({ getValue }) => <span className="font-mono text-xs text-[#6b7280]">{String(getValue()).slice(0, 8)}</span>,
     },
     {
       accessorKey: 'title',
       header: 'Title',
       cell: ({ row }) => (
-        <span className="line-clamp-1 font-medium text-gray-900">
+        <span className="line-clamp-1 font-medium text-[#111827]">
           {row.original.title || row.original.description.slice(0, 60)}
         </span>
       ),
@@ -69,14 +70,14 @@ export default function OrgNeedsMapPage() {
       accessorFn: (row) => row.tags.map((tag) => tag.needTag.name).join(', ') || '—',
       id: 'tags',
       header: 'Tags',
-      cell: ({ getValue }) => <span className="line-clamp-1 text-sm text-gray-700">{String(getValue())}</span>,
+      cell: ({ getValue }) => <span className="line-clamp-1 text-sm text-[#374151]">{String(getValue())}</span>,
     },
     {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ getValue }) => {
         const value = String(getValue());
-        return <Badge variant={statusVariant[value] || 'neutral'}>{value}</Badge>;
+        return <Badge variant={statusVariant[value] || 'neutral'}>{formatStatusLabel(value)}</Badge>;
       },
     },
     {
@@ -88,7 +89,7 @@ export default function OrgNeedsMapPage() {
       id: 'open',
       header: '',
       cell: ({ row }) => (
-        <Link href={`/org/needs/${row.original.id}`} className="text-sm text-blue-600 hover:underline">
+        <Link href={`/org/needs/${row.original.id}`} className="text-sm text-[#E8922D] hover:underline">
           Open
         </Link>
       ),
@@ -97,11 +98,11 @@ export default function OrgNeedsMapPage() {
 
   return (
     <div>
-      <div className="mb-2 text-sm text-gray-500">
+      <div className="mb-2 text-sm text-[#6b7280]">
         <Link href="/org/needs" className="hover:underline">Assigned needs</Link>{' > '}Map
       </div>
       <h1 className="text-2xl font-bold">Needs map</h1>
-      <p className="mt-2 text-gray-500">
+      <p className="mt-2 text-[#6b7280]">
         {selectedRegion
           ? `Showing assigned needs in ${selectedRegion.regionName}`
           : 'Showing all assigned need reports by region'}
@@ -117,7 +118,7 @@ export default function OrgNeedsMapPage() {
               setSelectedRegionId('');
               setPage(1);
             }}
-            className="text-xs text-gray-500 underline hover:text-gray-700"
+            className="text-xs text-[#6b7280] underline hover:text-[#374151]"
           >
             Clear filter
           </button>
@@ -143,14 +144,14 @@ export default function OrgNeedsMapPage() {
                 }}
               />
             </div>
-            <div className="mt-3 text-xs text-gray-500">
+            <div className="mt-3 text-xs text-[#6b7280]">
               Color scale: 0-10, 11-50, 51-100, &gt;100 need reports.
             </div>
           </div>
 
           <div className="lg:w-1/3">
             <div className="rounded-lg border bg-white p-4">
-              <h3 className="text-sm font-semibold text-gray-600">REGION COUNTS</h3>
+              <h3 className="text-sm font-semibold text-[#6b7280]">REGION COUNTS</h3>
               <div className="mt-3 space-y-2">
                 {mapData
                   ?.slice()
@@ -180,7 +181,7 @@ export default function OrgNeedsMapPage() {
 
       <div className="mt-8 rounded-lg border bg-white">
         <div className="flex items-center justify-between p-4 pb-0">
-          <h2 className="text-lg font-semibold text-gray-900">Assigned need reports list</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">Assigned need reports list</h2>
           <Input
             placeholder="Search by title or name..."
             value={search}

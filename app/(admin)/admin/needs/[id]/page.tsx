@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { AdminInset, AdminPanel } from '@/components/admin/admin-surface';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ import {
 } from '@/lib/api/needs';
 import { useOrganisations } from '@/lib/api/organisations';
 import { useNeedTags } from '@/lib/api/taxonomy';
+import { formatStatusLabel } from '@/lib/formatting/status-label';
 import type { NeedStatus } from '@/types/api';
 
 const statusVariant: Record<NeedStatus, 'neutral' | 'warning' | 'success' | 'danger'> = {
@@ -84,7 +86,7 @@ export default function AdminNeedDetailPage() {
   }, [need, initialSelectedTagIds, status, assignedOrganisationId, selectedTagIds]);
 
   if (isLoading) return <DetailPageLoadingSkeleton />;
-  if (!need) return <div className="p-8 text-gray-500">Need report not found</div>;
+  if (!need) return <div className="p-8 text-[#6b7280]">Need report not found</div>;
 
   async function handleSaveTitle() {
     await updateNeed.mutateAsync({ id, title: title.trim() });
@@ -119,7 +121,7 @@ export default function AdminNeedDetailPage() {
 
   return (
     <div>
-      <div className="mb-3 text-sm text-gray-500">
+      <div className="mb-3 text-sm text-[#6b7280]">
         <Link href="/admin/needs" className="hover:underline">Need reports</Link>{' > '}
         {need.title || `Need ${need.id.slice(0, 8)}`}
       </div>
@@ -127,12 +129,12 @@ export default function AdminNeedDetailPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-[#111827]">
               {need.title || `Need report ${need.id.slice(0, 8)}`}
             </h1>
-            <Badge variant={statusVariant[need.status]}>{need.status}</Badge>
+            <Badge variant={statusVariant[need.status]}>{formatStatusLabel(need.status)}</Badge>
           </div>
-          <p className="mt-1 text-sm text-gray-500">Created on {new Date(need.createdAt).toLocaleString()}</p>
+          <p className="mt-1 text-sm text-[#6b7280]">Created on {new Date(need.createdAt).toLocaleString()}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => setIsEditingTitle((prev) => !prev)}>
@@ -154,7 +156,7 @@ export default function AdminNeedDetailPage() {
       </div>
 
       {isEditingTitle ? (
-        <div className="mt-4 rounded-lg border bg-white p-4">
+        <AdminPanel className="mt-4 p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-end">
             <div className="flex-1">
               <Input
@@ -170,27 +172,27 @@ export default function AdminNeedDetailPage() {
               Save title
             </Button>
           </div>
-        </div>
+        </AdminPanel>
       ) : null}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.7fr_1fr]">
         <section className="space-y-4">
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Need description</h2>
-            <p className="mt-3 whitespace-pre-wrap text-sm text-gray-700">{need.description}</p>
-            <div className="mt-4 grid gap-3 text-sm text-gray-600 md:grid-cols-2">
-              <div><span className="font-medium text-gray-900">Submitted by:</span> {need.fullName}</div>
-              <div><span className="font-medium text-gray-900">Contact:</span> {need.contactMethod} - {need.contactValue}</div>
+          <AdminPanel className="p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Need description</h2>
+            <p className="mt-3 whitespace-pre-wrap text-sm text-[#374151]">{need.description}</p>
+            <div className="mt-4 grid gap-3 text-sm text-[#6b7280] md:grid-cols-2">
+              <div><span className="font-medium text-[#111827]">Submitted by:</span> {need.fullName}</div>
+              <div><span className="font-medium text-[#111827]">Contact:</span> {need.contactMethod} - {need.contactValue}</div>
             </div>
-          </div>
+          </AdminPanel>
 
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Add comment</h2>
+          <AdminPanel className="p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Add comment</h2>
             <textarea
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               rows={4}
-              className="mt-3 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              className="admin-control mt-3 w-full px-4 py-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#E8922D]"
               placeholder="Write a comment for activity timeline"
             />
             <div className="mt-3 flex justify-end">
@@ -198,10 +200,10 @@ export default function AdminNeedDetailPage() {
                 {addComment.isPending ? 'Submitting...' : 'Submit comment'}
               </Button>
             </div>
-          </div>
+          </AdminPanel>
 
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Activity timeline</h2>
+          <AdminPanel className="p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Activity timeline</h2>
             <div className="mt-3">
               {eventsLoading ? (
                 <TimelineLoadingSkeleton />
@@ -209,15 +211,15 @@ export default function AdminNeedDetailPage() {
                 <NeedEventsTimeline events={events ?? []} emptyLabel="No activity events yet." />
               )}
             </div>
-          </div>
+          </AdminPanel>
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Need details</h2>
+          <AdminPanel className="p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Need details</h2>
             <div className="mt-4 space-y-4 text-sm">
               <div>
-                <label className="mb-1 block font-medium text-gray-700">Status</label>
+                <label className="mb-1 block font-medium text-[#374151]">Status</label>
                 <select
                   value={status}
                   onChange={(event) =>
@@ -226,7 +228,7 @@ export default function AdminNeedDetailPage() {
                       status: event.target.value as NeedStatus,
                     }))
                   }
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="admin-control w-full px-4 py-3 text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#E8922D]"
                 >
                   {statusOptions.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -235,7 +237,7 @@ export default function AdminNeedDetailPage() {
               </div>
 
               <div>
-                <label className="mb-1 block font-medium text-gray-700">Assignee</label>
+                <label className="mb-1 block font-medium text-[#374151]">Assignee</label>
                 <select
                   value={assignedOrganisationId}
                   onChange={(event) =>
@@ -244,7 +246,7 @@ export default function AdminNeedDetailPage() {
                       assignedOrganisationId: event.target.value,
                     }))
                   }
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="admin-control w-full px-4 py-3 text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#E8922D]"
                 >
                   <option value="">Unassigned</option>
                   {orgs?.data.map((org) => (
@@ -254,8 +256,8 @@ export default function AdminNeedDetailPage() {
               </div>
 
               <div>
-                <p className="mb-2 font-medium text-gray-700">Tags</p>
-                <div className="max-h-48 space-y-2 overflow-y-auto rounded-md border border-gray-200 p-2">
+                <p className="mb-2 font-medium text-[#374151]">Tags</p>
+                <AdminInset className="max-h-48 space-y-2 overflow-y-auto p-3">
                   {tagsData?.data.map((tag) => (
                     <label key={tag.id} className="flex cursor-pointer items-center gap-2 text-sm">
                       <input
@@ -267,20 +269,20 @@ export default function AdminNeedDetailPage() {
                       <span>{tag.name}</span>
                     </label>
                   ))}
-                </div>
+                </AdminInset>
               </div>
 
-              <div className="rounded-md bg-gray-50 p-3 text-xs text-gray-600">
+              <AdminInset className="p-3 text-xs text-[#6b7280]">
                 <div>Submitted: {new Date(need.createdAt).toLocaleString()}</div>
                 <div>Last updated: {new Date(need.updatedAt).toLocaleString()}</div>
                 <div>Region: {need.region?.name || 'Not provided'}</div>
-              </div>
+              </AdminInset>
 
               <Button onClick={handleSaveSidebar} disabled={updateNeed.isPending || !hasSidebarChanges} className="w-full">
                 {updateNeed.isPending ? 'Saving...' : 'Save changes'}
               </Button>
             </div>
-          </div>
+          </AdminPanel>
         </aside>
       </div>
     </div>

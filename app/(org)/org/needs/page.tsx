@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { TableSearchInput, TableSelect } from '@/components/ui/table-controls';
 import { useOrgNeeds } from '@/lib/api/needs';
+import { formatStatusLabel } from '@/lib/formatting/status-label';
 import type { NeedReport } from '@/types/api';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
@@ -35,7 +36,7 @@ export default function OrgNeedsPage() {
       accessorKey: 'id',
       header: 'ID',
       cell: ({ getValue }) => (
-        <span className="font-mono text-xs text-gray-500">{String(getValue()).slice(0, 8)}</span>
+        <span className="font-mono text-xs text-[#6b7280]">{String(getValue()).slice(0, 8)}</span>
       ),
     },
     {
@@ -43,7 +44,7 @@ export default function OrgNeedsPage() {
       header: 'Title',
       enableSorting: true,
       cell: ({ row }) => (
-        <span className="line-clamp-1 font-medium text-gray-900">
+        <span className="line-clamp-1 font-medium text-[#111827]">
           {row.original.title || row.original.description.slice(0, 60)}
         </span>
       ),
@@ -64,7 +65,7 @@ export default function OrgNeedsPage() {
       header: 'Status',
       cell: ({ getValue }) => {
         const s = getValue() as string;
-        return <Badge variant={statusVariant[s] || 'neutral'}>{s}</Badge>;
+        return <Badge variant={statusVariant[s] || 'neutral'}>{formatStatusLabel(s)}</Badge>;
       },
     },
     {
@@ -77,7 +78,7 @@ export default function OrgNeedsPage() {
       id: 'actions',
       header: '',
       cell: ({ row }) => (
-        <button onClick={() => router.push(`/org/needs/${row.original.id}`)} className="text-sm text-blue-600 hover:underline">View</button>
+        <button onClick={() => router.push(`/org/needs/${row.original.id}`)} className="text-sm text-[#E8922D] hover:underline">View</button>
       ),
     },
   ];
@@ -86,18 +87,18 @@ export default function OrgNeedsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Assigned needs</h1>
-        <button onClick={() => router.push('/org/needs/map')} className="text-sm text-blue-600 hover:underline">View map</button>
+        <button onClick={() => router.push('/org/needs/map')} className="text-sm text-[#E8922D] hover:underline">View map</button>
       </div>
 
       <div className="mt-6 rounded-lg border bg-white">
         <div className="flex items-center justify-end gap-3 p-4 pb-0">
-          <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="rounded-md border border-gray-300 px-3 py-2 text-sm">
+          <TableSelect value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="w-48">
             <option value="">All statuses</option>
             <option value="IN_PROGRESS">In progress</option>
             <option value="SOLVED">Solved</option>
             <option value="CLOSED">Closed</option>
-          </select>
-          <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
+          </TableSelect>
+          <TableSearchInput placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
         </div>
 
         {isLoading ? (

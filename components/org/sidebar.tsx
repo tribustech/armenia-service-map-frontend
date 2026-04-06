@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { type ComponentType, type SVGProps } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
+import { getBestActiveHref } from '@/lib/navigation/active-nav';
 
 type NavItem = {
   label: string;
@@ -48,6 +49,10 @@ export function OrgSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const organisationName = user?.organisation?.name || 'Organisation';
+  const activeHref = getBestActiveHref(
+    pathname,
+    orgNav.flatMap((section) => section.items).map((item) => item.href),
+  );
 
   return (
     <aside className="flex h-full w-80 flex-col border-r border-[#e5e5e5] bg-white">
@@ -65,7 +70,7 @@ export function OrgSidebar() {
             ) : null}
             <div className="space-y-1">
               {section.items.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                const isActive = activeHref === item.href;
                 const Icon = item.icon;
                 return (
                   <Link

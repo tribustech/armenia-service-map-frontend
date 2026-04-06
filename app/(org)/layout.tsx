@@ -24,7 +24,7 @@ export default function OrgLayout({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="flex h-screen bg-[#f5fbf7]">
+    <div className="flex h-screen bg-[#f5f5f4]">
       <a href="#org-main-content" className="skip-link">Skip to main content</a>
       <OrgSidebar />
       <div className="flex min-w-0 flex-1 flex-col">

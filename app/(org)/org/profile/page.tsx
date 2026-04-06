@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { DetailPageLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useOrgProfile, useOrgProfileUsers, useUpdateOrgProfile } from '@/lib/api/org-profile';
+import { formatStatusLabel } from '@/lib/formatting/status-label';
 import { getErrorMessage, isValidEmail, isValidPhone, mapErrorMessageToField } from '@/lib/validation';
 import type { User } from '@/types/api';
 
@@ -110,6 +111,7 @@ export default function OrgProfilePage() {
     {
       accessorKey: 'status',
       header: 'Status',
+      cell: ({ getValue }) => formatStatusLabel(String(getValue())),
     },
     {
       accessorKey: 'lastAccessAt',
@@ -155,12 +157,12 @@ export default function OrgProfilePage() {
   }
 
   if (isLoading) return <DetailPageLoadingSkeleton />;
-  if (!profile) return <div className="rounded-lg border bg-white p-6 text-sm text-gray-500">Organisation profile not available.</div>;
+  if (!profile) return <div className="rounded-lg border bg-white p-6 text-sm text-[#6b7280]">Organisation profile not available.</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Organisation profile</h1>
-      <p className="mt-1 text-sm text-gray-600">Review your organisation details and team members.</p>
+      <h1 className="text-2xl font-bold text-[#111827]">Organisation profile</h1>
+      <p className="mt-1 text-sm text-[#6b7280]">Review your organisation details and team members.</p>
 
       <div
         className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1"
@@ -176,7 +178,7 @@ export default function OrgProfilePage() {
           aria-controls="org-profile-panel-details"
           onClick={() => setActiveTab('details')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'details' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+            activeTab === 'details' ? 'bg-white text-emerald-700 shadow-sm' : 'text-[#6b7280] hover:text-gray-800'
           }`}
         >
           Organisation details
@@ -189,7 +191,7 @@ export default function OrgProfilePage() {
           aria-controls="org-profile-panel-users"
           onClick={() => setActiveTab('users')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'users' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-600 hover:text-gray-800'
+            activeTab === 'users' ? 'bg-white text-emerald-700 shadow-sm' : 'text-[#6b7280] hover:text-gray-800'
           }`}
         >
           Organisation users
@@ -268,7 +270,7 @@ export default function OrgProfilePage() {
           </div>
 
           <div className="mt-4">
-            <label htmlFor="org-profile-description" className="mb-1 block text-sm font-medium text-gray-700">Description</label>
+            <label htmlFor="org-profile-description" className="mb-1 block text-sm font-medium text-[#374151]">Description</label>
             <textarea
               id="org-profile-description"
               value={form.description}
@@ -281,15 +283,15 @@ export default function OrgProfilePage() {
           </div>
 
           <div className="mt-6 flex items-center justify-between">
-            <p className="text-xs text-gray-500">
-              Account status: <span className="font-medium text-gray-700">{profile.status}</span>
+            <p className="text-xs text-[#6b7280]">
+              Account status: <span className="font-medium text-[#374151]">{formatStatusLabel(profile.status)}</span>
             </p>
             {canEdit ? (
               <Button onClick={handleSave} disabled={updateProfile.isPending}>
                 {updateProfile.isPending ? 'Saving...' : 'Save changes'}
               </Button>
             ) : (
-              <p className="text-xs text-gray-500">Only organisation admins can edit details.</p>
+              <p className="text-xs text-[#6b7280]">Only organisation admins can edit details.</p>
             )}
           </div>
         </section>
@@ -301,8 +303,8 @@ export default function OrgProfilePage() {
           className="mt-6 rounded-lg border bg-white"
         >
           <div className="border-b p-4">
-            <h2 className="text-lg font-semibold text-gray-900">Organisation users</h2>
-            <p className="text-sm text-gray-500">Managed by super admins. This view is read-only.</p>
+            <h2 className="text-lg font-semibold text-[#111827]">Organisation users</h2>
+            <p className="text-sm text-[#6b7280]">Managed by super admins. This view is read-only.</p>
           </div>
 
           {usersQuery.isLoading ? (

@@ -18,24 +18,9 @@ import { DashboardLoadingSkeleton } from '@/components/shared/loading-skeletons'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 const statCards = [
-  {
-    key: 'totalServices',
-    label: 'Total services',
-    href: '/org/services',
-    tone: 'from-[#e7f7ef] to-[#d7f2e4] text-[#1f6a47]',
-  },
-  {
-    key: 'assignedNeeds',
-    label: 'Assigned need reports',
-    href: '/org/needs',
-    tone: 'from-[#e9f5ff] to-[#d6ebfb] text-[#245a86]',
-  },
-  {
-    key: 'resolvedNeeds',
-    label: 'Resolved needs',
-    href: '/org/needs',
-    tone: 'from-[#f1f8ea] to-[#e3f3d5] text-[#446b1f]',
-  },
+  { key: 'totalServices', label: 'Total services', href: '/org/services' },
+  { key: 'assignedNeeds', label: 'Assigned need reports', href: '/org/needs' },
+  { key: 'resolvedNeeds', label: 'Resolved needs', href: '/org/needs' },
 ] as const;
 
 export default function OrgDashboardPage() {
@@ -57,19 +42,19 @@ export default function OrgDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-[#dceee2] bg-gradient-to-r from-[#effaf3] via-[#f7fcf9] to-[#effaf3] p-6">
-        <p className="text-sm uppercase tracking-[0.14em] text-[#4d8f70]">Welcome back</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#214736]">
+      <section className="admin-panel p-6">
+        <p className="text-sm uppercase tracking-[0.14em] text-[#9ca3af]">Welcome back</p>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111827]">
           {user?.firstName} {user?.lastName}
         </h1>
-        <p className="mt-2 text-sm text-[#5f7f6e]">
+        <p className="mt-2 text-sm text-[#6b7280]">
           Track your organisation&apos;s service activity and assigned need-report progress.
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          <Link href="/org/services/new" className="rounded-lg border border-[#cfe6d8] bg-white px-3 py-2 text-[#245942] hover:bg-[#f2faf6]">
+          <Link href="/org/services/new" className="rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-[#374151] hover:bg-[#fafafa]">
             Add new service
           </Link>
-          <Link href="/org/needs" className="rounded-lg border border-[#cfe6d8] bg-white px-3 py-2 text-[#245942] hover:bg-[#f2faf6]">
+          <Link href="/org/needs" className="rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-[#374151] hover:bg-[#fafafa]">
             View assigned needs
           </Link>
         </div>
@@ -77,7 +62,7 @@ export default function OrgDashboardPage() {
 
       <section className="grid gap-4 md:grid-cols-3">
         {statCards.map((card) => (
-          <Link key={card.key} href={card.href} className={`rounded-2xl border border-white/70 bg-gradient-to-br p-5 shadow-sm ${card.tone}`}>
+          <Link key={card.key} href={card.href} className="rounded-xl border border-[#e8e8e8] bg-white p-5 text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             <p className="text-sm font-medium">{card.label}</p>
             <p className="mt-2 text-3xl font-semibold">{stats?.[card.key] ?? 0}</p>
           </Link>
@@ -85,9 +70,9 @@ export default function OrgDashboardPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-2xl border border-[#e4efe7] bg-white p-5">
-          <h2 className="text-base font-semibold text-[#234a37]">Assigned need reports over time</h2>
-          <p className="mt-1 text-xs text-[#6b8878]">12-month trend of needs assigned to your organisation.</p>
+        <div className="admin-panel p-5">
+          <h2 className="text-base font-semibold text-[#111827]">Assigned need reports over time</h2>
+          <p className="mt-1 text-xs text-[#6b7280]">12-month trend of needs assigned to your organisation.</p>
           <div className="mt-4">
             <Line
               data={{
@@ -108,9 +93,9 @@ export default function OrgDashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#e4efe7] bg-white p-5">
-          <h2 className="text-base font-semibold text-[#234a37]">Services created over time</h2>
-          <p className="mt-1 text-xs text-[#6b8878]">12-month trend of services created by your organisation.</p>
+        <div className="admin-panel p-5">
+          <h2 className="text-base font-semibold text-[#111827]">Services created over time</h2>
+          <p className="mt-1 text-xs text-[#6b7280]">12-month trend of services created by your organisation.</p>
           <div className="mt-4">
             <Line
               data={{

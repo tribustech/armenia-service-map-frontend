@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
+import { AdminPageHeader, AdminPanel, AdminToolbar } from '@/components/admin/admin-surface';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { TableSearchInput } from '@/components/ui/table-controls';
 import { useOrganisations } from '@/lib/api/organisations';
+import { formatStatusLabel } from '@/lib/formatting/status-label';
 import type { Organisation } from '@/types/api';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
@@ -37,7 +39,7 @@ export default function OrganisationsPage() {
       header: 'Account',
       cell: ({ getValue }) => (
         <Badge variant={accountBadge[getValue() as Organisation['status']]}>
-          {String(getValue()).toLowerCase().replace('_', ' ')}
+          {formatStatusLabel(String(getValue()))}
         </Badge>
       ),
       enableSorting: true,
@@ -54,7 +56,7 @@ export default function OrganisationsPage() {
       cell: ({ row }) => (
         <button
           onClick={() => router.push(`/admin/organisations/${row.original.id}`)}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-[#E8922D] hover:underline"
         >
           View
         </button>
@@ -64,24 +66,27 @@ export default function OrganisationsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Users management</h1>
+      <AdminPageHeader>
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">Users management</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">Review organisation health, access, and coverage at a glance.</p>
+        </div>
         <Button onClick={() => router.push('/admin/organisations/new')}>Add organisation</Button>
-      </div>
+      </AdminPageHeader>
 
-      <div className="mt-6 rounded-lg border bg-white">
-        <div className="border-b p-4">
-          <h2 className="text-lg font-semibold">Organisations</h2>
+      <AdminPanel className="mt-6 overflow-hidden">
+        <div className="border-b border-[#f0f0f0] px-5 py-4">
+          <h2 className="text-lg font-semibold text-[#111827]">Organisations</h2>
         </div>
 
-        <div className="flex justify-end p-4 pb-0">
-          <Input
+        <AdminToolbar>
+          <TableSearchInput
             placeholder="Search..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-64"
+            className="sm:w-72"
           />
-        </div>
+        </AdminToolbar>
 
         {isLoading ? (
           <div className="p-4">
@@ -89,7 +94,23 @@ export default function OrganisationsPage() {
           </div>
         ) : (
           <>
-            <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />
+            <DataTable
+              columns={columns}
+              data={data?.data ?? []}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              mobileCard={(row) => ({
+                title: row.name,
+                badges: <Badge variant={accountBadge[row.status]}>{formatStatusLabel(row.status)}</Badge>,
+                fields: [
+                  { label: 'Last access', value: new Date(row.updatedAt).toLocaleDateString() },
+                  { label: 'Region', value: row.region?.name || '—' },
+                  { label: 'Users', value: row._count.users },
+                  { label: 'Services', value: row._count.services },
+                ],
+                action: <button type="button" onClick={() => router.push(`/admin/organisations/${row.id}`)} className="admin-link-button">View</button>,
+              })}
+            />
             {data && (
               <Pagination
                 page={data.meta.page}
@@ -102,7 +123,7 @@ export default function OrganisationsPage() {
             )}
           </>
         )}
-      </div>
+      </AdminPanel>
     </div>
   );
 }

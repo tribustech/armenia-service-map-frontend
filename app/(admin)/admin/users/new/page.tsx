@@ -84,7 +84,7 @@ function NewUserForm() {
 
   return (
     <div>
-      <div className="mb-2 text-sm text-gray-500">
+      <div className="mb-2 text-sm text-[#6b7280]">
         <Link href="/admin/users" className="hover:underline">Users management</Link>
         {' > '}
         <span>Add new user</span>
@@ -123,7 +123,7 @@ function NewUserForm() {
             required
           />
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Role</label>
+            <label className="mb-1 block text-sm font-medium text-[#374151]">Role</label>
             <select
               value={form.role}
               onChange={(e) => updateField('role', e.target.value)}

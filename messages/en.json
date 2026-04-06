@@ -2,6 +2,8 @@
   "common": {
     "search": "Search",
     "login": "Login",
+    "adminPanel": "Admin panel",
+    "organizationPanel": "Organization panel",
     "logout": "Logout",
     "save": "Save changes",
     "cancel": "Cancel",

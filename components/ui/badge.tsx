@@ -6,15 +6,15 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  success: 'bg-green-50 text-green-700',
-  warning: 'bg-orange-50 text-orange-700',
-  danger: 'bg-red-50 text-red-700',
-  neutral: 'bg-gray-100 text-gray-700',
+  success: 'rounded-full bg-[#ecfdf3] px-2.5 py-1 text-sm font-medium text-[#16a34a]',
+  warning: 'rounded-full bg-[#fff7ed] px-2.5 py-1 text-sm font-medium text-[#E8922D]',
+  danger: 'rounded-full bg-[#fef2f2] px-2.5 py-1 text-sm font-medium text-[#dc2626]',
+  neutral: 'rounded-full bg-[#f3f5f8] px-2.5 py-1 text-sm font-medium text-[#6b7280]',
 };
 
 export function Badge({ variant = 'neutral', children }: BadgeProps) {
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${variantClasses[variant]}`}>
+    <span className={`inline-flex ${variantClasses[variant]}`}>
       {children}
     </span>
   );

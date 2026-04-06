@@ -160,7 +160,7 @@ export default function EditOrgServicePage() {
 
   return (
     <div>
-      <div className="mb-2 text-sm text-gray-500">
+      <div className="mb-2 text-sm text-[#6b7280]">
         <Link href="/org/services" className="hover:underline">Services</Link>{' > '}<Link href={`/org/services/${id}`} className="hover:underline">{service?.title}</Link>{' > '}Edit
       </div>
       <h1 className="text-2xl font-bold">Edit service</h1>
@@ -176,7 +176,7 @@ export default function EditOrgServicePage() {
             type="button"
             onClick={() => setActiveLanguage('en')}
             className={`rounded-md px-3 py-1 text-xs font-medium ${
-              activeLanguage === 'en' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+              activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
             }`}
           >
             English
@@ -185,7 +185,7 @@ export default function EditOrgServicePage() {
             type="button"
             onClick={() => setActiveLanguage('hy')}
             className={`rounded-md px-3 py-1 text-xs font-medium ${
-              activeLanguage === 'hy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+              activeLanguage === 'hy' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
             }`}
           >
             Armenian
@@ -209,7 +209,7 @@ export default function EditOrgServicePage() {
         />
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-[#374151]">
             Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
             {activeLanguage === 'en' ? ' *' : ''}
           </label>
@@ -224,7 +224,7 @@ export default function EditOrgServicePage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
+            <label className="mb-1 block text-sm font-medium text-[#374151]">Status</label>
             <select value={form.status} onChange={(e) => updateField('status', e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500">
               <option value="DRAFT">Draft</option>
               <option value="PUBLISHED">Published</option>
@@ -257,7 +257,7 @@ export default function EditOrgServicePage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Region</label>
+            <label className="mb-1 block text-sm font-medium text-[#374151]">Region</label>
             <select value={form.regionId} onChange={(e) => updateField('regionId', e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500">
               <option value="">All regions</option>
               {regions?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -267,7 +267,7 @@ export default function EditOrgServicePage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Topics</label>
+          <label className="mb-1 block text-sm font-medium text-[#374151]">Topics</label>
           <div className="flex flex-wrap gap-2">
             {topicOptions.map((topic) => (
               <label key={topic.id} className="flex items-center gap-1.5 text-sm">
@@ -281,7 +281,7 @@ export default function EditOrgServicePage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Target groups</label>
+          <label className="mb-1 block text-sm font-medium text-[#374151]">Target groups</label>
           <div className="flex flex-wrap gap-2">
             {targetGroups?.map((t) => (
               <label key={t.id} className="flex items-center gap-1.5 text-sm">

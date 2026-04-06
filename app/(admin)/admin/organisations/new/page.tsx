@@ -82,7 +82,7 @@ export default function NewOrganisationPage() {
 
   return (
     <div>
-      <div className="mb-2 text-sm text-gray-500">
+      <div className="mb-2 text-sm text-[#6b7280]">
         <Link href="/admin/organisations" className="hover:underline">Users management</Link>
         {' > '}
         <span>Add new organisation</span>
@@ -130,7 +130,7 @@ export default function NewOrganisationPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
+          <label className="mb-1 block text-sm font-medium text-[#374151]">Description</label>
           <textarea
             value={form.description}
             onChange={(e) => updateField('description', e.target.value)}

@@ -37,44 +37,27 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-[#f0ece6] bg-gradient-to-r from-[#fff2df] via-[#fff7ee] to-[#fff2df] p-6">
+      <section className="admin-panel p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.14em] text-[#b98249]">Welcome back</p>
-            <h1 className="mt-1 text-2xl font-semibold text-[#3f3428]">
+            <p className="text-sm uppercase tracking-[0.14em] text-[#9ca3af]">Welcome back</p>
+            <h1 className="mt-1 text-2xl font-semibold text-[#111827]">
               {user?.firstName} {user?.lastName}
             </h1>
-            <p className="mt-2 text-sm text-[#6f604f]">
+            <p className="mt-2 text-sm text-[#6b7280]">
               Monitor platform health, search behavior, and activity volume in one place.
             </p>
           </div>
           <button
             type="button"
             onClick={() => void logout()}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#e8d3b6] bg-white px-4 py-2 text-sm font-medium text-[#8a4d11] transition hover:bg-[#fff6eb]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#d1d5db] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition hover:bg-[#f5f5f4]"
           >
             <ArrowRightOnRectangleIcon className="h-4 w-4" />
             Sign out
           </button>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          <Link
-            href="https://docs.nestjs.com"
-            target="_blank"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#ead8be] bg-white px-3 py-2 text-[#7a5f41] hover:bg-[#fff7ee]"
-          >
-            <BookOpenIcon className="h-4 w-4" />
-            Documentation
-          </Link>
-          <Link
-            href="https://github.com"
-            target="_blank"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#ead8be] bg-white px-3 py-2 text-[#7a5f41] hover:bg-[#fff7ee]"
-          >
-            <CodeBracketSquareIcon className="h-4 w-4" />
-            GitHub
-          </Link>
-        </div>
+       
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
@@ -84,9 +67,9 @@ export default function AdminDashboardPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-2xl border border-[#f0ece6] bg-white p-5">
-          <h2 className="text-base font-semibold text-[#3f3428]">Need reports over time</h2>
-          <p className="mt-1 text-xs text-[#8f7a62]">12-month trend of created need reports.</p>
+        <div className="admin-panel p-5">
+          <h2 className="text-base font-semibold text-[#111827]">Need reports over time</h2>
+          <p className="mt-1 text-xs text-[#6b7280]">12-month trend of created need reports.</p>
           <div className="mt-4">
             <Line
               data={{
@@ -107,9 +90,9 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#f0ece6] bg-white p-5">
-          <h2 className="text-base font-semibold text-[#3f3428]">Services created over time</h2>
-          <p className="mt-1 text-xs text-[#8f7a62]">12-month trend of newly added services.</p>
+        <div className="admin-panel p-5">
+          <h2 className="text-base font-semibold text-[#111827]">Services created over time</h2>
+          <p className="mt-1 text-xs text-[#6b7280]">12-month trend of newly added services.</p>
           <div className="mt-4">
             <Line
               data={{
@@ -137,21 +120,13 @@ export default function AdminDashboardPage() {
 function DashboardStatCard({
   title,
   value,
-  tone,
 }: {
   title: string;
   value: number;
   tone: 'amber' | 'teal' | 'rose';
 }) {
-  const classes =
-    tone === 'amber'
-      ? 'from-[#fff2df] to-[#ffe4bf] text-[#8a4d11]'
-      : tone === 'teal'
-        ? 'from-[#e8f8f3] to-[#d4f0e8] text-[#1b6d58]'
-        : 'from-[#fff0f2] to-[#ffdce3] text-[#932642]';
-
   return (
-    <div className={`rounded-2xl border border-white/70 bg-gradient-to-br p-5 shadow-sm ${classes}`}>
+    <div className="rounded-xl border border-[#e8e8e8] bg-white p-5 text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
       <p className="text-sm font-medium">{title}</p>
       <p className="mt-2 text-3xl font-semibold">{value}</p>
     </div>

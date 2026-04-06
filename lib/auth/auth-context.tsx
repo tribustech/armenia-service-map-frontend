@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useCallback, useState, type ReactNode } from 'react';
+import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getProfile, login as loginApi, logout as logoutApi, type UserProfile, type LoginRequest } from '../api/auth';
 
@@ -8,7 +8,7 @@ interface AuthContextValue {
   user: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (data: LoginRequest) => Promise<void>;
+  login: (data: LoginRequest) => Promise<UserProfile>;
   logout: () => Promise<void>;
 }
 
@@ -16,9 +16,13 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const [hasToken, setHasToken] = useState(
-    () => typeof window !== 'undefined' && !!localStorage.getItem('accessToken'),
-  );
+  const [hasToken, setHasToken] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    setHasToken(!!localStorage.getItem('accessToken'));
+    setHasHydrated(true);
+  }, []);
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['auth', 'profile'],
@@ -30,7 +34,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (data: LoginRequest) => {
     await loginApi(data);
     setHasToken(true);
-    await queryClient.invalidateQueries({ queryKey: ['auth', 'profile'] });
+    const profile = await queryClient.fetchQuery({
+      queryKey: ['auth', 'profile'],
+      queryFn: getProfile,
+    });
+    return profile;
   }, [queryClient]);
 
   const logout = useCallback(async () => {
@@ -43,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user: user ?? null,
-        isLoading,
+        isLoading: !hasHydrated || (hasToken && isLoading),
         isAuthenticated: !!user,
         login,
         logout,

@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
+import { AdminPageHeader, AdminPanel, AdminToolbar } from '@/components/admin/admin-surface';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { TableSearchInput } from '@/components/ui/table-controls';
 import { useUsers } from '@/lib/api/users';
 import type { User } from '@/types/api';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
@@ -53,7 +54,7 @@ export default function UsersPage() {
       cell: ({ row }) => (
         <button
           onClick={() => router.push(`/admin/users/${row.original.id}`)}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-[#E8922D] hover:underline"
         >
           View
         </button>
@@ -63,20 +64,24 @@ export default function UsersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">All users</h1>
+      <AdminPageHeader>
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">All users</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">Manage admin and organisation accounts from one polished directory.</p>
+        </div>
         <Button onClick={() => router.push('/admin/users/new')}>Add user</Button>
-      </div>
+      </AdminPageHeader>
 
-      <div className="mt-6 rounded-lg border bg-white">
-        <div className="flex justify-end p-4 pb-0">
-          <Input
+      <AdminPanel className="mt-6 overflow-hidden">
+        <AdminToolbar layout="compact-end">
+          <TableSearchInput
             placeholder="Search..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-64"
+            size="compact"
+            className="sm:w-72"
           />
-        </div>
+        </AdminToolbar>
 
         {isLoading ? (
           <div className="p-4">
@@ -84,7 +89,22 @@ export default function UsersPage() {
           </div>
         ) : (
           <>
-            <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />
+            <DataTable
+              columns={columns}
+              data={data?.data ?? []}
+              sorting={sorting}
+              onSortingChange={setSorting}
+              mobileCard={(row) => ({
+                title: `${row.firstName} ${row.lastName}`.trim(),
+                badges: <Badge variant="neutral">{row.role.replace(/_/g, ' ')}</Badge>,
+                fields: [
+                  { label: 'Email', value: row.email },
+                  { label: 'Organisation', value: row.organisation?.name || '—' },
+                  { label: 'Created', value: new Date(row.createdAt).toLocaleDateString() },
+                ],
+                action: <button type="button" onClick={() => router.push(`/admin/users/${row.id}`)} className="admin-link-button">View</button>,
+              })}
+            />
             {data && (
               <Pagination
                 page={data.meta.page}
@@ -97,7 +117,7 @@ export default function UsersPage() {
             )}
           </>
         )}
-      </div>
+      </AdminPanel>
     </div>
   );
 }

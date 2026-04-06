@@ -163,7 +163,7 @@ export default function EditServicePage() {
   return (
     <div className="mx-auto max-w-[1220px] pb-12">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-3 pt-8 text-sm text-gray-500">
+      <div className="flex items-center gap-3 pt-8 text-sm text-[#6b7280]">
         <Link href="/admin/services" className="font-medium hover:underline">
           Service directory
         </Link>
@@ -175,7 +175,7 @@ export default function EditServicePage() {
         <span className="font-medium">Edit</span>
       </div>
 
-      <h1 className="mt-3 text-3xl font-bold text-gray-900">Edit service</h1>
+      <h1 className="mt-3 text-3xl font-bold text-[#111827]">Edit service</h1>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         {submitError ? (
@@ -188,7 +188,7 @@ export default function EditServicePage() {
           {/* Title + Location */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-900">Status</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">Status</label>
               <select
                 value={form.status}
                 onChange={(e) => updateField('status', e.target.value)}
@@ -215,7 +215,7 @@ export default function EditServicePage() {
               required={activeLanguage === 'en'}
             />
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-900">Location</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">Location</label>
               <select
                 value={form.regionId}
                 onChange={(e) => updateField('regionId', e.target.value)}
@@ -233,11 +233,11 @@ export default function EditServicePage() {
           {/* Topics + Target group */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-900">Topics</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">Topics</label>
               <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
                 <div className="flex flex-col gap-2">
                   {topicOptions.map((topic) => (
-                    <label key={topic.id} className="flex items-center gap-2 text-sm text-gray-700">
+                    <label key={topic.id} className="flex items-center gap-2 text-sm text-[#374151]">
                       <input
                         type="checkbox"
                         checked={form.topicIds.includes(topic.id)}
@@ -257,11 +257,11 @@ export default function EditServicePage() {
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-900">Target groups</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">Target groups</label>
               <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
                 <div className="flex flex-col gap-2">
                   {(targetGroups ?? []).map((targetGroup) => (
-                    <label key={targetGroup.id} className="flex items-center gap-2 text-sm text-gray-700">
+                    <label key={targetGroup.id} className="flex items-center gap-2 text-sm text-[#374151]">
                       <input
                         type="checkbox"
                         checked={form.targetGroupIds.includes(targetGroup.id)}
@@ -307,7 +307,7 @@ export default function EditServicePage() {
                 type="button"
                 onClick={() => setActiveLanguage('en')}
                 className={`rounded-md px-3 py-1 text-xs font-medium ${
-                  activeLanguage === 'en' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                  activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
                 }`}
               >
                 English
@@ -316,7 +316,7 @@ export default function EditServicePage() {
                 type="button"
                 onClick={() => setActiveLanguage('hy')}
                 className={`rounded-md px-3 py-1 text-xs font-medium ${
-                  activeLanguage === 'hy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                  activeLanguage === 'hy' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
                 }`}
               >
                 Armenian
@@ -325,7 +325,7 @@ export default function EditServicePage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-900">
+            <label className="mb-2 block text-sm font-medium text-[#111827]">
               Short description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
             </label>
             <RichTextEditor
@@ -341,7 +341,7 @@ export default function EditServicePage() {
 
           {/* Description - rich text */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-900">
+            <label className="mb-2 block text-sm font-medium text-[#111827]">
               Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
             </label>
             <RichTextEditor

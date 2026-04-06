@@ -1,5 +1,7 @@
 'use client';
 
+import { TableSelect } from '@/components/ui/table-controls';
+
 interface PaginationProps {
   page: number;
   totalPages: number;
@@ -31,32 +33,32 @@ export function Pagination({
   }
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3">
-      <span className="text-sm text-gray-500">
+    <div className="flex flex-col gap-4 border-t border-[#f0f0f0] px-4 py-4 text-sm md:flex-row md:items-center md:justify-between md:px-5">
+      <span className="text-[#6b7280]">
         Showing {from} to {to} of {total} results
       </span>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Per page</span>
-          <select
+          <span className="text-[#6b7280]">Per page</span>
+          <TableSelect
             value={perPage}
             onChange={(e) => onPerPageChange(Number(e.target.value))}
             aria-label="Rows per page"
-            className="rounded border border-gray-300 px-2 py-1 text-sm"
+            className="w-[94px]"
           >
             {[5, 10, 25, 50].map((n) => (
               <option key={n} value={n}>
                 {n}
               </option>
             ))}
-          </select>
+          </TableSelect>
         </div>
 
         <div className="flex items-center gap-1">
           {pages.map((p, i) =>
             p === '...' ? (
-              <span key={`dots-${i}`} className="px-2 text-gray-400">
+              <span key={`dots-${i}`} className="px-2 text-[#9ca3af]">
                 ...
               </span>
             ) : (
@@ -66,10 +68,10 @@ export function Pagination({
                 onClick={() => onPageChange(p)}
                 aria-label={`Go to page ${p}`}
                 aria-current={p === page ? 'page' : undefined}
-                className={`rounded px-3 py-1 text-sm ${
+                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   p === page
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'border-[#E8922D] bg-[#E8922D] text-white'
+                    : 'border-transparent text-[#374151] hover:bg-[#f5f5f4]'
                 }`}
               >
                 {p}

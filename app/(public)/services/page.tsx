@@ -28,7 +28,7 @@ function ServicesContent() {
   const tNav = useTranslations('nav');
   const locale = useLocale();
 
-  const [view, setView] = useState<ViewMode>('list');
+  const [view, setView] = useState<ViewMode>('map');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState(searchParams.get('search') || '');
@@ -198,7 +198,7 @@ function ServicesContent() {
       <div className="mx-auto max-w-7xl px-6 py-8">
         {view === 'map' ? (
           <div className="flex flex-col gap-5 lg:flex-row">
-            <div className="flex flex-col gap-4 lg:w-3/5">
+            <div className="flex flex-col gap-4 lg:w-3/5 lg:self-start lg:sticky lg:top-24">
               <div
                 className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white shadow-lg"
                 style={{ background: 'linear-gradient(134deg, #eff6ff 0%, #eef2ff 50%, #dbeafe 100%)' }}

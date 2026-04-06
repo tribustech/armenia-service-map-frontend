@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import type { AdminSidebarMode } from '@/app/(admin)/layout';
 import { adminNav } from '@/components/admin/navigation';
+import { getBestActiveHref } from '@/lib/navigation/active-nav';
 
 function SectionHeader({
   title,
@@ -48,10 +49,6 @@ type AdminSidebarProps = {
   onCloseMobileNav: () => void;
 };
 
-function isItemActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(href + '/');
-}
-
 function SidebarNav({
   mode,
   pathname,
@@ -67,12 +64,16 @@ function SidebarNav({
 }) {
   const isRail = mode === 'rail';
   const items = isRail ? adminNav.flatMap((section) => section.items) : [];
+  const activeHref = getBestActiveHref(
+    pathname,
+    (isRail ? items : adminNav.flatMap((section) => section.items)).map((item) => item.href),
+  );
 
   if (isRail) {
     return (
       <nav className="flex flex-1 flex-col items-center gap-2 overflow-y-auto px-2 py-4" aria-label="Admin navigation">
         {items.map((item) => {
-          const isActive = isItemActive(pathname, item.href);
+          const isActive = activeHref === item.href;
           const Icon = item.icon;
 
           return (
@@ -121,7 +122,7 @@ function SidebarNav({
             {(!sectionTitle || openSections[sectionTitle] !== false) ? (
               <div className="flex flex-col gap-1" id={controlsId}>
                 {section.items.map((item) => {
-                  const isActive = isItemActive(pathname, item.href);
+                  const isActive = activeHref === item.href;
                   const Icon = item.icon;
 
                   return (
@@ -266,7 +267,6 @@ export function AdminSidebar({ mode, mobileNavOpen, onCloseMobileNav }: AdminSid
       <SidebarPanel
         mode={mode}
         pathname={pathname}
-        activeItemLabel={activeItem?.label}
         openSections={openSections}
         onToggleSection={toggleSection}
         onCloseMobileNav={onCloseMobileNav}

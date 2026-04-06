@@ -13,9 +13,6 @@ const withNextIntl = createNextIntlPlugin(
 );
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: configDir,
-  },
   webpack: (config) => {
     config.resolve.modules = [
       path.join(configDir, 'node_modules'),

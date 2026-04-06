@@ -45,18 +45,18 @@ export default function HomePage() {
 
   return (
     <div className="bg-[#f6f8ff]">
-      <section className="mx-auto max-w-7xl px-6 pb-14 pt-12 md:pt-16">
+      <section className="mx-auto max-w-7xl px-4 pb-14 pt-12 sm:px-6 md:pt-16">
         <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
           <div>
             <h1>
-              <span className="block bg-gradient-to-r from-[#101828] to-[#364153] bg-clip-text text-5xl font-extrabold leading-tight text-transparent md:text-6xl">
+              <span className="block bg-gradient-to-r from-[#101828] to-[#364153] bg-clip-text text-4xl font-extrabold leading-tight text-transparent sm:text-5xl md:text-6xl">
                 {t('heroTitle1')}
               </span>
-              <span className="block bg-gradient-to-r from-[#155dfc] to-[#4f39f6] bg-clip-text text-5xl font-extrabold leading-tight text-transparent md:text-6xl">
+              <span className="block bg-gradient-to-r from-[#155dfc] to-[#4f39f6] bg-clip-text text-4xl font-extrabold leading-tight text-transparent sm:text-5xl md:text-6xl">
                 {t('heroTitle2')}
               </span>
             </h1>
-            <p className="mt-5 max-w-xl text-xl leading-relaxed text-[#4a5565]">{t('subtitle')}</p>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-[#4a5565] sm:text-xl">{t('subtitle')}</p>
             <Link
               href="/services"
               className="mt-8 inline-flex items-center gap-2 rounded-[14px] bg-gradient-to-r from-[#155dfc] to-[#4f39f6] px-7 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
@@ -82,9 +82,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6">
-        <div className="rounded-3xl bg-gradient-to-r from-[#155dfc] to-[#4f39f6] px-8 py-10 shadow-2xl md:px-12 md:py-12">
-          <h2 className="text-center text-2xl font-bold text-white md:text-3xl">{t('searchTitle')}</h2>
+      <section className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="rounded-3xl bg-gradient-to-r from-[#155dfc] to-[#4f39f6] px-5 py-8 shadow-2xl sm:px-8 sm:py-10 md:px-12 md:py-12">
+          <h2 className="text-center text-xl font-bold text-white sm:text-2xl md:text-3xl">{t('searchTitle')}</h2>
           <form onSubmit={handleSearch} className="mx-auto mt-7 grid max-w-4xl gap-4 md:grid-cols-[1fr_1.2fr_auto]">
             <label className="flex items-center gap-3 rounded-2xl bg-white/95 px-5 py-4 shadow-lg">
               <MapPinIcon />
@@ -122,10 +122,10 @@ export default function HomePage() {
       </section>
 
       {topics && topics.length > 0 ? (
-        <section className="mx-auto max-w-7xl px-6 py-20">
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
           <div className="text-center">
-            <h2 className="text-4xl font-bold text-[#101828]">{t('browseTopics')}</h2>
-            <p className="mt-4 text-lg text-[#4a5565]">{t('browseTopicsSubtitle')}</p>
+            <h2 className="text-3xl font-bold text-[#101828] sm:text-4xl">{t('browseTopics')}</h2>
+            <p className="mt-4 text-base text-[#4a5565] sm:text-lg">{t('browseTopicsSubtitle')}</p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {topics.slice(0, 8).map((topic, index) => {
@@ -154,10 +154,10 @@ export default function HomePage() {
       ) : null}
 
       {latestServices && latestServices.data.length > 0 ? (
-        <section className="mx-auto max-w-7xl px-6 pb-20">
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20">
           <div className="text-center">
-            <h2 className="text-4xl font-bold text-[#101828]">{t('latestServices')}</h2>
-            <p className="mt-4 text-lg text-[#4a5565]">{t('latestServicesSubtitle')}</p>
+            <h2 className="text-3xl font-bold text-[#101828] sm:text-4xl">{t('latestServices')}</h2>
+            <p className="mt-4 text-base text-[#4a5565] sm:text-lg">{t('latestServicesSubtitle')}</p>
           </div>
           <div className="mt-10 grid gap-8 md:grid-cols-3">
             {latestServices.data.map((service: Service) => (

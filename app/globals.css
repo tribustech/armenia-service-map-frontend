@@ -8,7 +8,7 @@
   --admin-panel-bg: #ffffff;
   --admin-panel-border: #e8e8e8;
   --admin-panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --admin-toolbar-bg: #fafafa;
+  --admin-toolbar-bg: #ffffff;
   --admin-inset-bg: #fafafa;
   --admin-control-bg: #ffffff;
   --admin-control-border: #d1d5db;
@@ -76,15 +76,21 @@ body {
 .admin-toolbar {
   border-radius: 0.75rem;
   background: var(--admin-toolbar-bg);
-  border: 1px solid #e8e8e8;
-  box-shadow: none;
 }
 
 .admin-control {
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background: var(--admin-control-bg);
   border: 1px solid var(--admin-control-border);
-  box-shadow: none;
+  box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.45);
+}
+
+.admin-control::placeholder {
+  color: #94a3b8;
+}
+
+.admin-select {
+  background-image: none;
 }
 
 .admin-link-button {

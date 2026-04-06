@@ -3,12 +3,12 @@ interface ShellLoadingScreenProps {
 }
 
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-md bg-white/80 ${className}`} />;
+  return <div className={`animate-pulse rounded-xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${className}`} />;
 }
 
 export function ShellLoadingScreen({ tone = 'admin' }: ShellLoadingScreenProps) {
-  const background = tone === 'admin' ? 'bg-[#fdf7ee]' : 'bg-[#f5fbf7]';
-  const sidebar = tone === 'admin' ? 'bg-[#f8ecd9]' : 'bg-[#e6f4ec]';
+  const background = 'bg-[#f5f5f4]';
+  const sidebar = 'bg-white';
   return (
     <div className={`flex h-screen ${background}`}>
       <aside className={`hidden w-64 border-r p-4 md:block ${sidebar}`}>
@@ -21,7 +21,7 @@ export function ShellLoadingScreen({ tone = 'admin' }: ShellLoadingScreenProps) 
         </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="border-b bg-white px-6 py-4">
+        <div className="border-b border-[#f0f0f0] bg-white px-6 py-4">
           <SkeletonBlock className="h-6 w-44" />
         </div>
         <main className="flex-1 overflow-y-auto p-6 lg:p-8">
@@ -33,10 +33,10 @@ export function ShellLoadingScreen({ tone = 'admin' }: ShellLoadingScreenProps) 
 }
 
 export function DashboardLoadingSkeleton({ tone = 'admin' }: ShellLoadingScreenProps) {
-  const cardTone = tone === 'admin' ? 'bg-[#fff6ea]' : 'bg-[#eefaf3]';
+  const cardTone = 'bg-white';
   return (
     <div className="space-y-6">
-      <div className={`rounded-2xl border p-6 ${cardTone}`}>
+      <div className={`rounded-xl border border-[#e8e8e8] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ${cardTone}`}>
         <SkeletonBlock className="h-4 w-32" />
         <SkeletonBlock className="mt-3 h-8 w-60" />
         <SkeletonBlock className="mt-4 h-4 w-3/4" />
@@ -93,7 +93,7 @@ export function TimelineLoadingSkeleton({ rows = 4 }: { rows?: number }) {
 
 export function TableLoadingSkeleton({ rows = 6 }: { rows?: number }) {
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div className="admin-panel p-4">
       <SkeletonBlock className="h-10 w-full" />
       <div className="mt-3 space-y-2">
         {Array.from({ length: rows }).map((_, index) => (
@@ -131,13 +131,13 @@ export function NeedsMapLoadingSkeleton() {
   return (
     <div className="mt-6 flex flex-col gap-6 lg:flex-row">
       <div className="lg:w-2/3">
-        <div className="overflow-hidden rounded-lg border bg-white p-4">
+        <div className="admin-panel overflow-hidden p-4">
           <SkeletonBlock className="h-[420px] w-full" />
         </div>
         <SkeletonBlock className="mt-3 h-4 w-64" />
       </div>
       <div className="lg:w-1/3">
-        <div className="rounded-lg border bg-white p-4">
+        <div className="admin-panel p-4">
           <SkeletonBlock className="h-4 w-36" />
           <div className="mt-3 space-y-2">
             <SkeletonBlock className="h-10 w-full" />

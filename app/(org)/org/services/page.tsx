@@ -6,9 +6,9 @@ import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircleIcon, Cog6ToothIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { TableSearchInput, TableSelect } from '@/components/ui/table-controls';
 import { useOrgServices } from '@/lib/api/services';
 import type { Service } from '@/types/api';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
@@ -89,7 +89,7 @@ export default function OrgServicesPage() {
       cell: ({ row }) => (
         <button
           onClick={() => router.push(`/org/services/${row.original.id}`)}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+          className="flex items-center gap-1 text-sm text-[#6b7280] hover:text-[#374151]"
         >
           <Cog6ToothIcon className="h-4 w-4" />
           View
@@ -106,19 +106,19 @@ export default function OrgServicesPage() {
       </div>
       <div className="mt-6 rounded-lg border bg-white">
         <div className="flex items-center justify-end gap-2 p-4 pb-0">
-          <select
+          <TableSelect
             value={status}
             onChange={(event) => {
               setStatus(event.target.value as 'DRAFT' | 'PUBLISHED' | '');
               setPage(1);
             }}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-48"
           >
             <option value="">All states</option>
             <option value="DRAFT">Draft</option>
             <option value="PUBLISHED">Published</option>
-          </select>
-          <Input placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
+          </TableSelect>
+          <TableSearchInput placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
         </div>
         {isLoading ? (
           <div className="p-4">

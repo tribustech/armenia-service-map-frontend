@@ -2,7 +2,7 @@
 
 import { Fragment, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
-import { ChevronRightIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/lib/auth/auth-context';
 
 const segmentLabel: Record<string, string> = {
@@ -25,13 +25,13 @@ export function OrgTopbar() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#e4efe7] bg-[#f8fcfa]/95 px-6 py-4 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-[#f0f0f0] bg-white px-6 py-3">
       <div className="flex items-center justify-between gap-4">
-        <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm text-[#61806f]">
+        <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm text-[#6b7280]">
           {breadcrumbs.map((label, index) => (
             <Fragment key={`${label}-${index}`}>
-              {index > 0 ? <ChevronRightIcon className="h-4 w-4 text-[#9ab7a8]" /> : null}
-              <span className={index === breadcrumbs.length - 1 ? 'truncate font-semibold text-[#234a37]' : 'truncate'}>
+              {index > 0 ? <ChevronRightIcon className="h-4 w-4 text-[#d1d5db]" /> : null}
+              <span className={index === breadcrumbs.length - 1 ? 'truncate font-semibold text-[#111827]' : 'truncate'}>
                 {label}
               </span>
             </Fragment>
@@ -39,16 +39,14 @@ export function OrgTopbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="rounded-xl border border-[#e3efe8] bg-white px-3 py-2 text-sm text-[#355543]">
-            <p className="font-medium">{user?.firstName} {user?.lastName}</p>
-            <p className="text-xs text-[#6e8d7d]">{user?.email}</p>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1a1a1a] text-xs font-semibold text-white">
+            {user?.firstName?.[0]}{user?.lastName?.[0]}
           </div>
           <button
             type="button"
             onClick={() => void logout()}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#d4e6db] bg-white px-3 py-2 text-sm font-medium text-[#2c5b45] transition hover:bg-[#ecf6f0]"
+            className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]"
           >
-            <ArrowRightOnRectangleIcon className="h-4 w-4" />
             Sign out
           </button>
         </div>
