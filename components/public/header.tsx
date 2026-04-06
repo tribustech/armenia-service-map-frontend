@@ -85,24 +85,13 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#e5e7eb] bg-white/95 backdrop-blur">
-      <div className="border-b border-[#f3f4f6] bg-[#f8fafc]">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-6 py-2">
-          <p className="text-xs font-medium text-[#4a5565] sm:text-sm">{tHeader('partnerPrefix')}</p>
-          <div className="hidden items-center gap-5 sm:flex">
-            <Image src="/eu-funded.png" alt="Funded by the European Union" width={168} height={36} className="h-6 w-auto opacity-80" />
-            <Image src="/partner-logo.png" alt="Democracy Development Foundation" width={154} height={32} className="h-6 w-auto opacity-80" />
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#6a7282]">{tHeader('createdBy')}</span>
-              <Image src="/commit-global.svg" alt="Commit Global" width={96} height={24} className="h-5 w-auto" />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-            <Image src="/logo.svg" alt="RefugeeSupport" width={152} height={40} className="h-10 w-auto" priority />
+            <Image src="/logo.svg" alt="RefugeeSupport" width={212} height={56} className="h-12 w-auto" priority />
+            <span className="text-xl font-semibold leading-none tracking-tight text-[#101828]">
+              RefugeeSupport
+            </span>
           </Link>
 
           <nav aria-label="Public navigation" className="hidden items-center gap-1 md:flex">
@@ -193,6 +182,20 @@ export function PublicHeader() {
             )}
           </svg>
         </button>
+      </div>
+
+      <div className="border-t border-[#f3f4f6] bg-[#f8fafc]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-6 py-2">
+          <p className="text-xs font-medium text-[#4a5565] sm:text-sm">{tHeader('partnerPrefix')}</p>
+          <div className="hidden items-center gap-5 sm:flex">
+            <Image src="/eu-funded.png" alt="Funded by the European Union" width={168} height={36} className="h-6 w-auto opacity-80" />
+            <Image src="/partner-logo.png" alt="Democracy Development Foundation" width={154} height={32} className="h-6 w-auto opacity-80" />
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#6a7282]">{tHeader('createdBy')}</span>
+              <Image src="/commit-global.svg" alt="Commit Global" width={96} height={24} className="h-5 w-auto" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {mobileOpen ? (
