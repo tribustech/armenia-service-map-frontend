@@ -50,17 +50,16 @@ export function OrgSidebar() {
   const organisationName = user?.organisation?.name || 'Organisation';
 
   return (
-    <aside className="flex h-full w-80 flex-col border-r border-[#e4efe7] bg-[#fbfefc]">
-      <div className="border-b border-[#e7f1ea] px-5 pb-5 pt-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#4f9470]">RefugeeSupport</p>
-        <p className="mt-2 line-clamp-2 text-sm font-semibold text-[#214736]">{organisationName}</p>
+    <aside className="flex h-full w-80 flex-col border-r border-[#e5e5e5] bg-white">
+      <div className="border-b border-[#e5e5e5] px-5 pb-4 pt-5">
+        <p className="text-sm font-semibold text-[#111827]">{organisationName}</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-3" aria-label="Organisation navigation">
         {orgNav.map((section, idx) => (
           <div key={idx} className="py-2">
             {section.title ? (
-              <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#75a58b]">
+              <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#9ca3af]">
                 {section.title}
               </p>
             ) : null}
@@ -73,13 +72,13 @@ export function OrgSidebar() {
                     key={item.href}
                     href={item.href}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-3 border-l-[3px] px-3 py-2.5 text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#e5f6eb] text-[#1f6a47]'
-                        : 'text-[#365646] hover:bg-[#eef8f1] hover:text-[#234a37]'
+                        ? 'border-l-[#E8922D] text-[#E8922D]'
+                        : 'border-l-transparent text-[#374151] hover:text-[#111827]'
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-[#2f8b5f]' : 'text-[#7baa8f]'}`} />
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-[#E8922D]' : 'text-[#9ca3af]'}`} />
                     {item.label}
                   </Link>
                 );
@@ -89,9 +88,9 @@ export function OrgSidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-[#e4efe7] p-4">
-        <p className="text-sm font-medium text-[#214736]">{user?.firstName} {user?.lastName}</p>
-        <p className="text-xs text-[#6e8c7b]">{user?.email}</p>
+      <div className="border-t border-[#e5e5e5] p-4">
+        <p className="text-sm font-medium text-[#111827]">{user?.firstName} {user?.lastName}</p>
+        <p className="text-xs text-[#6b7280]">{user?.email}</p>
       </div>
     </aside>
   );
