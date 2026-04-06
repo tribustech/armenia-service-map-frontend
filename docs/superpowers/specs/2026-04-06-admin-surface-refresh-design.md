@@ -69,6 +69,28 @@ Tables should sit inside rounded elevated shells rather than appearing as raw gr
 - Empty states remain inside the same shell so they do not visually break the page.
 - Horizontal overflow containers should inherit the shell styling cleanly.
 
+On mobile and narrow widths, almost all admin data tables should switch from tabular rows to stacked cards. This responsive card view is part of the intended design, not an optional fallback for overflow handling.
+
+Responsive rules:
+
+- Desktop and larger tablet widths keep the table layout.
+- Mobile and narrow widths replace rows with vertically stacked cards inside the same elevated list surface.
+- Each card should present a clear primary title, supporting metadata, and a strong action area.
+- Cards may include mobile-only metadata drawn from existing loaded fields when it improves clarity.
+- Sorting, filtering, pagination, and row actions should remain available without changing workflow behavior.
+
+Mobile card content by list:
+
+- Need reports: title, status, submitted by, region, assigned organisation, submitted date, short ID, and view action.
+- Need reports map list: title, status, location, tags, submitted date, short ID, and open action.
+- Services: title, state, availability, organisation, location, target groups, first topic with overflow indicator for additional topics, last updated, and view action.
+- Users: full name, role, email, organisation, created date, and view action.
+- Organisations: organisation name, account status, last access, plus mobile-only region and user/service counts from existing data, and view action.
+- Organisation users tab: full name, role, joined date, plus mobile-only email from existing data, and view action.
+- Taxonomy topics: topic name, usage count, last update, and edit/delete actions.
+- Need tags: tag name, usage count, last update, plus status when available, and edit/delete actions.
+- Target groups: target group name, status, usage count, last update, and edit/delete actions.
+
 ### Shared Form Controls
 
 Admin inputs, selects, textareas, checkbox groups, and editor wrappers should all be restyled to align with the new surface language.
@@ -121,6 +143,8 @@ This is a visual refresh only. Existing sorting, editing, saving, assignment, ta
 Verification should focus on shared admin surfaces first, then the timeline-specific composition.
 
 - Confirm tables no longer rely on harsh border treatments.
+- Confirm almost all admin tables switch to stacked cards on mobile and narrow widths.
+- Confirm each mobile card shows the intended hierarchy of key data, supporting metadata, and row actions for its list type.
 - Confirm shared admin form controls adopt the new surface language consistently.
 - Confirm the need detail timeline matches the approved visual structure: rail, markers, date chips, and inset comment card.
 - Confirm hover, focus, loading, and empty states still behave correctly.
