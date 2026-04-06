@@ -172,8 +172,12 @@
     "email": "Email",
     "password": "Password",
     "loginTitle": "Sign in to your account",
+    "loginEyebrow": "Organisation access",
+    "loginSubtitle": "Use your organisation account to manage services, review reported needs, and keep support information up to date.",
     "loginButton": "Sign in",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "loginPanelTitle": "Coordinate support without leaving the platform behind.",
+    "loginPanelBody": "Stay connected to the same RefugeeSupport.am experience while you access the tools your team uses to respond quickly and confidently."
   },
   "admin": {
     "sidebar": {
