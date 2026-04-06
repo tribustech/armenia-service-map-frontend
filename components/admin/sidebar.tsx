@@ -2,53 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
-  HomeIcon,
-  ArchiveBoxIcon,
-  InboxIcon,
-  MapIcon,
-  ArrowTrendingUpIcon,
-  UserGroupIcon,
-  ViewColumnsIcon,
-  BuildingLibraryIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { type ComponentType, type SVGProps, useMemo, useState } from 'react';
-
-interface NavItem {
-  label: string;
-  href: string;
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
-}
-
-interface NavSection {
-  title?: string;
-  items: NavItem[];
-}
-
-const adminNav: NavSection[] = [
-  {
-    items: [{ label: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon }],
-  },
-  {
-    title: 'Services',
-    items: [{ label: 'Service directory', href: '/admin/services', icon: ArchiveBoxIcon }],
-  },
-  {
-    title: 'Needs & Queries',
-    items: [
-      { label: 'Need reports', href: '/admin/needs', icon: InboxIcon },
-      { label: 'Needs map', href: '/admin/needs/map', icon: MapIcon },
-      { label: 'Analytics', href: '/admin/analytics', icon: ArrowTrendingUpIcon },
-    ],
-  },
-  {
-    title: 'Configurations',
-    items: [
-      { label: 'User management', href: '/admin/organisations', icon: UserGroupIcon },
-      { label: 'Taxonomy', href: '/admin/taxonomy', icon: ViewColumnsIcon },
-    ],
-  },
-];
+import type { AdminSidebarMode } from '@/app/(admin)/layout';
+import { adminNav } from '@/components/admin/navigation';
 
 function SectionHeader({
   title,
@@ -65,13 +24,13 @@ function SectionHeader({
     <button
       type="button"
       onClick={onToggle}
-      className="flex h-10 w-full items-center gap-3 px-3 text-sm font-semibold text-[#8f7357]"
+      className="flex h-10 w-full items-center gap-3 px-3 text-sm font-semibold text-[#9ca3af]"
       aria-expanded={open}
       aria-controls={controlsId}
     >
       <span className="flex-1 text-left">{title}</span>
       <svg
-        className={`h-3.5 w-3.5 text-[#8f7357] transition-transform ${open ? '' : 'rotate-180'}`}
+        className={`h-3.5 w-3.5 text-[#d1d5db] transition-transform ${open ? '' : 'rotate-180'}`}
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={2}
@@ -83,75 +42,101 @@ function SectionHeader({
   );
 }
 
-export function AdminSidebar() {
-  const pathname = usePathname();
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+type AdminSidebarProps = {
+  mode: AdminSidebarMode;
+  mobileNavOpen: boolean;
+  onCloseMobileNav: () => void;
+};
 
-  const isSectionOpen = (title: string) => openSections[title] !== false;
-  const toggleSection = (title: string) =>
-    setOpenSections((prev) => ({ ...prev, [title]: !isSectionOpen(title) }));
-  const activeItem = useMemo(
-    () =>
-      adminNav
-        .flatMap((section) => section.items)
-        .find((item) => pathname === item.href || pathname.startsWith(item.href + '/')),
-    [pathname],
-  );
+function isItemActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(href + '/');
+}
+
+function SidebarNav({
+  mode,
+  pathname,
+  openSections,
+  onToggleSection,
+  onNavigate,
+}: {
+  mode: AdminSidebarMode;
+  pathname: string;
+  openSections: Record<string, boolean>;
+  onToggleSection: (title: string) => void;
+  onNavigate?: () => void;
+}) {
+  const isRail = mode === 'rail';
+  const items = isRail ? adminNav.flatMap((section) => section.items) : [];
+
+  if (isRail) {
+    return (
+      <nav className="flex flex-1 flex-col items-center gap-2 overflow-y-auto px-2 py-4" aria-label="Admin navigation">
+        {items.map((item) => {
+          const isActive = isItemActive(pathname, item.href);
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
+              title={item.label}
+              className={`flex h-10 w-10 items-center justify-center border-l-[3px] transition-colors ${
+                isActive
+                  ? 'border-l-[#E8922D] text-[#E8922D]'
+                  : 'border-l-transparent text-[#9ca3af] hover:text-[#374151]'
+              }`}
+            >
+              <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#E8922D]' : 'text-[#9ca3af]'}`} />
+            </Link>
+          );
+        })}
+      </nav>
+    );
+  }
 
   return (
-    <aside className="flex h-full w-80 flex-col border-r border-[#f0ece6] bg-white">
-      <div className="border-b border-[#f4ede4] px-5 pb-5 pt-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fff3e2] text-[#e87c15]">
-            <BuildingLibraryIcon className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#d0832f]">RefugeeSupport</p>
-            <p className="text-sm font-semibold text-[#3f3428]">Admin Portal</p>
-          </div>
-        </div>
-        {activeItem ? (
-          <div className="mt-4 rounded-xl bg-[#fff7ee] px-3 py-2 text-xs font-medium text-[#865f34]">
-            Active section: {activeItem.label}
-          </div>
-        ) : null}
-      </div>
+    <nav
+      id={mode === 'drawer' ? 'admin-mobile-navigation' : undefined}
+      className="flex-1 overflow-y-auto px-4 pb-6 pt-2"
+      aria-label="Admin navigation"
+    >
+      {adminNav.map((section, i) => {
+        const sectionTitle = section.title;
+        const controlsId = sectionTitle
+          ? `admin-sidebar-section-${sectionTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+          : undefined;
 
-      <div className="px-5 pt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8f7357]">Navigation</p>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-2" aria-label="Admin navigation">
-        {adminNav.map((section, i) => (
+        return (
           <div key={i} className="py-3">
-            {section.title ? (
+            {sectionTitle ? (
               <SectionHeader
-                title={section.title}
-                open={isSectionOpen(section.title)}
-                controlsId={`admin-sidebar-section-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
-                onToggle={() => toggleSection(section.title!)}
+                title={sectionTitle}
+                open={openSections[sectionTitle] !== false}
+                controlsId={controlsId!}
+                onToggle={() => onToggleSection(sectionTitle)}
               />
             ) : null}
-            {(!section.title || isSectionOpen(section.title)) ? (
-              <div
-                className="flex flex-col gap-1"
-                id={section.title ? `admin-sidebar-section-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined}
-              >
+            {(!sectionTitle || openSections[sectionTitle] !== false) ? (
+              <div className="flex flex-col gap-1" id={controlsId}>
                 {section.items.map((item) => {
-                  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                  const isActive = isItemActive(pathname, item.href);
                   const Icon = item.icon;
+
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       aria-current={isActive ? 'page' : undefined}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                      className={`flex items-center gap-3 border-l-[3px] px-3 py-2.5 text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-[#fff3e2] text-[#b65d0d]'
-                          : 'text-[#5f5141] hover:bg-[#fff8f0] hover:text-[#3f3428]'
+                          ? 'border-l-[#E8922D] text-[#E8922D]'
+                          : 'border-l-transparent text-[#374151] hover:text-[#111827]'
                       }`}
+                      onClick={onNavigate}
                     >
-                      <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#e47417]' : 'text-[#8f7357]'}`} />
+                      <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#E8922D]' : 'text-[#9ca3af]'}`} />
                       {item.label}
                     </Link>
                   );
@@ -159,8 +144,133 @@ export function AdminSidebar() {
               </div>
             ) : null}
           </div>
-        ))}
-      </nav>
+        );
+      })}
+    </nav>
+  );
+}
+
+function SidebarPanel({
+  mode,
+  pathname,
+  openSections,
+  onToggleSection,
+  onCloseMobileNav,
+}: {
+  mode: AdminSidebarMode;
+  pathname: string;
+  openSections: Record<string, boolean>;
+  onToggleSection: (title: string) => void;
+  onCloseMobileNav: () => void;
+}) {
+  const isRail = mode === 'rail';
+
+  return (
+    <>
+      <div className={isRail ? 'border-b border-[#e5e5e5] px-3 pb-4 pt-5' : 'border-b border-[#e5e5e5] px-5 pb-4 pt-5'}>
+        {isRail ? (
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#9ca3af]">A</p>
+        ) : (
+          <p className="text-sm font-semibold uppercase tracking-[0.1em] text-[#9ca3af]">Admin</p>
+        )}
+      </div>
+
+      <SidebarNav
+        mode={mode}
+        pathname={pathname}
+        openSections={openSections}
+        onToggleSection={onToggleSection}
+        onNavigate={mode === 'drawer' ? onCloseMobileNav : undefined}
+      />
+    </>
+  );
+}
+
+export function AdminSidebar({ mode, mobileNavOpen, onCloseMobileNav }: AdminSidebarProps) {
+  const pathname = usePathname();
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (mode !== 'drawer' || !mobileNavOpen) {
+      return;
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onCloseMobileNav();
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [mobileNavOpen, mode, onCloseMobileNav]);
+
+  const toggleSection = (title: string) => {
+    setOpenSections((prev) => ({ ...prev, [title]: !(prev[title] !== false) }));
+  };
+
+  if (mode === 'drawer') {
+    if (!mobileNavOpen) {
+      return null;
+    }
+
+    return (
+      <div className="fixed inset-0 z-40 md:hidden">
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          className="absolute inset-0 bg-black/20"
+          onClick={onCloseMobileNav}
+        />
+        <aside
+          id="admin-mobile-navigation"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Admin navigation"
+          className="relative z-10 flex h-full w-[18.5rem] max-w-[85vw] flex-col border-r border-[#e5e5e5] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
+        >
+          <div className="flex items-center justify-between border-b border-[#e5e5e5] px-5 py-4">
+            <p className="text-sm font-semibold text-[#111827]">Navigation</p>
+            <button
+              type="button"
+              onClick={onCloseMobileNav}
+              className="text-[#6b7280] transition hover:text-[#111827]"
+              aria-label="Close navigation menu"
+            >
+              <XMarkIcon className="h-5 w-5" />
+            </button>
+          </div>
+          <SidebarPanel
+            mode={mode}
+            pathname={pathname}
+
+            openSections={openSections}
+            onToggleSection={toggleSection}
+            onCloseMobileNav={onCloseMobileNav}
+          />
+        </aside>
+      </div>
+    );
+  }
+
+  return (
+    <aside
+      className={
+        mode === 'rail'
+          ? 'hidden h-screen w-20 shrink-0 flex-col border-r border-[#e5e5e5] bg-white md:flex xl:hidden'
+          : 'hidden h-screen w-80 shrink-0 flex-col border-r border-[#e5e5e5] bg-white xl:flex'
+      }
+    >
+      <SidebarPanel
+        mode={mode}
+        pathname={pathname}
+        activeItemLabel={activeItem?.label}
+        openSections={openSections}
+        onToggleSection={toggleSection}
+        onCloseMobileNav={onCloseMobileNav}
+      />
     </aside>
   );
 }
