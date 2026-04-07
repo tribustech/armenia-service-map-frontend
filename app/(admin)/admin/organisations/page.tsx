@@ -17,6 +17,7 @@ import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 const accountBadge: Record<Organisation['status'], 'success' | 'warning' | 'danger'> = {
   ACTIVE: 'success',
   PENDING: 'warning',
+  REJECTED: 'danger',
   SUSPENDED: 'danger',
 };
 

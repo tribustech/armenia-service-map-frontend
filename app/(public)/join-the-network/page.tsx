@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
+import { useJoinNetwork } from '@/lib/api/organisations';
 import { usePublicRegions } from '@/lib/api/services';
 import { isValidEmail, isValidPhone } from '@/lib/validation';
 
@@ -28,11 +30,13 @@ const initialForm: FormState = {
 export default function JoinTheNetworkPage() {
   const t = useTranslations('joinNetworkPage');
   const tHome = useTranslations('home');
+  const router = useRouter();
   const { data: regions } = usePublicRegions();
+  const joinNetwork = useJoinNetwork();
 
-  const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const hasRequiredFields = useMemo(() => {
     return (
@@ -46,6 +50,7 @@ export default function JoinTheNetworkPage() {
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setSubmitError(null);
   }
 
   function validate() {
@@ -73,7 +78,7 @@ export default function JoinTheNetworkPage() {
     return nextErrors;
   }
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
@@ -82,8 +87,21 @@ export default function JoinTheNetworkPage() {
       return;
     }
 
-    setSubmitted(true);
-    setForm(initialForm);
+    try {
+      await joinNetwork.mutateAsync({
+        organisationName: form.organisationName.trim(),
+        regionId: form.regionId || undefined,
+        contactName: form.contactName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || undefined,
+        servicesDescription: form.servicesDescription.trim(),
+      });
+      setForm(initialForm);
+      setSubmitError(null);
+      router.push('/join-the-network/success');
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Unable to submit your request right now.');
+    }
   }
 
   return (
@@ -99,9 +117,9 @@ export default function JoinTheNetworkPage() {
             <h2 className="text-2xl font-semibold text-[#101828]">{t('formTitle')}</h2>
             <p className="mt-2 text-sm text-[#6a7282]">{t('formSubtitle')}</p>
 
-            {submitted ? (
-              <p className="mt-6 rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-4 text-sm text-[#166534]" role="status" aria-live="polite">
-                {t('success')}
+            {submitError ? (
+              <p className="mt-6 rounded-lg border border-[#fecaca] bg-[#fef2f2] p-4 text-sm text-[#b91c1c]" role="alert">
+                {submitError}
               </p>
             ) : null}
 
@@ -208,10 +226,10 @@ export default function JoinTheNetworkPage() {
 
               <button
                 type="submit"
-                disabled={!hasRequiredFields}
+                disabled={!hasRequiredFields || joinNetwork.isPending}
                 className="rounded-md bg-[#155dfc] px-4 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:bg-[#1447e6] disabled:opacity-50"
               >
-                {t('submit')}
+                {joinNetwork.isPending ? 'Submitting...' : t('submit')}
               </button>
             </form>
           </div>

@@ -38,6 +38,9 @@ export function useMarkNotificationRead() {
       apiClient(`/notifications/${notificationId}/read`, {
         method: 'PATCH',
       }),
+    meta: {
+      skipSuccessToast: true,
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
@@ -51,6 +54,9 @@ export function useMarkAllNotificationsRead() {
       apiClient('/notifications/read-all', {
         method: 'PATCH',
       }),
+    meta: {
+      skipSuccessToast: true,
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },

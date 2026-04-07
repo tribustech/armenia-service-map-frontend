@@ -129,6 +129,9 @@
     "servicesDescription": "Brief description of services",
     "submit": "Submit request",
     "success": "Request received. We will contact you at the email address provided.",
+    "successTitle": "Thank you for joining the network",
+    "successText": "Thanks for being part of this initiative. Our team will review your request and contact you soon with the next steps.",
+    "returnHome": "Return home",
     "imageAlt": "Join the network",
     "errors": {
       "organisationNameRequired": "Organisation name is required.",

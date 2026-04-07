@@ -133,7 +133,11 @@ export interface Organisation {
   observations?: string | null;
   tags?: string[];
   regionId: string | null;
-  status: 'ACTIVE' | 'PENDING' | 'SUSPENDED';
+  status: 'ACTIVE' | 'PENDING' | 'REJECTED' | 'SUSPENDED';
+  submissionSource?: string | null;
+  reviewedAt?: string | null;
+  reviewedByUserId?: string | null;
+  rejectionReason?: string | null;
   createdAt: string;
   updatedAt: string;
   region: Region | null;

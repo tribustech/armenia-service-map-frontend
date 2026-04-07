@@ -1,17 +1,30 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useEffectEvent, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { ArmeniaMap } from '@/components/shared/armenia-map';
 import { Pagination } from '@/components/admin/pagination';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
+import { sendPublicSearchLogBatchBeacon, useLogPublicSearchBatch } from '@/lib/api/analytics';
 import { usePublicRegionServiceCounts, usePublicRegions, usePublicServices, usePublicTopics } from '@/lib/api/services';
 import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 import type { PaginatedResponse, Service } from '@/types/api';
 
 type ViewMode = 'list' | 'map';
+type QueuedSearchLog = {
+  query: string;
+  regionId: string | null;
+  topicIds: string[];
+  resultsCount: number;
+};
+
+const SEARCH_LOG_QUEUE_STORAGE_KEY = 'public-search-log-queue';
+const SEARCH_LOG_DEBOUNCE_MS = 5000;
+const SEARCH_LOG_FLUSH_MS = 20000;
+const SEARCH_LOG_MAX_QUEUE_SIZE = 100;
+const SEARCH_LOG_FLUSH_THRESHOLD = 10;
 
 export default function PublicServicesPage() {
   return (
@@ -35,18 +48,150 @@ function ServicesContent() {
   const [selectedTopicId, setSelectedTopicId] = useState(searchParams.get('topicId') || '');
   const [selectedRegionId, setSelectedRegionId] = useState(searchParams.get('regionId') || '');
   const [onlyAvailable, setOnlyAvailable] = useState(searchParams.get('available') === 'true');
+  const [analyticsQueue, setAnalyticsQueue] = useState<QueuedSearchLog[]>(() => {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+
+    const storedQueue = window.localStorage.getItem(SEARCH_LOG_QUEUE_STORAGE_KEY);
+    if (!storedQueue) {
+      return [];
+    }
+
+    try {
+      const parsedQueue = JSON.parse(storedQueue) as QueuedSearchLog[];
+      return Array.isArray(parsedQueue) ? parsedQueue : [];
+    } catch {
+      window.localStorage.removeItem(SEARCH_LOG_QUEUE_STORAGE_KEY);
+      return [];
+    }
+  });
+  const lastQueuedSnapshotRef = useRef<string | null>(null);
+  const queueRef = useRef<QueuedSearchLog[]>([]);
+  const isFlushingRef = useRef(false);
 
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
   const { data: regionServiceCounts } = usePublicRegionServiceCounts();
+  const logPublicSearchBatch = useLogPublicSearchBatch();
+  const trimmedSearch = search.trim();
   const { data, isLoading } = usePublicServices({
     page,
     perPage,
-    search,
+    search: trimmedSearch,
     topicId: selectedTopicId || undefined,
     regionId: selectedRegionId || undefined,
     isAvailable: onlyAvailable || undefined,
   });
+
+  useEffect(() => {
+    queueRef.current = analyticsQueue;
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (!analyticsQueue.length) {
+      window.localStorage.removeItem(SEARCH_LOG_QUEUE_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(SEARCH_LOG_QUEUE_STORAGE_KEY, JSON.stringify(analyticsQueue));
+  }, [analyticsQueue]);
+
+  useEffect(() => {
+    if (isLoading || !data) {
+      return;
+    }
+
+    const hasIntent = Boolean(trimmedSearch || selectedRegionId || selectedTopicId || onlyAvailable);
+    if (!hasIntent) {
+      lastQueuedSnapshotRef.current = null;
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      const nextEvent: QueuedSearchLog = {
+        query: trimmedSearch,
+        regionId: selectedRegionId || null,
+        topicIds: selectedTopicId ? [selectedTopicId] : [],
+        resultsCount: data.meta.total,
+      };
+      const snapshotKey = JSON.stringify(nextEvent);
+      if (snapshotKey === lastQueuedSnapshotRef.current) {
+        return;
+      }
+
+      lastQueuedSnapshotRef.current = snapshotKey;
+      setAnalyticsQueue((current) => [...current, nextEvent].slice(-SEARCH_LOG_MAX_QUEUE_SIZE));
+    }, SEARCH_LOG_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [trimmedSearch, selectedRegionId, selectedTopicId, onlyAvailable, data, isLoading]);
+
+  const flushQueue = useEffectEvent((preferBeacon = false) => {
+    const currentQueue = queueRef.current;
+    if (!currentQueue.length || isFlushingRef.current) {
+      return;
+    }
+
+    const payload = { events: currentQueue };
+
+    if (preferBeacon && sendPublicSearchLogBatchBeacon(currentQueue)) {
+      setAnalyticsQueue((existingQueue) => existingQueue.slice(currentQueue.length));
+      return;
+    }
+
+    isFlushingRef.current = true;
+    logPublicSearchBatch.mutate(payload, {
+      onSuccess: () => {
+        setAnalyticsQueue((existingQueue) => existingQueue.slice(currentQueue.length));
+      },
+      onSettled: () => {
+        isFlushingRef.current = false;
+      },
+    });
+  });
+
+  useEffect(() => {
+    if (analyticsQueue.length < SEARCH_LOG_FLUSH_THRESHOLD) {
+      return;
+    }
+
+    flushQueue();
+  }, [analyticsQueue]);
+
+  useEffect(() => {
+    if (!analyticsQueue.length) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      flushQueue();
+    }, SEARCH_LOG_FLUSH_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [analyticsQueue]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        flushQueue();
+      }
+    };
+
+    const handlePageHide = () => {
+      flushQueue(true);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
+    };
+  }, [analyticsQueue]);
 
   const totalServices = data?.meta.total ?? 0;
   const selectedRegionName = regions?.find((region) => region.id === selectedRegionId)?.name;

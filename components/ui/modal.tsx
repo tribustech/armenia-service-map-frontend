@@ -30,7 +30,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       ref={dialogRef}
       onClose={onClose}
       aria-labelledby={titleId}
-      className="rounded-lg bg-white p-0 shadow-xl backdrop:bg-black/50"
+      className="m-auto rounded-lg bg-white p-0 shadow-xl backdrop:bg-black/50"
     >
       <div className="min-w-[400px] p-6">
         <div className="mb-4 flex items-center justify-between">

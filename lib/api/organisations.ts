@@ -2,6 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
 import type { PaginatedResponse, PaginationParams, Organisation, OrganisationDetail } from '@/types/api';
 
+export type JoinNetworkPayload = {
+  organisationName: string;
+  regionId?: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  servicesDescription: string;
+};
+
 export function useOrganisations(params: PaginationParams = {}) {
   const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -49,5 +58,38 @@ export function useDeleteOrganisation() {
   return useMutation({
     mutationFn: (id: string) => apiClient(`/admin/organisations/${id}`, { method: 'DELETE' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] }),
+  });
+}
+
+export function useJoinNetwork() {
+  return useMutation({
+    mutationFn: (data: JoinNetworkPayload) =>
+      apiClient<Organisation>('/public/join-network', { method: 'POST', body: data }),
+  });
+}
+
+export function useApproveOrganisation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient<Organisation>(`/admin/organisations/${id}/approve`, { method: 'POST' }),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'organisations', id] });
+    },
+  });
+}
+
+export function useRejectOrganisation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, rejectionReason }: { id: string; rejectionReason?: string }) =>
+      apiClient<Organisation>(`/admin/organisations/${id}/reject`, {
+        method: 'POST',
+        body: rejectionReason ? { rejectionReason } : {},
+      }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'organisations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'organisations', variables.id] });
+    },
   });
 }

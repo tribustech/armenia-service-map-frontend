@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiClient } from './client';
 import type {
   OverviewStats,
@@ -14,6 +14,8 @@ import type {
   PaginationParams,
   DashboardTrendsResponse,
 } from '@/types/api';
+
+const PUBLIC_ANALYTICS_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/public/search-logs/batch`;
 
 function withQuery(path: string, params: Record<string, string | number | undefined>) {
   const query = new URLSearchParams();
@@ -109,6 +111,35 @@ export function useFilterStats() {
   return useQuery({
     queryKey: ['admin', 'analytics', 'filters'],
     queryFn: () => apiClient<FilterStats>('/admin/analytics/filters'),
+  });
+}
+
+export function sendPublicSearchLogBatchBeacon(events: Array<{
+  query: string;
+  regionId: string | null;
+  topicIds: string[];
+  resultsCount: number;
+}>) {
+  if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') {
+    return false;
+  }
+
+  return navigator.sendBeacon(
+    PUBLIC_ANALYTICS_URL,
+    new Blob([JSON.stringify({ events })], { type: 'application/json' }),
+  );
+}
+
+export function useLogPublicSearchBatch() {
+  return useMutation({
+    mutationFn: (data: {
+      events: Array<{
+        query: string;
+        regionId: string | null;
+        topicIds: string[];
+        resultsCount: number;
+      }>;
+    }) => apiClient<{ ok: true }>('/public/search-logs/batch', { method: 'POST', body: data }),
   });
 }
 

@@ -65,6 +65,27 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
     return typeof needReportId === 'string' && needReportId.length > 0 ? needReportId : null;
   }
 
+  function getNotificationRoute(item: { metadata?: Record<string, unknown> | null }) {
+    const route = item.metadata?.route;
+    if (typeof route === 'string' && route.startsWith('/')) {
+      return route;
+    }
+
+    const redirectTo = item.metadata?.redirectTo;
+    if (typeof redirectTo === 'string' && redirectTo.length > 0) {
+      const normalized = redirectTo.replace(/^\/+/, '');
+      if (normalized.startsWith('organizations/')) {
+        return `/admin/organisations/${normalized.replace('organizations/', '')}`;
+      }
+      if (normalized.startsWith('organisations/')) {
+        return `/admin/organisations/${normalized.replace('organisations/', '')}`;
+      }
+      return `/${normalized}`;
+    }
+
+    return null;
+  }
+
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
       const target = event.target as Node;
@@ -171,6 +192,12 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
                           if (needReportId) {
                             setNotificationsOpen(false);
                             router.push(`/admin/needs/${needReportId}`);
+                            return;
+                          }
+                          const targetRoute = getNotificationRoute(item);
+                          if (targetRoute) {
+                            setNotificationsOpen(false);
+                            router.push(targetRoute);
                           }
                         }}
                         role="menuitem"
