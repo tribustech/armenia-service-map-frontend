@@ -462,8 +462,10 @@ function ServiceCard({ service }: { service: Service }) {
           <h3 className="mt-2 text-xl font-bold text-[#101828]">{content.title}</h3>
         </div>
 
-        {service.isAvailable ? (
+        {service.availabilityState === 'AVAILABLE' ? (
           <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-semibold text-[#166534]">{t('available')}</span>
+        ) : service.availabilityState === 'AVAILABLE_SOON' ? (
+          <span className="rounded-full bg-[#fef9c3] px-3 py-1 text-xs font-semibold text-[#854d0e]">{t('availableSoon')}</span>
         ) : (
           <span className="rounded-full bg-[#fee2e2] px-3 py-1 text-xs font-semibold text-[#b91c1c]">{t('unavailable')}</span>
         )}

@@ -35,6 +35,10 @@ vi.mock('@/components/public/need-cta-banner', () => ({
   NeedCtaBanner: () => <div data-testid="need-cta-banner" />,
 }));
 
+vi.mock('@/components/public/subscribe-notify-card', () => ({
+  SubscribeNotifyCard: () => <div data-testid="subscribe-notify-card" />,
+}));
+
 vi.mock('@/lib/i18n/service-content', () => ({
   getLocalizedServiceContent: (service: { title: string; shortDescription: string }) => ({
     title: service.title,
@@ -50,7 +54,11 @@ vi.mock('@/lib/api/services', () => ({
     usePublicServicesMock(params);
     return {
       data: {
-        data: [],
+        data: [
+          { id: 's1', title: 'A1', shortDescription: 'd', organisation: { id: 'o1', name: 'Org' }, region: null, topics: [], targetGroup: [], availabilityState: 'AVAILABLE' },
+          { id: 's2', title: 'A2', shortDescription: 'd', organisation: { id: 'o1', name: 'Org' }, region: null, topics: [], targetGroup: [], availabilityState: 'AVAILABLE_SOON' },
+          { id: 's3', title: 'A3', shortDescription: 'd', organisation: { id: 'o1', name: 'Org' }, region: null, topics: [], targetGroup: [], availabilityState: 'UNAVAILABLE' },
+        ],
         meta: {
           total: servicesHookState.total,
           page: 1,
@@ -86,6 +94,14 @@ describe('PublicServicesPage', () => {
   afterEach(() => {
     vi.runOnlyPendingTimers();
     vi.useRealTimers();
+  });
+
+  it('renders a badge per availability state', () => {
+    render(<PublicServicesPage />);
+    // The next-intl mock returns the key as-is, so badges render their key text.
+    expect(screen.getByText('available')).toBeInTheDocument();
+    expect(screen.getByText('availableSoon')).toBeInTheDocument();
+    expect(screen.getByText('unavailable')).toBeInTheDocument();
   });
 
   it('updates live service results immediately while typing', async () => {
