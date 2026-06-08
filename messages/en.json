@@ -166,6 +166,8 @@
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "contactWhatsapp": "WhatsApp",
+    "contactViber": "Viber",
+    "contactTelegram": "Telegram",
     "location": "Location",
     "selectOption": "Select...",
     "submit": "Send need report",

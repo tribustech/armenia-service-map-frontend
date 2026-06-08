@@ -52,7 +52,7 @@ export default function ReportANeedPage() {
         nextErrors.contactValue = t('errors.contactValueRequired');
       } else if (form.contactMethod === 'email' && !isValidEmail(form.contactValue)) {
         nextErrors.contactValue = t('errors.contactEmailInvalid');
-      } else if ((form.contactMethod === 'phone' || form.contactMethod === 'whatsapp') && !isValidPhone(form.contactValue)) {
+      } else if ((form.contactMethod === 'phone' || form.contactMethod === 'whatsapp' || form.contactMethod === 'viber') && !isValidPhone(form.contactValue)) {
         nextErrors.contactValue = t('errors.contactPhoneInvalid');
       }
     }
@@ -193,6 +193,8 @@ export default function ReportANeedPage() {
                   <option value="email">{t('contactEmail')}</option>
                   <option value="phone">{t('contactPhone')}</option>
                   <option value="whatsapp">{t('contactWhatsapp')}</option>
+                  <option value="viber">{t('contactViber')}</option>
+                  <option value="telegram">{t('contactTelegram')}</option>
                 </select>
               </Field>
 
