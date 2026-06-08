@@ -15,11 +15,11 @@ type EditableSubtopic = {
 };
 
 export function TopicForm({
-  mode,
   initialValue,
   onSubmit,
   onCancel,
 }: {
+  // `mode` remains part of the caller-facing prop contract but no longer affects rendering.
   mode: 'create' | 'edit';
   initialValue?: TopicDetail;
   onSubmit: (payload: TopicFormPayload) => Promise<void> | void;
