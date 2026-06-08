@@ -1,3 +1,11 @@
+// Maps the uppercase need status enum to keys under the `admin.statuses` i18n namespace.
+export const NEED_STATUS_LABEL_KEYS: Record<string, string> = {
+  NEW: 'new',
+  IN_PROGRESS: 'inProgress',
+  SOLVED: 'solved',
+  CLOSED: 'closed',
+};
+
 export function formatStatusLabel(status: string): string {
   const normalized = status.trim();
   if (!normalized) return 'Unknown';

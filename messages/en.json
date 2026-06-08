@@ -429,8 +429,7 @@
         "lastUpdatedMeta": "Last updated: {date}",
         "regionMeta": "Region: {region}",
         "regionNotProvided": "Not provided",
-        "saving": "Saving...",
-        "save": "Save"
+        "saving": "Saving..."
       },
       "map": {
         "title": "Needs map",

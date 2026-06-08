@@ -10,7 +10,7 @@ import { AdminPageHeader, AdminPanel, AdminToolbar } from '@/components/admin/ad
 import { Badge } from '@/components/ui/badge';
 import { TableSearchInput, TableSelect } from '@/components/ui/table-controls';
 import { useAdminNeeds } from '@/lib/api/needs';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
+import { formatStatusLabel, NEED_STATUS_LABEL_KEYS } from '@/lib/formatting/status-label';
 import type { NeedReport } from '@/types/api';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
@@ -70,7 +70,8 @@ export default function AdminNeedsPage() {
       header: t('columns.status'),
       cell: ({ getValue }) => {
         const s = getValue() as string;
-        return <Badge variant={statusVariant[s] || 'neutral'}>{formatStatusLabel(s)}</Badge>;
+        const labelKey = NEED_STATUS_LABEL_KEYS[s];
+        return <Badge variant={statusVariant[s] || 'neutral'}>{labelKey ? tStatuses(labelKey) : formatStatusLabel(s)}</Badge>;
       },
     },
     {
@@ -131,7 +132,7 @@ export default function AdminNeedsPage() {
               mobileCard={(row) => ({
                 eyebrow: String(row.id).slice(0, 8),
                 title: row.title || row.description.slice(0, 60),
-                badges: <Badge variant={statusVariant[row.status] || 'neutral'}>{formatStatusLabel(row.status)}</Badge>,
+                badges: <Badge variant={statusVariant[row.status] || 'neutral'}>{NEED_STATUS_LABEL_KEYS[row.status] ? tStatuses(NEED_STATUS_LABEL_KEYS[row.status]) : formatStatusLabel(row.status)}</Badge>,
                 fields: [
                   { label: t('columns.submittedBy'), value: row.fullName },
                   { label: t('columns.region'), value: row.region?.name || '—' },

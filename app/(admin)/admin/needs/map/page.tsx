@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { TableSearchInput } from '@/components/ui/table-controls';
 import { NeedsMapLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAdminNeeds, useAdminNeedsMap } from '@/lib/api/needs';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
+import { formatStatusLabel, NEED_STATUS_LABEL_KEYS } from '@/lib/formatting/status-label';
 import type { NeedReport } from '@/types/api';
 
 const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
@@ -25,6 +25,7 @@ const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'
 export default function AdminNeedsMapPage() {
   const t = useTranslations('admin.needs');
   const tMap = useTranslations('admin.needs.map');
+  const tStatuses = useTranslations('admin.statuses');
   const [selectedRegionId, setSelectedRegionId] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -81,7 +82,8 @@ export default function AdminNeedsMapPage() {
       header: t('columns.status'),
       cell: ({ getValue }) => {
         const value = String(getValue());
-        return <Badge variant={statusVariant[value] || 'neutral'}>{formatStatusLabel(value)}</Badge>;
+        const labelKey = NEED_STATUS_LABEL_KEYS[value];
+        return <Badge variant={statusVariant[value] || 'neutral'}>{labelKey ? tStatuses(labelKey) : formatStatusLabel(value)}</Badge>;
       },
     },
     {
@@ -209,7 +211,7 @@ export default function AdminNeedsMapPage() {
               mobileCard={(row) => ({
                 eyebrow: String(row.id).slice(0, 8),
                 title: row.title || row.description.slice(0, 60),
-                badges: <Badge variant={statusVariant[row.status] || 'neutral'}>{formatStatusLabel(row.status)}</Badge>,
+                badges: <Badge variant={statusVariant[row.status] || 'neutral'}>{NEED_STATUS_LABEL_KEYS[row.status] ? tStatuses(NEED_STATUS_LABEL_KEYS[row.status]) : formatStatusLabel(row.status)}</Badge>,
                 fields: [
                   { label: tMap('columnLocation'), value: row.region?.name || '—' },
                   { label: tMap('columnTags'), value: row.tags.map((tag) => tag.needTag.name).join(', ') || '—' },

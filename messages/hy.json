@@ -429,8 +429,7 @@
         "lastUpdatedMeta": "Վերջին թարմացում՝ {date}",
         "regionMeta": "Մարզ՝ {region}",
         "regionNotProvided": "Նշված չէ",
-        "saving": "Պահպանվում է...",
-        "save": "Պահպանել"
+        "saving": "Պահպանվում է..."
       },
       "map": {
         "title": "Կարիքների քարտեզ",

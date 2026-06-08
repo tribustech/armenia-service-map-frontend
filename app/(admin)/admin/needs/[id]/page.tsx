@@ -19,7 +19,7 @@ import {
 } from '@/lib/api/needs';
 import { useOrganisations } from '@/lib/api/organisations';
 import { useNeedTags } from '@/lib/api/taxonomy';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
+import { formatStatusLabel, NEED_STATUS_LABEL_KEYS } from '@/lib/formatting/status-label';
 import type { NeedStatus } from '@/types/api';
 
 const statusVariant: Record<NeedStatus, 'neutral' | 'warning' | 'success' | 'danger'> = {
@@ -137,7 +137,7 @@ export default function AdminNeedDetailPage() {
             <h1 className="text-2xl font-bold text-[#111827]">
               {need.title || t('fallbackHeading', { id: need.id.slice(0, 8) })}
             </h1>
-            <Badge variant={statusVariant[need.status]}>{formatStatusLabel(need.status)}</Badge>
+            <Badge variant={statusVariant[need.status]}>{NEED_STATUS_LABEL_KEYS[need.status] ? tStatuses(NEED_STATUS_LABEL_KEYS[need.status]) : formatStatusLabel(need.status)}</Badge>
           </div>
           <p className="mt-1 text-sm text-[#6b7280]">{t('createdOn', { date: new Date(need.createdAt).toLocaleString() })}</p>
         </div>
