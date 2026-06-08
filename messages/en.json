@@ -320,10 +320,22 @@
     "services": {
       "title": "Service directory",
       "addService": "Add service",
+      "addNew": "Add new service",
+      "description": "Review publication state, coverage, and availability across partner services.",
       "editService": "Edit service",
       "deleteService": "Delete service",
       "available": "Available",
-      "unavailable": "Unavailable"
+      "unavailable": "Unavailable",
+      "columns": {
+        "title": "Title",
+        "organisation": "Organisation",
+        "location": "Location",
+        "availability": "Availability",
+        "state": "State",
+        "targetGroup": "Target group",
+        "topics": "Topics",
+        "lastUpdated": "Last updated"
+      }
     },
     "needs": {
       "title": "Need reports",

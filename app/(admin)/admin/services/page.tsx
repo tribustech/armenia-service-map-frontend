@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
@@ -16,6 +17,9 @@ import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 export default function AdminServicesPage() {
   const router = useRouter();
+  const t = useTranslations('admin.services');
+  const tStatus = useTranslations('admin.statuses');
+  const tCommon = useTranslations('admin.common');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -35,22 +39,22 @@ export default function AdminServicesPage() {
   });
 
   const columns: ColumnDef<Service, unknown>[] = [
-    { accessorKey: 'title', header: 'Title', enableSorting: true },
+    { accessorKey: 'title', header: t('columns.title'), enableSorting: true },
     {
       accessorFn: (row) => row.organisation.name,
       id: 'organisation',
-      header: 'Organisation',
+      header: t('columns.organisation'),
       enableSorting: false,
     },
     {
       accessorFn: (row) => row.region?.name ?? '',
       id: 'location',
-      header: 'Location',
+      header: t('columns.location'),
       enableSorting: true,
     },
     {
       accessorKey: 'isAvailable',
-      header: 'Availability',
+      header: t('columns.availability'),
       enableSorting: true,
       cell: ({ getValue }) => (
         getValue() ? (
@@ -62,13 +66,13 @@ export default function AdminServicesPage() {
     },
     {
       accessorKey: 'status',
-      header: 'State',
+      header: t('columns.state'),
       enableSorting: true,
       cell: ({ getValue }) => {
         const value = String(getValue());
         return (
           <Badge variant={value === 'PUBLISHED' ? 'success' : 'warning'}>
-            {value === 'PUBLISHED' ? 'Published' : 'Draft'}
+            {value === 'PUBLISHED' ? tStatus('published') : tStatus('draft')}
           </Badge>
         );
       },
@@ -76,12 +80,12 @@ export default function AdminServicesPage() {
     {
       accessorFn: (row) => row.targetGroups?.map((item) => item.targetGroup.name).join(', ') ?? '',
       id: 'targetGroup',
-      header: 'Target group',
+      header: t('columns.targetGroup'),
       enableSorting: false,
     },
     {
       id: 'topics',
-      header: 'Topics',
+      header: t('columns.topics'),
       enableSorting: false,
       cell: ({ row }) => {
         const firstTopic = row.original.topics?.[0]?.topic;
@@ -95,7 +99,7 @@ export default function AdminServicesPage() {
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last Updated',
+      header: t('columns.lastUpdated'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       enableSorting: true,
     },
@@ -108,7 +112,7 @@ export default function AdminServicesPage() {
           className="flex items-center gap-1 text-sm text-[#6b7280] hover:text-[#374151]"
         >
           <Cog6ToothIcon className="h-4 w-4" />
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -118,10 +122,10 @@ export default function AdminServicesPage() {
     <div>
       <AdminPageHeader>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">Service directory</h1>
-          <p className="mt-1 text-sm text-[#6b7280]">Review publication state, coverage, and availability across partner services.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">{t('title')}</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">{t('description')}</p>
         </div>
-        <Button onClick={() => router.push('/admin/services/new')}>Add new service</Button>
+        <Button onClick={() => router.push('/admin/services/new')}>{t('addNew')}</Button>
       </AdminPageHeader>
 
       <AdminPanel className="mt-6 overflow-hidden">
@@ -134,11 +138,11 @@ export default function AdminServicesPage() {
             }}
             className="sm:w-[194px]"
           >
-            <option value="">All states</option>
-            <option value="DRAFT">Draft</option>
-            <option value="PUBLISHED">Published</option>
+            <option value="">{tStatus('allStates')}</option>
+            <option value="DRAFT">{tStatus('draft')}</option>
+            <option value="PUBLISHED">{tStatus('published')}</option>
           </TableSelect>
-          <TableSearchInput placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="sm:w-72" />
+          <TableSearchInput placeholder={tCommon('searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="sm:w-72" />
         </AdminToolbar>
 
         {isLoading ? (
@@ -157,21 +161,21 @@ export default function AdminServicesPage() {
                 badges: (
                   <>
                     <Badge variant={row.status === 'PUBLISHED' ? 'success' : 'warning'}>
-                      {row.status === 'PUBLISHED' ? 'Published' : 'Draft'}
+                      {row.status === 'PUBLISHED' ? tStatus('published') : tStatus('draft')}
                     </Badge>
                     <Badge variant={row.isAvailable ? 'success' : 'danger'}>
-                      {row.isAvailable ? 'Available' : 'Unavailable'}
+                      {row.isAvailable ? tStatus('available') : tStatus('unavailable')}
                     </Badge>
                   </>
                 ),
                 fields: [
-                  { label: 'Organisation', value: row.organisation.name },
-                  { label: 'Location', value: row.region?.name || '—' },
-                  { label: 'Target groups', value: row.targetGroups?.map((item) => item.targetGroup.name).join(', ') || '—' },
-                  { label: 'Topics', value: row.topics?.length ? `${row.topics[0].topic.name}${row.topics.length > 1 ? ` +${row.topics.length - 1}` : ''}` : '—' },
-                  { label: 'Last updated', value: new Date(row.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
+                  { label: t('columns.organisation'), value: row.organisation.name },
+                  { label: t('columns.location'), value: row.region?.name || '—' },
+                  { label: t('columns.targetGroup'), value: row.targetGroups?.map((item) => item.targetGroup.name).join(', ') || '—' },
+                  { label: t('columns.topics'), value: row.topics?.length ? `${row.topics[0].topic.name}${row.topics.length > 1 ? ` +${row.topics.length - 1}` : ''}` : '—' },
+                  { label: t('columns.lastUpdated'), value: new Date(row.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
                 ],
-                action: <button type="button" onClick={() => router.push(`/admin/services/${row.id}`)} className="admin-link-button">View</button>,
+                action: <button type="button" onClick={() => router.push(`/admin/services/${row.id}`)} className="admin-link-button">{tCommon('view')}</button>,
               })}
             />
             {data && (
