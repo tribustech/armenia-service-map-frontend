@@ -85,6 +85,13 @@ export default function ServiceDetailPage() {
           <div className="text-sm font-medium text-[#6b7280] mb-2">Description</div>
           <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: service.description }} />
         </AdminPanel>
+
+        {service.howToAccess ? (
+          <AdminPanel className="p-4 sm:p-5">
+            <div className="text-sm font-medium text-[#6b7280] mb-2">How to access the service</div>
+            <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: service.howToAccess }} />
+          </AdminPanel>
+        ) : null}
       </div>
     </div>
   );
