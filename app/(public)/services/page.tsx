@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ArmeniaMap } from '@/components/shared/armenia-map';
 import { Pagination } from '@/components/admin/pagination';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
+import { SubscribeNotifyCard } from '@/components/public/subscribe-notify-card';
 import { sendPublicSearchLogBatchBeacon, useLogPublicSearchBatch } from '@/lib/api/analytics';
 import { usePublicRegionServiceCounts, usePublicRegions, usePublicServices, usePublicTopics } from '@/lib/api/services';
 import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
@@ -195,6 +196,7 @@ function ServicesContent() {
 
   const totalServices = data?.meta.total ?? 0;
   const selectedRegionName = regions?.find((region) => region.id === selectedRegionId)?.name;
+  const selectedTopicName = topics?.find((topic) => topic.id === selectedTopicId)?.name;
   const servicesJsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -400,6 +402,13 @@ function ServicesContent() {
           </div>
         ) : null}
       </div>
+
+      <SubscribeNotifyCard
+        regionId={selectedRegionId || undefined}
+        regionName={selectedRegionName}
+        topicId={selectedTopicId || undefined}
+        topicName={selectedTopicName}
+      />
 
       <NeedCtaBanner
         title={tHome('ctaTitle')}
