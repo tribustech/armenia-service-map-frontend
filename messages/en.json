@@ -59,7 +59,16 @@
     "anywhereInArmenia": "Anywhere in Armenia",
     "ctaTitle": "Haven't found the right service yet?",
     "ctaSubtitle": "Share your needs with us.",
-    "reportNeed": "Report a need"
+    "reportNeed": "Report a need",
+    "joinNetwork": {
+      "badge": "For organizations",
+      "title": "Join our network of service providers",
+      "description": "Are you an organization providing support services to refugees? Register to post your services on our platform and help connect those in need with the support you offer.",
+      "feature1": "Reach more people",
+      "feature2": "Easy management",
+      "feature3": "Trusted network",
+      "register": "Register now"
+    }
   },
   "services": {
     "title": "Explore services",
