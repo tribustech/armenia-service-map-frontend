@@ -23,6 +23,8 @@ type ServiceFormState = {
   shortDescriptionHy: string;
   description: string;
   descriptionHy: string;
+  howToAccess: string;
+  howToAccessHy: string;
   status: 'DRAFT' | 'PUBLISHED';
   regionId: string;
   isAvailable: boolean;
@@ -39,6 +41,8 @@ const EMPTY_FORM: ServiceFormState = {
   shortDescriptionHy: '',
   description: '',
   descriptionHy: '',
+  howToAccess: '',
+  howToAccessHy: '',
   status: 'DRAFT',
   regionId: '',
   isAvailable: true,
@@ -78,6 +82,8 @@ export default function EditOrgServicePage() {
       shortDescriptionHy: service.shortDescriptionHy ?? '',
       description: service.description,
       descriptionHy: service.descriptionHy ?? '',
+      howToAccess: service.howToAccess,
+      howToAccessHy: service.howToAccessHy ?? '',
       status: service.status,
       regionId: service.regionId || '',
       isAvailable: service.isAvailable,
@@ -100,6 +106,7 @@ export default function EditOrgServicePage() {
     if (!values.title.trim()) nextErrors.title = 'Title is required.';
     if (!values.shortDescription.trim()) nextErrors.shortDescription = 'Short description is required.';
     if (!toPlainText(values.description)) nextErrors.description = 'Description is required.';
+    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = 'How to access the service is required.';
     if (
       values.availabilityStart &&
       values.availabilityEnd &&
@@ -120,6 +127,7 @@ export default function EditOrgServicePage() {
       const normalizedTitleHy = form.titleHy.trim() ? form.titleHy : null;
       const normalizedShortDescriptionHy = form.shortDescriptionHy.trim() ? form.shortDescriptionHy : null;
       const normalizedDescriptionHy = toPlainText(form.descriptionHy) ? form.descriptionHy : null;
+      const normalizedHowToAccessHy = toPlainText(form.howToAccessHy) ? form.howToAccessHy : null;
 
       await update.mutateAsync({
         id,
@@ -129,6 +137,8 @@ export default function EditOrgServicePage() {
         shortDescriptionHy: normalizedShortDescriptionHy,
         description: form.description,
         descriptionHy: normalizedDescriptionHy,
+        howToAccess: form.howToAccess,
+        howToAccessHy: normalizedHowToAccessHy,
         status: form.status,
         regionId: form.regionId || undefined,
         isAvailable: form.isAvailable,
@@ -219,6 +229,20 @@ export default function EditOrgServicePage() {
           />
           {activeLanguage === 'en' && errors.description ? (
             <p className="mt-1 text-xs text-red-600">{errors.description}</p>
+          ) : null}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-[#374151]">
+            How to access the service ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            {activeLanguage === 'en' ? ' *' : ''}
+          </label>
+          <RichTextEditor
+            content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
+            onChange={(html) => updateField(activeLanguage === 'en' ? 'howToAccess' : 'howToAccessHy', html)}
+          />
+          {activeLanguage === 'en' && errors.howToAccess ? (
+            <p className="mt-1 text-xs text-red-600">{errors.howToAccess}</p>
           ) : null}
         </div>
 
