@@ -70,9 +70,9 @@ describe('TaxonomyPage', () => {
   it('shows route-oriented topic actions instead of topic edit modals', () => {
     render(<TaxonomyPage />);
 
-    expect(screen.getByRole('button', { name: 'Add topic' })).toBeVisible();
-    expect(screen.getAllByText('View').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'addTopic' })).toBeVisible();
+    expect(screen.getAllByText('view').length).toBeGreaterThan(0);
     expect(screen.getAllByTestId('table-search-icon').length).toBeGreaterThan(0);
-    expect(screen.queryByText('Edit topic')).not.toBeInTheDocument();
+    expect(screen.queryByText('editTopic')).not.toBeInTheDocument();
   });
 });

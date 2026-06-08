@@ -336,7 +336,22 @@
       "addTopic": "Add topic",
       "addTag": "Add tag",
       "editTopic": "Edit topic",
-      "editTag": "Edit tag"
+      "editTag": "Edit tag",
+      "targetGroups": "Target groups",
+      "addTargetGroup": "Add target group",
+      "editing": "Editing",
+      "editingComplete": "Editing complete",
+      "noSubtopics": "No sub-topics found",
+      "statusLabel": "Status",
+      "columns": {
+        "id": "ID",
+        "topics": "Topics",
+        "tag": "Tag",
+        "targetGroup": "Target group",
+        "usage": "Usage",
+        "status": "Status",
+        "lastUpdate": "Last update"
+      }
     },
     "organisations": {
       "title": "Users management",

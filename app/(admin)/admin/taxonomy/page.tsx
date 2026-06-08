@@ -13,17 +13,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TableSearchInput } from '@/components/ui/table-controls';
 import { useTopics, useNeedTags, useTargetGroups } from '@/lib/api/taxonomy';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
+import { useTranslations } from 'next-intl';
 import type { NeedTag, TargetGroup, Topic } from '@/types/api';
 
 type Tab = 'topics' | 'need-tags' | 'target-groups';
 
 export default function TaxonomyPage() {
   const [activeTab, setActiveTab] = useState<Tab>('topics');
+  const t = useTranslations('admin.taxonomy');
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Nomenclature</h1>
+      <h1 className="text-2xl font-bold">{t('title')}</h1>
       <TaxonomyTabs active={activeTab} onChange={setActiveTab} />
 
       <div className="mt-6">
@@ -37,6 +38,9 @@ export default function TaxonomyPage() {
 
 function TopicsSection() {
   const router = useRouter();
+  const t = useTranslations('admin.taxonomy');
+  const tCommon = useTranslations('admin.common');
+  const tStatuses = useTranslations('admin.statuses');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -46,22 +50,26 @@ function TopicsSection() {
   const { data, isLoading } = useTopics({ page, perPage, search, sortBy, sortOrder });
 
   const columns: ColumnDef<Topic, unknown>[] = [
-    { accessorKey: 'id', header: 'ID', enableSorting: false },
-    { accessorKey: 'name', header: 'Topics', enableSorting: true },
+    { accessorKey: 'id', header: t('columns.id'), enableSorting: false },
+    { accessorKey: 'name', header: t('columns.topics'), enableSorting: true },
     {
       accessorFn: (row) => row._count.services,
       id: 'usage',
-      header: 'Usage',
+      header: t('columns.usage'),
       enableSorting: false,
     },
     {
       accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => <Badge variant={row.original.status === 'ACTIVE' ? 'success' : 'neutral'}>{formatStatusLabel(row.original.status)}</Badge>,
+      header: t('columns.status'),
+      cell: ({ row }) => (
+        <Badge variant={row.original.status === 'ACTIVE' ? 'success' : 'neutral'}>
+          {row.original.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}
+        </Badge>
+      ),
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last update',
+      header: t('columns.lastUpdate'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
       enableSorting: true,
     },
@@ -70,7 +78,7 @@ function TopicsSection() {
       header: '',
       cell: ({ row }) => (
         <Link href={`/admin/taxonomy/topics/${row.original.id}`} className="admin-link-button">
-          View
+          {tCommon('view')}
         </Link>
       ),
     },
@@ -79,12 +87,12 @@ function TopicsSection() {
   return (
     <AdminPanel className="overflow-hidden">
       <div className="flex items-center justify-between border-b border-[#f0f0f0] p-4">
-        <h2 className="text-lg font-semibold">Service topics</h2>
-        <Button onClick={() => router.push('/admin/taxonomy/topics/new')}>Add topic</Button>
+        <h2 className="text-lg font-semibold">{t('serviceTopics')}</h2>
+        <Button onClick={() => router.push('/admin/taxonomy/topics/new')}>{t('addTopic')}</Button>
       </div>
       <AdminToolbar layout="compact-end">
         <TableSearchInput
-          placeholder="Search..."
+          placeholder={tCommon('searchPlaceholder')}
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
@@ -108,14 +116,18 @@ function TopicsSection() {
             mobileCard={(row) => ({
               eyebrow: row.id,
               title: row.name,
-              badges: <Badge variant={row.status === 'ACTIVE' ? 'success' : 'neutral'}>{formatStatusLabel(row.status)}</Badge>,
+              badges: (
+                <Badge variant={row.status === 'ACTIVE' ? 'success' : 'neutral'}>
+                  {row.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}
+                </Badge>
+              ),
               fields: [
-                { label: 'Usage', value: row._count.services },
-                { label: 'Last update', value: new Date(row.updatedAt).toLocaleDateString() },
+                { label: t('columns.usage'), value: row._count.services },
+                { label: t('columns.lastUpdate'), value: new Date(row.updatedAt).toLocaleDateString() },
               ],
               action: (
                 <Link href={`/admin/taxonomy/topics/${row.id}`} className="admin-link-button">
-                  View
+                  {tCommon('view')}
                 </Link>
               ),
             })}
@@ -141,6 +153,9 @@ function TopicsSection() {
 
 function NeedTagsSection() {
   const router = useRouter();
+  const t = useTranslations('admin.taxonomy');
+  const tCommon = useTranslations('admin.common');
+  const tStatuses = useTranslations('admin.statuses');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -150,22 +165,26 @@ function NeedTagsSection() {
   const { data, isLoading } = useNeedTags({ page, perPage, search, sortBy, sortOrder });
 
   const columns: ColumnDef<NeedTag, unknown>[] = [
-    { accessorKey: 'id', header: 'ID', enableSorting: false },
-    { accessorKey: 'name', header: 'Tag', enableSorting: true },
+    { accessorKey: 'id', header: t('columns.id'), enableSorting: false },
+    { accessorKey: 'name', header: t('columns.tag'), enableSorting: true },
     {
       accessorFn: (row) => row._count.needReports,
       id: 'usage',
-      header: 'Usage',
+      header: t('columns.usage'),
       enableSorting: false,
     },
     {
       accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => <Badge variant={row.original.status === 'ACTIVE' ? 'success' : 'neutral'}>{formatStatusLabel(row.original.status)}</Badge>,
+      header: t('columns.status'),
+      cell: ({ row }) => (
+        <Badge variant={row.original.status === 'ACTIVE' ? 'success' : 'neutral'}>
+          {row.original.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}
+        </Badge>
+      ),
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last update',
+      header: t('columns.lastUpdate'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
       enableSorting: true,
     },
@@ -174,7 +193,7 @@ function NeedTagsSection() {
       header: '',
       cell: ({ row }) => (
         <Link href={`/admin/taxonomy/need-tags/${row.original.id}`} className="admin-link-button">
-          View
+          {tCommon('view')}
         </Link>
       ),
     },
@@ -183,12 +202,12 @@ function NeedTagsSection() {
   return (
     <AdminPanel className="overflow-hidden">
       <div className="flex items-center justify-between border-b border-[#f0f0f0] p-4">
-        <h2 className="text-lg font-semibold">Need tags</h2>
-        <Button onClick={() => router.push('/admin/taxonomy/need-tags/new')}>Add tag</Button>
+        <h2 className="text-lg font-semibold">{t('needTags')}</h2>
+        <Button onClick={() => router.push('/admin/taxonomy/need-tags/new')}>{t('addTag')}</Button>
       </div>
       <AdminToolbar layout="compact-end">
         <TableSearchInput
-          placeholder="Search..."
+          placeholder={tCommon('searchPlaceholder')}
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
@@ -212,14 +231,18 @@ function NeedTagsSection() {
             mobileCard={(row) => ({
               eyebrow: row.id,
               title: row.name,
-              badges: <Badge variant={row.status === 'ACTIVE' ? 'success' : 'neutral'}>{formatStatusLabel(row.status)}</Badge>,
+              badges: (
+                <Badge variant={row.status === 'ACTIVE' ? 'success' : 'neutral'}>
+                  {row.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}
+                </Badge>
+              ),
               fields: [
-                { label: 'Usage', value: row._count.needReports },
-                { label: 'Last update', value: new Date(row.updatedAt).toLocaleDateString() },
+                { label: t('columns.usage'), value: row._count.needReports },
+                { label: t('columns.lastUpdate'), value: new Date(row.updatedAt).toLocaleDateString() },
               ],
               action: (
                 <Link href={`/admin/taxonomy/need-tags/${row.id}`} className="admin-link-button">
-                  View
+                  {tCommon('view')}
                 </Link>
               ),
             })}
@@ -245,6 +268,9 @@ function NeedTagsSection() {
 
 function TargetGroupsSection() {
   const router = useRouter();
+  const t = useTranslations('admin.taxonomy');
+  const tCommon = useTranslations('admin.common');
+  const tStatuses = useTranslations('admin.statuses');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -254,22 +280,26 @@ function TargetGroupsSection() {
   const { data, isLoading } = useTargetGroups({ page, perPage, search, sortBy, sortOrder });
 
   const columns: ColumnDef<TargetGroup, unknown>[] = [
-    { accessorKey: 'id', header: 'ID', enableSorting: false },
-    { accessorKey: 'name', header: 'Target group', enableSorting: true },
+    { accessorKey: 'id', header: t('columns.id'), enableSorting: false },
+    { accessorKey: 'name', header: t('columns.targetGroup'), enableSorting: true },
     {
       accessorFn: (row) => row._count.services,
       id: 'usage',
-      header: 'Usage',
+      header: t('columns.usage'),
       enableSorting: false,
     },
     {
       accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => <Badge variant={row.original.status === 'ACTIVE' ? 'success' : 'neutral'}>{formatStatusLabel(row.original.status)}</Badge>,
+      header: t('columns.status'),
+      cell: ({ row }) => (
+        <Badge variant={row.original.status === 'ACTIVE' ? 'success' : 'neutral'}>
+          {row.original.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}
+        </Badge>
+      ),
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last update',
+      header: t('columns.lastUpdate'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
       enableSorting: true,
     },
@@ -278,7 +308,7 @@ function TargetGroupsSection() {
       header: '',
       cell: ({ row }) => (
         <Link href={`/admin/taxonomy/target-groups/${row.original.id}`} className="admin-link-button">
-          View
+          {tCommon('view')}
         </Link>
       ),
     },
@@ -287,12 +317,12 @@ function TargetGroupsSection() {
   return (
     <AdminPanel className="overflow-hidden">
       <div className="flex items-center justify-between border-b border-[#f0f0f0] p-4">
-        <h2 className="text-lg font-semibold">Target groups</h2>
-        <Button onClick={() => router.push('/admin/taxonomy/target-groups/new')}>Add target group</Button>
+        <h2 className="text-lg font-semibold">{t('targetGroups')}</h2>
+        <Button onClick={() => router.push('/admin/taxonomy/target-groups/new')}>{t('addTargetGroup')}</Button>
       </div>
       <AdminToolbar layout="compact-end">
         <TableSearchInput
-          placeholder="Search..."
+          placeholder={tCommon('searchPlaceholder')}
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
@@ -316,14 +346,18 @@ function TargetGroupsSection() {
             mobileCard={(row) => ({
               eyebrow: row.id,
               title: row.name,
-              badges: <Badge variant={row.status === 'ACTIVE' ? 'success' : 'neutral'}>{formatStatusLabel(row.status)}</Badge>,
+              badges: (
+                <Badge variant={row.status === 'ACTIVE' ? 'success' : 'neutral'}>
+                  {row.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}
+                </Badge>
+              ),
               fields: [
-                { label: 'Usage', value: row._count.services },
-                { label: 'Last update', value: new Date(row.updatedAt).toLocaleDateString() },
+                { label: t('columns.usage'), value: row._count.services },
+                { label: t('columns.lastUpdate'), value: new Date(row.updatedAt).toLocaleDateString() },
               ],
               action: (
                 <Link href={`/admin/taxonomy/target-groups/${row.id}`} className="admin-link-button">
-                  View
+                  {tCommon('view')}
                 </Link>
               ),
             })}

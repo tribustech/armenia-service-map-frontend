@@ -336,7 +336,22 @@
       "addTopic": "Ավելացնել թեմա",
       "addTag": "Ավելացնել պիտակ",
       "editTopic": "Խմբագրել թեման",
-      "editTag": "Խմբագրել պիտակը"
+      "editTag": "Խմբագրել պիտակը",
+      "targetGroups": "Թիրախ խմբեր",
+      "addTargetGroup": "Ավելացնել թիրախ խումբ",
+      "editing": "Խմբագրվում է",
+      "editingComplete": "Խմբագրումն ավարտված է",
+      "noSubtopics": "Ենթաթեմաներ չեն գտնվել",
+      "statusLabel": "Կարգավիճակ",
+      "columns": {
+        "id": "ID",
+        "topics": "Թեմաներ",
+        "tag": "Պիտակ",
+        "targetGroup": "Թիրախ խումբ",
+        "usage": "Օգտագործում",
+        "status": "Կարգավիճակ",
+        "lastUpdate": "Վերջին թարմացում"
+      }
     },
     "organisations": {
       "title": "Օգտատերերի կառավարում",
