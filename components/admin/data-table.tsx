@@ -128,7 +128,7 @@ export function DataTable<TData>({
                           type="button"
                           onClick={header.column.getToggleSortingHandler()}
                           className="inline-flex items-center gap-1 text-left"
-                          aria-label={`Sort by ${headerLabel}`}
+                          aria-label={t('sortBy', { column: headerLabel })}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
                           {isSorted === 'asc' && ' ↑'}

@@ -233,6 +233,41 @@
     "saveError": "Չհաջողվեց պահպանել ծառայությունը: Խնդրում ենք կրկին փորձել:",
     "updateError": "Չհաջողվեց թարմացնել ծառայությունը: Խնդրում ենք կրկին փորձել:"
   },
+  "needTimeline": {
+    "actionComment": "թողեց թարմացում",
+    "actionStatusChange": "թարմացրեց կարգավիճակը",
+    "actionTagAdded": "ավելացրեց պիտակ",
+    "actionTagRemoved": "հեռացրեց պիտակ",
+    "actionAssigned": "թարմացրեց նշանակումը",
+    "actionTitleEdited": "խմբագրեց վերնագիրը",
+    "statusChange": "Կարգավիճակ՝ {from} → {to}",
+    "statusUpdated": "Կարգավիճակը թարմացվեց",
+    "titleChange": "Վերնագիրը թարմացվեց՝ «{title}»",
+    "titleUpdated": "Վերնագիրը թարմացվեց",
+    "assigneeChange": "Պատասխանատու՝ {from} → {to}",
+    "assignmentUpdated": "Նշանակումը թարմացվեց",
+    "tagAdded": "Պիտակ ավելացվեց՝ {tag}",
+    "tagAddedGeneric": "Պիտակ ավելացվեց",
+    "tagRemoved": "Պիտակ հեռացվեց՝ {tag}",
+    "tagRemovedGeneric": "Պիտակ հեռացվեց",
+    "detailFrom": "Որտեղից՝",
+    "detailTo": "Ուր՝",
+    "detailTag": "Պիտակ՝",
+    "unknown": "Անհայտ",
+    "unassigned": "Չնշանակված",
+    "empty": "Դեռ ակտիվություն չկա:"
+  },
+  "richTextEditor": {
+    "editorAria": "Տեքստի խմբագրիչ",
+    "bold": "Թավ",
+    "toggleBold": "Միացնել թավը",
+    "italic": "Շեղ",
+    "toggleItalic": "Միացնել շեղը",
+    "bulletList": "Կետացանկ",
+    "toggleBulletList": "Միացնել կետացանկը",
+    "heading3": "Վերնագիր 3",
+    "toggleHeading3": "Միացնել 3-րդ մակարդակի վերնագիրը"
+  },
   "admin": {
     "dashboard": {
       "welcome": "Բարի վերադարձ",
@@ -258,7 +293,8 @@
       "add": "Ավելացնել",
       "noResults": "Արդյունքներ չեն գտնվել",
       "loading": "Բեռնվում է...",
-      "confirmDeleteService": "Ջնջե՞լ այս ծառայությունը:"
+      "confirmDeleteService": "Ջնջե՞լ այս ծառայությունը:",
+      "sortBy": "Դասավորել ըստ {column}"
     },
     "statuses": {
       "draft": "Սևագիր",
@@ -317,7 +353,11 @@
       "openProfile": "Բացել պրոֆիլի ընտրացանկը",
       "closeProfile": "Փակել պրոֆիլի ընտրացանկը",
       "readNotification": "Կարդացված ծանուցում: {title}",
-      "unreadNotification": "Չկարդացված ծանուցում: {title}"
+      "unreadNotification": "Չկարդացված ծանուցում: {title}",
+      "justNow": "Հենց հիմա",
+      "minutesAgo": "{count} րոպե առաջ",
+      "hoursAgo": "{count} ժամ առաջ",
+      "daysAgo": "{count} օր առաջ"
     },
     "breadcrumbs": {
       "dashboard": "Վահանակ",

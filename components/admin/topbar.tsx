@@ -20,16 +20,16 @@ import {
 } from '@/lib/api/notifications';
 import { adminBreadcrumbKeys } from '@/components/admin/navigation';
 
-function formatRelative(dateString: string) {
+function relativeDescriptor(dateString: string): { key: 'justNow' | 'minutesAgo' | 'hoursAgo' | 'daysAgo'; count: number } {
   const date = new Date(dateString).getTime();
   const diffMs = Date.now() - date;
   const diffMins = Math.floor(diffMs / (1000 * 60));
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffMins < 1) return { key: 'justNow', count: 0 };
+  if (diffMins < 60) return { key: 'minutesAgo', count: diffMins };
   const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffHours < 24) return { key: 'hoursAgo', count: diffHours };
   const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}d ago`;
+  return { key: 'daysAgo', count: diffDays };
 }
 
 type AdminTopbarProps = {
@@ -65,6 +65,11 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
   }, [pathname, tBreadcrumb]);
 
   const unreadCount = unreadData?.unreadCount ?? 0;
+
+  function formatRelative(dateString: string) {
+    const { key, count } = relativeDescriptor(dateString);
+    return t(key, { count });
+  }
 
   function getNeedReportIdFromNotification(item: { metadata?: Record<string, unknown> | null }) {
     const needReportId = item.metadata?.needReportId;

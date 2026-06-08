@@ -1,6 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { NeedEventsTimeline } from '@/components/shared/need-events-timeline';
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    values ? `${key}:${Object.values(values).join(',')}` : key,
+}));
 
 describe('NeedEventsTimeline', () => {
   it('renders timeline rail, event chips, and nested comment cards', () => {
@@ -35,8 +40,8 @@ describe('NeedEventsTimeline', () => {
     expect(screen.getByTestId('need-event-connector-1')).toBeInTheDocument();
     expect(screen.getByText(/Super Admin/i)).toBeVisible();
     expect(screen.getAllByTestId('need-events-date-chip')).toHaveLength(2);
-    expect(screen.getByTestId('need-event-summary-1')).toHaveTextContent('Tag added: Employment');
-    expect(screen.getByTestId('need-event-details-1')).toHaveTextContent('Tag: Employment');
+    expect(screen.getByTestId('need-event-summary-1')).toHaveTextContent('tagAdded:Employment');
+    expect(screen.getByTestId('need-event-details-1')).toHaveTextContent('detailTag Employment');
     expect(within(screen.getByTestId('need-event-comment-card-2')).getByText(/We contacted the person/i)).toBeVisible();
   });
 

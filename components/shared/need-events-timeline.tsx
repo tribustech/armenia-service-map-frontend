@@ -1,22 +1,25 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { NeedReportEvent } from '@/types/api';
 import { AdminInset, AdminPanel } from '@/components/admin/admin-surface';
 
-function eventTitle(event: NeedReportEvent) {
+type TimelineT = ReturnType<typeof useTranslations<'needTimeline'>>;
+
+function eventTitle(event: NeedReportEvent, t: TimelineT) {
   switch (event.eventType) {
     case 'COMMENT':
-      return 'left an update';
+      return t('actionComment');
     case 'STATUS_CHANGE':
-      return 'updated the status';
+      return t('actionStatusChange');
     case 'TAG_ADDED':
-      return 'added a tag';
+      return t('actionTagAdded');
     case 'TAG_REMOVED':
-      return 'removed a tag';
+      return t('actionTagRemoved');
     case 'ASSIGNED':
-      return 'updated the assignment';
+      return t('actionAssigned');
     case 'TITLE_EDITED':
-      return 'edited the title';
+      return t('actionTitleEdited');
     default:
       return event.eventType;
   }
@@ -47,32 +50,32 @@ function prettyStatus(value: string | null) {
     .join(' ');
 }
 
-function eventSummary(event: NeedReportEvent) {
+function eventSummary(event: NeedReportEvent, t: TimelineT) {
   switch (event.eventType) {
     case 'STATUS_CHANGE': {
       const from = prettyStatus(readMetadataString(event, 'from'));
       const to = prettyStatus(readMetadataString(event, 'to'));
-      if (from || to) return `Status: ${from ?? 'Unknown'} -> ${to ?? 'Unknown'}`;
-      return event.content ?? 'Status was updated';
+      if (from || to) return t('statusChange', { from: from ?? t('unknown'), to: to ?? t('unknown') });
+      return event.content ?? t('statusUpdated');
     }
     case 'TITLE_EDITED': {
       const to = readMetadataString(event, 'to');
-      if (to) return `Title updated: "${to}"`;
-      return event.content ?? 'Title was updated';
+      if (to) return t('titleChange', { title: to });
+      return event.content ?? t('titleUpdated');
     }
     case 'ASSIGNED': {
       const from = readMetadataString(event, 'fromName');
       const to = readMetadataString(event, 'toName');
-      if (from || to) return `Assignee: ${from ?? 'Unassigned'} -> ${to ?? 'Unassigned'}`;
-      return event.content ?? 'Assignment was updated';
+      if (from || to) return t('assigneeChange', { from: from ?? t('unassigned'), to: to ?? t('unassigned') });
+      return event.content ?? t('assignmentUpdated');
     }
     case 'TAG_ADDED': {
       const tagName = readMetadataString(event, 'tagName');
-      return tagName ? `Tag added: ${tagName}` : event.content ?? 'Tag was added';
+      return tagName ? t('tagAdded', { tag: tagName }) : event.content ?? t('tagAddedGeneric');
     }
     case 'TAG_REMOVED': {
       const tagName = readMetadataString(event, 'tagName');
-      return tagName ? `Tag removed: ${tagName}` : event.content ?? 'Tag was removed';
+      return tagName ? t('tagRemoved', { tag: tagName }) : event.content ?? t('tagRemovedGeneric');
     }
     default:
       return event.content;
@@ -106,8 +109,10 @@ function eventDetails(event: NeedReportEvent) {
 }
 
 export function NeedEventsTimeline({ events, emptyLabel }: { events: NeedReportEvent[]; emptyLabel?: string }) {
+  const t = useTranslations('needTimeline');
+
   if (!events.length) {
-    return <AdminInset className="border border-[#e8e8e8] bg-white p-5 text-sm text-[#6b7280]">{emptyLabel ?? 'No activity yet.'}</AdminInset>;
+    return <AdminInset className="border border-[#e8e8e8] bg-white p-5 text-sm text-[#6b7280]">{emptyLabel ?? t('empty')}</AdminInset>;
   }
 
   return (
@@ -116,7 +121,7 @@ export function NeedEventsTimeline({ events, emptyLabel }: { events: NeedReportE
         <div className="space-y-8">
           {events.map((event, index) => {
             const isComment = event.eventType === 'COMMENT' && event.content;
-            const summary = !isComment ? eventSummary(event) : null;
+            const summary = !isComment ? eventSummary(event, t) : null;
             const details = !isComment ? eventDetails(event) : null;
             return (
               <div key={event.id} className="relative">
@@ -131,7 +136,7 @@ export function NeedEventsTimeline({ events, emptyLabel }: { events: NeedReportE
                 </div>
                 <div className="space-y-3 pl-10 sm:pl-12" data-testid={`need-event-body-${event.id}`}>
                   <p className="pr-2 text-sm leading-6 text-[#111827] sm:text-base sm:leading-7">
-                    <span className="font-semibold">{actorName(event)}</span> {eventTitle(event)}
+                    <span className="font-semibold">{actorName(event)}</span> {eventTitle(event, t)}
                   </p>
                   <span
                     data-testid="need-events-date-chip"
@@ -146,9 +151,9 @@ export function NeedEventsTimeline({ events, emptyLabel }: { events: NeedReportE
                   ) : null}
                   {!isComment && details ? (
                     <AdminInset className="mt-1 space-y-1 p-3 text-xs text-[#4b5563]" data-testid={`need-event-details-${event.id}`}>
-                      {'from' in details ? <p><span className="font-medium text-[#111827]">From:</span> {details.from ?? 'Unknown'}</p> : null}
-                      {'to' in details ? <p><span className="font-medium text-[#111827]">To:</span> {details.to ?? 'Unknown'}</p> : null}
-                      {'tag' in details ? <p><span className="font-medium text-[#111827]">Tag:</span> {details.tag}</p> : null}
+                      {'from' in details ? <p><span className="font-medium text-[#111827]">{t('detailFrom')}</span> {details.from ?? t('unknown')}</p> : null}
+                      {'to' in details ? <p><span className="font-medium text-[#111827]">{t('detailTo')}</span> {details.to ?? t('unknown')}</p> : null}
+                      {'tag' in details ? <p><span className="font-medium text-[#111827]">{t('detailTag')}</span> {details.tag}</p> : null}
                     </AdminInset>
                   ) : null}
                   {isComment ? (

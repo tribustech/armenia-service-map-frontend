@@ -233,6 +233,41 @@
     "saveError": "Unable to save service. Please try again.",
     "updateError": "Unable to update service. Please try again."
   },
+  "needTimeline": {
+    "actionComment": "left an update",
+    "actionStatusChange": "updated the status",
+    "actionTagAdded": "added a tag",
+    "actionTagRemoved": "removed a tag",
+    "actionAssigned": "updated the assignment",
+    "actionTitleEdited": "edited the title",
+    "statusChange": "Status: {from} → {to}",
+    "statusUpdated": "Status was updated",
+    "titleChange": "Title updated: \"{title}\"",
+    "titleUpdated": "Title was updated",
+    "assigneeChange": "Assignee: {from} → {to}",
+    "assignmentUpdated": "Assignment was updated",
+    "tagAdded": "Tag added: {tag}",
+    "tagAddedGeneric": "Tag was added",
+    "tagRemoved": "Tag removed: {tag}",
+    "tagRemovedGeneric": "Tag was removed",
+    "detailFrom": "From:",
+    "detailTo": "To:",
+    "detailTag": "Tag:",
+    "unknown": "Unknown",
+    "unassigned": "Unassigned",
+    "empty": "No activity yet."
+  },
+  "richTextEditor": {
+    "editorAria": "Rich text editor",
+    "bold": "Bold",
+    "toggleBold": "Toggle bold",
+    "italic": "Italic",
+    "toggleItalic": "Toggle italic",
+    "bulletList": "Bullet list",
+    "toggleBulletList": "Toggle bullet list",
+    "heading3": "Heading 3",
+    "toggleHeading3": "Toggle heading level 3"
+  },
   "admin": {
     "dashboard": {
       "welcome": "Welcome back",
@@ -258,7 +293,8 @@
       "add": "Add",
       "noResults": "No results found",
       "loading": "Loading...",
-      "confirmDeleteService": "Delete this service?"
+      "confirmDeleteService": "Delete this service?",
+      "sortBy": "Sort by {column}"
     },
     "statuses": {
       "draft": "Draft",
@@ -317,7 +353,11 @@
       "openProfile": "Open profile menu",
       "closeProfile": "Close profile menu",
       "readNotification": "Read notification: {title}",
-      "unreadNotification": "Unread notification: {title}"
+      "unreadNotification": "Unread notification: {title}",
+      "justNow": "Just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago"
     },
     "breadcrumbs": {
       "dashboard": "Dashboard",
