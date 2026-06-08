@@ -263,5 +263,28 @@
     "ctaTitle": "Get started",
     "ctaText": "To join the network, contact us at the email address below. We will set up your organisation account and provide access credentials.",
     "contactEmail": "partners@refugeesupport.am"
+  },
+  "notifyCard": {
+    "title": "Get notified about similar services",
+    "description": "Want to be notified when new services matching your search criteria are added?",
+    "notifiedAboutLabel": "You'll be notified about:",
+    "anyServices": "All new services",
+    "emailPlaceholder": "Enter your email address",
+    "submit": "Notify me",
+    "submitting": "Subscribing...",
+    "successTitle": "You're subscribed!",
+    "successBody": "We'll email you whenever a new service matching these filters is added. You can unsubscribe anytime.",
+    "invalidEmail": "Please enter a valid email address.",
+    "errorFallback": "Unable to subscribe right now. Please try again."
+  },
+  "unsubscribe": {
+    "title": "Unsubscribe",
+    "processing": "Processing your request...",
+    "successTitle": "You've been unsubscribed",
+    "successBody": "You will no longer receive emails about new services.",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This unsubscribe link is invalid or has already been used.",
+    "missingToken": "This unsubscribe link is missing its token.",
+    "returnHome": "Return home"
   }
 }
