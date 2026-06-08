@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
@@ -22,6 +23,9 @@ const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'
 
 export default function AdminNeedsPage() {
   const router = useRouter();
+  const t = useTranslations('admin.needs');
+  const tStatuses = useTranslations('admin.statuses');
+  const tCommon = useTranslations('admin.common');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -35,14 +39,14 @@ export default function AdminNeedsPage() {
   const columns: ColumnDef<NeedReport, unknown>[] = [
     {
       accessorKey: 'id',
-      header: 'ID',
+      header: t('columns.id'),
       cell: ({ getValue }) => (
         <span className="font-mono text-xs text-[#6b7280]">{String(getValue()).slice(0, 8)}</span>
       ),
     },
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: t('columns.title'),
       enableSorting: true,
       cell: ({ row }) => (
         <span className="line-clamp-1 font-medium text-[#111827]">
@@ -53,17 +57,17 @@ export default function AdminNeedsPage() {
     {
       accessorFn: (row) => row.fullName,
       id: 'fullName',
-      header: 'Submitted by',
+      header: t('columns.submittedBy'),
       cell: ({ getValue }) => <span className="line-clamp-1">{String(getValue())}</span>,
     },
     {
       accessorFn: (row) => row.region?.name || '—',
       id: 'region',
-      header: 'Region',
+      header: t('columns.region'),
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('columns.status'),
       cell: ({ getValue }) => {
         const s = getValue() as string;
         return <Badge variant={statusVariant[s] || 'neutral'}>{formatStatusLabel(s)}</Badge>;
@@ -72,11 +76,11 @@ export default function AdminNeedsPage() {
     {
       accessorFn: (row) => row.assignedOrganisation?.name || '—',
       id: 'assignedOrganisation',
-      header: 'Assigned to',
+      header: t('columns.assignedTo'),
     },
     {
       accessorKey: 'createdAt',
-      header: 'Submitted',
+      header: t('columns.submitted'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
       enableSorting: true,
     },
@@ -85,7 +89,7 @@ export default function AdminNeedsPage() {
       header: '',
       cell: ({ row }) => (
         <button onClick={() => router.push(`/admin/needs/${row.original.id}`)} className="text-sm text-[#E8922D] hover:underline">
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -95,22 +99,22 @@ export default function AdminNeedsPage() {
     <div>
       <AdminPageHeader>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">Need reports</h1>
-          <p className="mt-1 text-sm text-[#6b7280]">Track status, assignment, and incoming needs across the admin workspace.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">{t('title')}</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">{t('description')}</p>
         </div>
-        <button onClick={() => router.push('/admin/needs/map')} className="admin-link-button self-start">View map</button>
+        <button onClick={() => router.push('/admin/needs/map')} className="admin-link-button self-start">{t('viewMap')}</button>
       </AdminPageHeader>
 
       <AdminPanel className="mt-6 overflow-hidden">
         <AdminToolbar>
           <TableSelect value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="sm:w-[194px]">
-            <option value="">All statuses</option>
-            <option value="NEW">New</option>
-            <option value="IN_PROGRESS">In progress</option>
-            <option value="SOLVED">Solved</option>
-            <option value="CLOSED">Closed</option>
+            <option value="">{tStatuses('allStatuses')}</option>
+            <option value="NEW">{tStatuses('new')}</option>
+            <option value="IN_PROGRESS">{tStatuses('inProgress')}</option>
+            <option value="SOLVED">{tStatuses('solved')}</option>
+            <option value="CLOSED">{tStatuses('closed')}</option>
           </TableSelect>
-          <TableSearchInput placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="sm:w-72" />
+          <TableSearchInput placeholder={tCommon('searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="sm:w-72" />
         </AdminToolbar>
 
         {isLoading ? (
@@ -129,12 +133,12 @@ export default function AdminNeedsPage() {
                 title: row.title || row.description.slice(0, 60),
                 badges: <Badge variant={statusVariant[row.status] || 'neutral'}>{formatStatusLabel(row.status)}</Badge>,
                 fields: [
-                  { label: 'Submitted by', value: row.fullName },
-                  { label: 'Region', value: row.region?.name || '—' },
-                  { label: 'Assigned to', value: row.assignedOrganisation?.name || '—' },
-                  { label: 'Submitted', value: new Date(row.createdAt).toLocaleDateString() },
+                  { label: t('columns.submittedBy'), value: row.fullName },
+                  { label: t('columns.region'), value: row.region?.name || '—' },
+                  { label: t('columns.assignedTo'), value: row.assignedOrganisation?.name || '—' },
+                  { label: t('columns.submitted'), value: new Date(row.createdAt).toLocaleDateString() },
                 ],
-                action: <button type="button" onClick={() => router.push(`/admin/needs/${row.id}`)} className="admin-link-button">View</button>,
+                action: <button type="button" onClick={() => router.push(`/admin/needs/${row.id}`)} className="admin-link-button">{tCommon('view')}</button>,
               })}
             />
             {data && <Pagination page={data.meta.page} totalPages={data.meta.totalPages} total={data.meta.total} perPage={data.meta.perPage} onPageChange={setPage} onPerPageChange={(pp) => { setPerPage(pp); setPage(1); }} />}

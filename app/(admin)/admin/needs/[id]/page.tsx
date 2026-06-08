@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { AdminInset, AdminPanel } from '@/components/admin/admin-surface';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,11 +29,11 @@ const statusVariant: Record<NeedStatus, 'neutral' | 'warning' | 'success' | 'dan
   CLOSED: 'danger',
 };
 
-const statusOptions: Array<{ value: NeedStatus; label: string }> = [
-  { value: 'NEW', label: 'New' },
-  { value: 'IN_PROGRESS', label: 'In progress' },
-  { value: 'SOLVED', label: 'Solved' },
-  { value: 'CLOSED', label: 'Closed' },
+const statusOptions: Array<{ value: NeedStatus; labelKey: 'new' | 'inProgress' | 'solved' | 'closed' }> = [
+  { value: 'NEW', labelKey: 'new' },
+  { value: 'IN_PROGRESS', labelKey: 'inProgress' },
+  { value: 'SOLVED', labelKey: 'solved' },
+  { value: 'CLOSED', labelKey: 'closed' },
 ];
 
 type NeedDraft = {
@@ -45,6 +46,10 @@ type NeedDraft = {
 export default function AdminNeedDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const t = useTranslations('admin.needs');
+  const tForm = useTranslations('admin.needs.form');
+  const tStatuses = useTranslations('admin.statuses');
+  const tCommon = useTranslations('admin.common');
   const { data: need, isLoading } = useAdminNeed(id);
   const { data: events, isLoading: eventsLoading } = useAdminNeedEvents(id);
   const updateNeed = useUpdateNeed();
@@ -86,7 +91,7 @@ export default function AdminNeedDetailPage() {
   }, [need, initialSelectedTagIds, status, assignedOrganisationId, selectedTagIds]);
 
   if (isLoading) return <DetailPageLoadingSkeleton />;
-  if (!need) return <div className="p-8 text-[#6b7280]">Need report not found</div>;
+  if (!need) return <div className="p-8 text-[#6b7280]">{t('notFound')}</div>;
 
   async function handleSaveTitle() {
     await updateNeed.mutateAsync({ id, title: title.trim() });
@@ -122,35 +127,35 @@ export default function AdminNeedDetailPage() {
   return (
     <div>
       <div className="mb-3 text-sm text-[#6b7280]">
-        <Link href="/admin/needs" className="hover:underline">Need reports</Link>{' > '}
-        {need.title || `Need ${need.id.slice(0, 8)}`}
+        <Link href="/admin/needs" className="hover:underline">{t('title')}</Link>{' > '}
+        {need.title || t('fallbackTitle', { id: need.id.slice(0, 8) })}
       </div>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-[#111827]">
-              {need.title || `Need report ${need.id.slice(0, 8)}`}
+              {need.title || t('fallbackHeading', { id: need.id.slice(0, 8) })}
             </h1>
             <Badge variant={statusVariant[need.status]}>{formatStatusLabel(need.status)}</Badge>
           </div>
-          <p className="mt-1 text-sm text-[#6b7280]">Created on {new Date(need.createdAt).toLocaleString()}</p>
+          <p className="mt-1 text-sm text-[#6b7280]">{t('createdOn', { date: new Date(need.createdAt).toLocaleString() })}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => setIsEditingTitle((prev) => !prev)}>
-            {isEditingTitle ? 'Cancel title edit' : 'Edit title'}
+            {isEditingTitle ? tForm('cancelTitleEdit') : tForm('editTitle')}
           </Button>
           <Button
             variant="secondary"
             onClick={() => {
-              if (confirm('Delete this need report?')) {
+              if (confirm(t('confirmDelete'))) {
                 deleteNeed.mutate(id, {
                   onSuccess: () => router.push('/admin/needs'),
                 });
               }
             }}
           >
-            Delete
+            {tCommon('delete')}
           </Button>
         </div>
       </div>
@@ -160,16 +165,16 @@ export default function AdminNeedDetailPage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-end">
             <div className="flex-1">
               <Input
-                label="Need title"
+                label={tForm('needTitle')}
                 value={title}
                 onChange={(event) =>
                   setDraft((prev) => ({ ...(prev ?? getInitialDraft()), title: event.target.value }))
                 }
-                placeholder="Add a clear title for this need"
+                placeholder={tForm('needTitlePlaceholder')}
               />
             </div>
             <Button onClick={handleSaveTitle} disabled={updateNeed.isPending || !title.trim()}>
-              Save title
+              {tForm('saveTitle')}
             </Button>
           </div>
         </AdminPanel>
@@ -178,37 +183,37 @@ export default function AdminNeedDetailPage() {
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.7fr_1fr]">
         <section className="space-y-4">
           <AdminPanel className="p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Need description</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">{tForm('needDescription')}</h2>
             <p className="mt-3 whitespace-pre-wrap text-sm text-[#374151]">{need.description}</p>
             <div className="mt-4 grid gap-3 text-sm text-[#6b7280] md:grid-cols-2">
-              <div><span className="font-medium text-[#111827]">Submitted by:</span> {need.fullName}</div>
-              <div><span className="font-medium text-[#111827]">Contact:</span> {need.contactMethod} - {need.contactValue}</div>
+              <div><span className="font-medium text-[#111827]">{tForm('submittedByLabel')}</span> {need.fullName}</div>
+              <div><span className="font-medium text-[#111827]">{tForm('contactLabel')}</span> {need.contactMethod} - {need.contactValue}</div>
             </div>
           </AdminPanel>
 
           <AdminPanel className="p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Add comment</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">{tForm('addComment')}</h2>
             <textarea
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               rows={4}
               className="admin-control mt-3 w-full px-4 py-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#E8922D]"
-              placeholder="Write a comment for activity timeline"
+              placeholder={tForm('commentPlaceholder')}
             />
             <div className="mt-3 flex justify-end">
               <Button onClick={handleAddComment} disabled={addComment.isPending || !comment.trim()}>
-                {addComment.isPending ? 'Submitting...' : 'Submit comment'}
+                {addComment.isPending ? tForm('submittingComment') : tForm('submitComment')}
               </Button>
             </div>
           </AdminPanel>
 
           <AdminPanel className="p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Activity timeline</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">{tForm('activityTimeline')}</h2>
             <div className="mt-3">
               {eventsLoading ? (
                 <TimelineLoadingSkeleton />
               ) : (
-                <NeedEventsTimeline events={events ?? []} emptyLabel="No activity events yet." />
+                <NeedEventsTimeline events={events ?? []} emptyLabel={tForm('noActivity')} />
               )}
             </div>
           </AdminPanel>
@@ -216,10 +221,10 @@ export default function AdminNeedDetailPage() {
 
         <aside className="space-y-4">
           <AdminPanel className="p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">Need details</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[#6b7280]">{tForm('needDetails')}</h2>
             <div className="mt-4 space-y-4 text-sm">
               <div>
-                <label className="mb-1 block font-medium text-[#374151]">Status</label>
+                <label className="mb-1 block font-medium text-[#374151]">{tForm('status')}</label>
                 <select
                   value={status}
                   onChange={(event) =>
@@ -231,13 +236,13 @@ export default function AdminNeedDetailPage() {
                   className="admin-control w-full px-4 py-3 text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#E8922D]"
                 >
                   {statusOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
+                    <option key={option.value} value={option.value}>{tStatuses(option.labelKey)}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="mb-1 block font-medium text-[#374151]">Assignee</label>
+                <label className="mb-1 block font-medium text-[#374151]">{tForm('assignee')}</label>
                 <select
                   value={assignedOrganisationId}
                   onChange={(event) =>
@@ -248,7 +253,7 @@ export default function AdminNeedDetailPage() {
                   }
                   className="admin-control w-full px-4 py-3 text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#E8922D]"
                 >
-                  <option value="">Unassigned</option>
+                  <option value="">{tForm('unassigned')}</option>
                   {orgs?.data.map((org) => (
                     <option key={org.id} value={org.id}>{org.name}</option>
                   ))}
@@ -256,7 +261,7 @@ export default function AdminNeedDetailPage() {
               </div>
 
               <div>
-                <p className="mb-2 font-medium text-[#374151]">Tags</p>
+                <p className="mb-2 font-medium text-[#374151]">{tForm('tags')}</p>
                 <AdminInset className="max-h-48 space-y-2 overflow-y-auto p-3">
                   {tagsData?.data.map((tag) => (
                     <label key={tag.id} className="flex cursor-pointer items-center gap-2 text-sm">
@@ -273,13 +278,13 @@ export default function AdminNeedDetailPage() {
               </div>
 
               <AdminInset className="p-3 text-xs text-[#6b7280]">
-                <div>Submitted: {new Date(need.createdAt).toLocaleString()}</div>
-                <div>Last updated: {new Date(need.updatedAt).toLocaleString()}</div>
-                <div>Region: {need.region?.name || 'Not provided'}</div>
+                <div>{tForm('submittedMeta', { date: new Date(need.createdAt).toLocaleString() })}</div>
+                <div>{tForm('lastUpdatedMeta', { date: new Date(need.updatedAt).toLocaleString() })}</div>
+                <div>{tForm('regionMeta', { region: need.region?.name || tForm('regionNotProvided') })}</div>
               </AdminInset>
 
               <Button onClick={handleSaveSidebar} disabled={updateNeed.isPending || !hasSidebarChanges} className="w-full">
-                {updateNeed.isPending ? 'Saving...' : 'Save changes'}
+                {updateNeed.isPending ? tForm('saving') : tCommon('saveChanges')}
               </Button>
             </div>
           </AdminPanel>

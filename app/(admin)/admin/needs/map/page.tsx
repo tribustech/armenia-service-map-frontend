@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef } from '@tanstack/react-table';
 import { ArmeniaMap } from '@/components/shared/armenia-map';
 import { DataTable } from '@/components/admin/data-table';
@@ -22,6 +23,8 @@ const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'
 };
 
 export default function AdminNeedsMapPage() {
+  const t = useTranslations('admin.needs');
+  const tMap = useTranslations('admin.needs.map');
   const [selectedRegionId, setSelectedRegionId] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -50,12 +53,12 @@ export default function AdminNeedsMapPage() {
   const columns: ColumnDef<NeedReport, unknown>[] = [
     {
       accessorKey: 'id',
-      header: 'ID',
+      header: t('columns.id'),
       cell: ({ getValue }) => <span className="font-mono text-xs text-[#6b7280]">{String(getValue()).slice(0, 8)}</span>,
     },
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: t('columns.title'),
       cell: ({ row }) => (
         <span className="line-clamp-1 font-medium text-[#111827]">
           {row.original.title || row.original.description.slice(0, 60)}
@@ -65,17 +68,17 @@ export default function AdminNeedsMapPage() {
     {
       accessorFn: (row) => row.region?.name || '—',
       id: 'region',
-      header: 'Location',
+      header: tMap('columnLocation'),
     },
     {
       accessorFn: (row) => row.tags.map((tag) => tag.needTag.name).join(', ') || '—',
       id: 'tags',
-      header: 'Tags',
+      header: tMap('columnTags'),
       cell: ({ getValue }) => <span className="line-clamp-1 text-sm text-[#374151]">{String(getValue())}</span>,
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('columns.status'),
       cell: ({ getValue }) => {
         const value = String(getValue());
         return <Badge variant={statusVariant[value] || 'neutral'}>{formatStatusLabel(value)}</Badge>;
@@ -83,7 +86,7 @@ export default function AdminNeedsMapPage() {
     },
     {
       accessorKey: 'createdAt',
-      header: 'Submitted at',
+      header: tMap('columnSubmittedAt'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
     },
     {
@@ -91,7 +94,7 @@ export default function AdminNeedsMapPage() {
       header: '',
       cell: ({ row }) => (
         <Link href={`/admin/needs/${row.original.id}`} className="text-sm text-[#E8922D] hover:underline">
-          Open
+          {tMap('open')}
         </Link>
       ),
     },
@@ -100,19 +103,19 @@ export default function AdminNeedsMapPage() {
   return (
     <div>
       <div className="mb-2 text-sm text-[#6b7280]">
-        <Link href="/admin/needs" className="hover:underline">Need reports</Link>{' > '}Map
+        <Link href="/admin/needs" className="hover:underline">{t('title')}</Link>{' > '}{t('breadcrumbMap')}
       </div>
-      <h1 className="text-2xl font-bold">Needs map</h1>
+      <h1 className="text-2xl font-bold">{tMap('title')}</h1>
       <p className="mt-2 text-[#6b7280]">
         {selectedRegion
-          ? `Showing needs in ${selectedRegion.regionName}`
-          : 'Showing all need reports by region across Armenia'}
+          ? tMap('showingRegion', { region: selectedRegion.regionName })
+          : tMap('showingAll')}
       </p>
 
       {selectedRegion ? (
         <div className="mt-3 flex items-center gap-2">
           <span className="inline-flex items-center rounded-full bg-[#fef3e2] px-3 py-1 text-xs font-medium text-[#E8922D]">
-            Region: {selectedRegion.regionName}
+            {tMap('regionChip', { region: selectedRegion.regionName })}
           </span>
           <button
             onClick={() => {
@@ -121,7 +124,7 @@ export default function AdminNeedsMapPage() {
             }}
             className="text-xs text-[#6b7280] underline hover:text-[#374151]"
           >
-            Clear filter
+            {tMap('clearFilter')}
           </button>
         </div>
       ) : null}
@@ -135,8 +138,8 @@ export default function AdminNeedsMapPage() {
               <ArmeniaMap
                 regionCounts={regionCounts}
                 selectedRegionId={selectedRegion?.svgPathId}
-                countLabelSingular="need report"
-                countLabelPlural="need reports"
+                countLabelSingular={tMap('needSingular')}
+                countLabelPlural={tMap('needPlural')}
                 densityMode
                 onRegionClick={(svgPathId) => {
                   const region = mapData?.find((entry) => entry.svgPathId === svgPathId);
@@ -146,13 +149,13 @@ export default function AdminNeedsMapPage() {
               />
             </AdminPanel>
             <div className="mt-3 text-xs text-[#6b7280]">
-              Color scale: 0-10, 11-50, 51-100, &gt;100 need reports.
+              {tMap('colorScale')}
             </div>
           </div>
 
           <div className="lg:w-1/3">
             <AdminPanel className="p-4">
-              <h3 className="text-sm font-semibold tracking-[0.14em] text-[#6b7280]">REGION COUNTS</h3>
+              <h3 className="text-sm font-semibold tracking-[0.14em] text-[#6b7280]">{tMap('regionCounts')}</h3>
               <div className="mt-3 space-y-2">
                 {mapData
                   ?.slice()
@@ -182,9 +185,9 @@ export default function AdminNeedsMapPage() {
 
       <AdminPanel className="mt-8 overflow-hidden">
         <AdminToolbar layout="between">
-          <h2 className="text-lg font-semibold text-[#111827]">Need reports list</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">{tMap('listHeader')}</h2>
           <TableSearchInput
-            placeholder="Search by title or name..."
+            placeholder={tMap('searchPlaceholder')}
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
@@ -208,11 +211,11 @@ export default function AdminNeedsMapPage() {
                 title: row.title || row.description.slice(0, 60),
                 badges: <Badge variant={statusVariant[row.status] || 'neutral'}>{formatStatusLabel(row.status)}</Badge>,
                 fields: [
-                  { label: 'Location', value: row.region?.name || '—' },
-                  { label: 'Tags', value: row.tags.map((tag) => tag.needTag.name).join(', ') || '—' },
-                  { label: 'Submitted', value: new Date(row.createdAt).toLocaleDateString() },
+                  { label: tMap('columnLocation'), value: row.region?.name || '—' },
+                  { label: tMap('columnTags'), value: row.tags.map((tag) => tag.needTag.name).join(', ') || '—' },
+                  { label: t('columns.submitted'), value: new Date(row.createdAt).toLocaleDateString() },
                 ],
-                action: <Link href={`/admin/needs/${row.id}`} className="admin-link-button">Open</Link>,
+                action: <Link href={`/admin/needs/${row.id}`} className="admin-link-button">{tMap('open')}</Link>,
               })}
             />
             {needsQuery.data ? (
