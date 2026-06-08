@@ -15,6 +15,8 @@ type ServiceFormState = {
   shortDescriptionHy: string;
   description: string;
   descriptionHy: string;
+  howToAccess: string;
+  howToAccessHy: string;
   organisationId: string;
   status: 'DRAFT' | 'PUBLISHED';
   isAvailable: boolean;
@@ -29,6 +31,7 @@ type FieldErrorKey =
   | 'title'
   | 'shortDescription'
   | 'description'
+  | 'howToAccess'
   | 'organisationId'
   | 'availabilityStart'
   | 'availabilityEnd';
@@ -49,6 +52,8 @@ const EMPTY_FORM: ServiceFormState = {
   shortDescriptionHy: '',
   description: '',
   descriptionHy: '',
+  howToAccess: '',
+  howToAccessHy: '',
   organisationId: '',
   status: 'DRAFT',
   isAvailable: true,
@@ -103,6 +108,7 @@ export function ServiceForm({
     if (!values.title.trim()) nextErrors.title = 'Title is required.';
     if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = 'Short description is required.';
     if (!toPlainText(values.description)) nextErrors.description = 'Description is required.';
+    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = 'How to access the service is required.';
     if (showOrganisationField && !values.organisationId) {
       nextErrors.organisationId = 'Organisation is required.';
     }
@@ -126,6 +132,8 @@ export function ServiceForm({
         shortDescriptionHy: toPlainText(form.shortDescriptionHy) ? form.shortDescriptionHy : undefined,
         description: form.description,
         descriptionHy: toPlainText(form.descriptionHy) ? form.descriptionHy : undefined,
+        howToAccess: form.howToAccess,
+        howToAccessHy: toPlainText(form.howToAccessHy) ? form.howToAccessHy : undefined,
         organisationId: showOrganisationField ? form.organisationId : undefined,
         status: form.status,
         isAvailable: form.isAvailable,
@@ -333,6 +341,21 @@ export function ServiceForm({
           />
           {activeLanguage === 'en' && errors.description ? (
             <p className="mt-1 text-xs text-red-600">{errors.description}</p>
+          ) : null}
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-[#111827]">
+            How to access the service ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+          </label>
+          <RichTextEditor
+            content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
+            onChange={(html) =>
+              updateField(activeLanguage === 'en' ? 'howToAccess' : 'howToAccessHy', html)
+            }
+          />
+          {activeLanguage === 'en' && errors.howToAccess ? (
+            <p className="mt-1 text-xs text-red-600">{errors.howToAccess}</p>
           ) : null}
         </div>
       </div>

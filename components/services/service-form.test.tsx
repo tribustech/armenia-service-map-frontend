@@ -60,4 +60,18 @@ describe('ServiceForm', () => {
 
     expect(screen.queryByText('Organisation')).not.toBeInTheDocument();
   });
+
+  it('renders the "How to access the service" rich-text field', () => {
+    render(
+      <ServiceForm
+        showOrganisationField={false}
+        isSubmitting={false}
+        submitLabel="Create service"
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('How to access the service (English)')).toBeInTheDocument();
+  });
 });
