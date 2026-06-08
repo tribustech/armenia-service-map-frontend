@@ -11,7 +11,8 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { BookOpenIcon, CodeBracketSquareIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 import { useOverviewStats, useDashboardTrends } from '@/lib/api/analytics';
 import { useAuth } from '@/lib/auth/auth-context';
 import { DashboardLoadingSkeleton } from '@/components/shared/loading-skeletons';
@@ -19,6 +20,8 @@ import { DashboardLoadingSkeleton } from '@/components/shared/loading-skeletons'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 export default function AdminDashboardPage() {
+  const t = useTranslations('admin.dashboard');
+  const tTopbar = useTranslations('admin.topbar');
   const { user, logout } = useAuth();
   const { data: stats, isLoading: statsLoading } = useOverviewStats();
   const { data: trends, isLoading: trendsLoading } = useDashboardTrends(12);
@@ -40,13 +43,11 @@ export default function AdminDashboardPage() {
       <section className="admin-panel p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.14em] text-[#9ca3af]">Welcome back</p>
+            <p className="text-sm uppercase tracking-[0.14em] text-[#9ca3af]">{t('welcome')}</p>
             <h1 className="mt-1 text-2xl font-semibold text-[#111827]">
               {user?.firstName} {user?.lastName}
             </h1>
-            <p className="mt-2 text-sm text-[#6b7280]">
-              Monitor platform health, search behavior, and activity volume in one place.
-            </p>
+            <p className="mt-2 text-sm text-[#6b7280]">{t('description')}</p>
           </div>
           <button
             type="button"
@@ -54,29 +55,29 @@ export default function AdminDashboardPage() {
             className="inline-flex items-center gap-2 rounded-xl border border-[#d1d5db] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition hover:bg-[#f5f5f4]"
           >
             <ArrowRightOnRectangleIcon className="h-4 w-4" />
-            Sign out
+            {tTopbar('signOut')}
           </button>
         </div>
        
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <DashboardStatCard title="Total Services" value={stats?.totalServices ?? 0} tone="amber" />
-        <DashboardStatCard title="Total Need Reports" value={stats?.totalNeedReports ?? 0} tone="teal" />
-        <DashboardStatCard title="Total Organisations" value={stats?.totalOrganisations ?? 0} tone="rose" />
+        <DashboardStatCard title={t('totalServices')} value={stats?.totalServices ?? 0} tone="amber" />
+        <DashboardStatCard title={t('totalNeedReports')} value={stats?.totalNeedReports ?? 0} tone="teal" />
+        <DashboardStatCard title={t('totalOrganisations')} value={stats?.totalOrganisations ?? 0} tone="rose" />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
         <div className="admin-panel p-5">
-          <h2 className="text-base font-semibold text-[#111827]">Need reports over time</h2>
-          <p className="mt-1 text-xs text-[#6b7280]">12-month trend of created need reports.</p>
+          <h2 className="text-base font-semibold text-[#111827]">{t('needReportsTrend')}</h2>
+          <p className="mt-1 text-xs text-[#6b7280]">{t('needReportsTrendSubtitle')}</p>
           <div className="mt-4">
             <Line
               data={{
                 labels,
                 datasets: [
                   {
-                    label: 'Need reports',
+                    label: t('needReportsLegend'),
                     data: trends?.needReports.map((item) => item.count) ?? [],
                     borderColor: '#d4761f',
                     backgroundColor: '#f5c490',
@@ -91,15 +92,15 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="admin-panel p-5">
-          <h2 className="text-base font-semibold text-[#111827]">Services created over time</h2>
-          <p className="mt-1 text-xs text-[#6b7280]">12-month trend of newly added services.</p>
+          <h2 className="text-base font-semibold text-[#111827]">{t('servicesTrend')}</h2>
+          <p className="mt-1 text-xs text-[#6b7280]">{t('servicesTrendSubtitle')}</p>
           <div className="mt-4">
             <Line
               data={{
                 labels,
                 datasets: [
                   {
-                    label: 'Services',
+                    label: t('servicesLegend'),
                     data: trends?.services.map((item) => item.count) ?? [],
                     borderColor: '#2b8b74',
                     backgroundColor: '#8ad6c5',

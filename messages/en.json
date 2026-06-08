@@ -198,6 +198,19 @@
     "loginPanelBody": "Stay connected to the same RefugeeSupport.am experience while you access the tools your team uses to respond quickly and confidently."
   },
   "admin": {
+    "dashboard": {
+      "welcome": "Welcome back",
+      "description": "Monitor platform health, search behavior, and activity volume in one place.",
+      "totalServices": "Total Services",
+      "totalNeedReports": "Total Need Reports",
+      "totalOrganisations": "Total Organisations",
+      "needReportsTrend": "Need reports over time",
+      "needReportsTrendSubtitle": "12-month trend of created need reports.",
+      "needReportsLegend": "Need reports",
+      "servicesTrend": "Services created over time",
+      "servicesTrendSubtitle": "12-month trend of newly added services.",
+      "servicesLegend": "Services"
+    },
     "common": {
       "searchPlaceholder": "Search...",
       "cancel": "Cancel",
