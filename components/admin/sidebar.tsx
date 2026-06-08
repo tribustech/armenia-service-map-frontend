@@ -167,6 +167,7 @@ function SidebarPanel({
   onToggleSection: (id: string) => void;
   onCloseMobileNav: () => void;
 }) {
+  // Shared shell chrome (adminLabel, navigation, closeMenu) lives under admin.topbar by design.
   const t = useTranslations('admin.topbar');
   const isRail = mode === 'rail';
 
@@ -192,6 +193,7 @@ function SidebarPanel({
 }
 
 export function AdminSidebar({ mode, mobileNavOpen, onCloseMobileNav }: AdminSidebarProps) {
+  // Shared shell chrome (adminLabel, navigation, closeMenu) lives under admin.topbar by design.
   const t = useTranslations('admin.topbar');
   const pathname = usePathname();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});

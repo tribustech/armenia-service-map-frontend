@@ -12,8 +12,6 @@ import { type ComponentType, type SVGProps } from 'react';
 export type AdminNavItem = {
   /** Key under `admin.sidebar.*` resolving to the display label. */
   labelKey: string;
-  /** Key under `admin.sidebar.*` used as a section title. */
-  titleKey?: string;
   href: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
 };
