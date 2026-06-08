@@ -351,6 +351,44 @@
         "usage": "Usage",
         "status": "Status",
         "lastUpdate": "Last update"
+      },
+      "tabsAriaLabel": "Taxonomy sections",
+      "updating": "Updating...",
+      "toggle": "Toggle",
+      "entities": {
+        "serviceTopic": "Service topic",
+        "needTag": "Need tag",
+        "targetGroup": "Target group"
+      },
+      "form": {
+        "subtopics": "Sub-topics",
+        "subtopicName": "Sub-topic name",
+        "addSubtopic": "Add another sub-topic",
+        "remove": "Remove",
+        "duplicateName": "Duplicate name",
+        "topicStatusAria": "Topic status",
+        "subtopicStatusAria": "Sub-topic {index} status",
+        "setRowStatusAria": "Set {name} {status}",
+        "toggleRowStatusAria": "Toggle {name} status",
+        "errors": {
+          "topicRequired": "Service topic is required",
+          "subtopicNameRequired": "Each sub-topic needs a name",
+          "subtopicNamesUnique": "Sub-topic names must be unique"
+        }
+      },
+      "pages": {
+        "newTopic": "Add service topic",
+        "newTag": "Add need tag",
+        "newTargetGroup": "Add target group",
+        "editEntity": "Edit {name}",
+        "editTopicAction": "Edit service topic",
+        "editTagAction": "Edit need tag",
+        "editTargetGroupAction": "Edit target group",
+        "topicNotFound": "Topic not found",
+        "tagNotFound": "Need tag not found",
+        "targetGroupNotFound": "Target group not found",
+        "slug": "Slug",
+        "servicesCount": "{count} services"
       }
     },
     "organisations": {

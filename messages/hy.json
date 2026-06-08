@@ -351,6 +351,44 @@
         "usage": "Օգտագործում",
         "status": "Կարգավիճակ",
         "lastUpdate": "Վերջին թարմացում"
+      },
+      "tabsAriaLabel": "Դասակարգչի բաժիններ",
+      "updating": "Թարմացվում է...",
+      "toggle": "Փոխարկել",
+      "entities": {
+        "serviceTopic": "Ծառայության թեմա",
+        "needTag": "Կարիքի պիտակ",
+        "targetGroup": "Թիրախ խումբ"
+      },
+      "form": {
+        "subtopics": "Ենթաթեմաներ",
+        "subtopicName": "Ենթաթեմայի անվանում",
+        "addSubtopic": "Ավելացնել ևս մեկ ենթաթեմա",
+        "remove": "Հեռացնել",
+        "duplicateName": "Կրկնվող անվանում",
+        "topicStatusAria": "Թեմայի կարգավիճակ",
+        "subtopicStatusAria": "Ենթաթեմա {index} կարգավիճակ",
+        "setRowStatusAria": "Սահմանել {name} {status}",
+        "toggleRowStatusAria": "Փոխարկել {name} կարգավիճակը",
+        "errors": {
+          "topicRequired": "Ծառայության թեման պարտադիր է",
+          "subtopicNameRequired": "Յուրաքանչյուր ենթաթեմա պետք է ունենա անվանում",
+          "subtopicNamesUnique": "Ենթաթեմաների անվանումները պետք է լինեն եզակի"
+        }
+      },
+      "pages": {
+        "newTopic": "Ավելացնել ծառայության թեմա",
+        "newTag": "Ավելացնել կարիքի պիտակ",
+        "newTargetGroup": "Ավելացնել թիրախ խումբ",
+        "editEntity": "Խմբագրել {name}",
+        "editTopicAction": "Խմբագրել ծառայության թեման",
+        "editTagAction": "Խմբագրել կարիքի պիտակը",
+        "editTargetGroupAction": "Խմբագրել թիրախ խումբը",
+        "topicNotFound": "Թեման չի գտնվել",
+        "tagNotFound": "Կարիքի պիտակը չի գտնվել",
+        "targetGroupNotFound": "Թիրախ խումբը չի գտնվել",
+        "slug": "Սլագ",
+        "servicesCount": "{count} ծառայություն"
       }
     },
     "organisations": {

@@ -2,36 +2,40 @@
 
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { AdminPanel } from '@/components/admin/admin-surface';
 import { TopicSubtopicsTable } from '@/components/admin/taxonomy/topic-subtopics-table';
 import { TaxonomyPageHeader } from '@/components/admin/taxonomy/taxonomy-page-header';
 import { Badge } from '@/components/ui/badge';
 import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useTopic, useUpdateTopic } from '@/lib/api/taxonomy';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
 
 export default function TopicDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const { data: topic, isLoading } = useTopic(id);
   const updateTopic = useUpdateTopic();
+  const t = useTranslations('admin.taxonomy');
+  const tStatuses = useTranslations('admin.statuses');
 
   if (isLoading) return <DetailPageLoadingSkeleton />;
-  if (!topic) return <div className="p-8 text-[#6b7280]">Topic not found</div>;
+  if (!topic) return <div className="p-8 text-[#6b7280]">{t('pages.topicNotFound')}</div>;
 
   return (
     <div className="space-y-6">
       <TaxonomyPageHeader
         title={topic.name}
-        action={{ href: `/admin/taxonomy/topics/${id}/edit`, label: 'Edit service topic' }}
+        action={{ href: `/admin/taxonomy/topics/${id}/edit`, label: t('pages.editTopicAction') }}
       />
 
       <AdminPanel className="rounded-xl border border-[#e8e8e8] bg-white p-5">
         <div className="mb-5 flex flex-wrap items-center gap-3">
-          <Badge variant={topic.status === 'ACTIVE' ? 'success' : 'neutral'}>{formatStatusLabel(topic.status)}</Badge>
-          <span className="text-sm text-[#6b7280]">{topic._count.services} services</span>
+          <Badge variant={topic.status === 'ACTIVE' ? 'success' : 'neutral'}>
+            {topic.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}
+          </Badge>
+          <span className="text-sm text-[#6b7280]">{t('pages.servicesCount', { count: topic._count.services })}</span>
         </div>
-        <h2 className="mb-4 text-lg font-semibold text-[#111827]">Sub-topics</h2>
+        <h2 className="mb-4 text-lg font-semibold text-[#111827]">{t('form.subtopics')}</h2>
         <TopicSubtopicsTable
           rows={topic.children}
           pendingId={pendingId}

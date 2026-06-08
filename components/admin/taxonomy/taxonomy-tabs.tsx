@@ -1,11 +1,13 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 type TaxonomyTab = 'topics' | 'need-tags' | 'target-groups';
 
-const tabs: Array<{ id: TaxonomyTab; label: string }> = [
-  { id: 'topics', label: 'Service topics' },
-  { id: 'need-tags', label: 'Need tags' },
-  { id: 'target-groups', label: 'Target groups' },
+const tabs: Array<{ id: TaxonomyTab; labelKey: 'serviceTopics' | 'needTags' | 'targetGroups' }> = [
+  { id: 'topics', labelKey: 'serviceTopics' },
+  { id: 'need-tags', labelKey: 'needTags' },
+  { id: 'target-groups', labelKey: 'targetGroups' },
 ];
 
 export function TaxonomyTabs({
@@ -15,12 +17,14 @@ export function TaxonomyTabs({
   active: TaxonomyTab;
   onChange: (next: TaxonomyTab) => void;
 }) {
+  const t = useTranslations('admin.taxonomy');
+
   return (
     <div
       className="admin-toolbar mt-4 flex gap-1 p-1.5"
       style={{ width: 'fit-content' }}
       role="tablist"
-      aria-label="Taxonomy sections"
+      aria-label={t('tabsAriaLabel')}
     >
       {tabs.map((tab) => (
         <button
@@ -35,7 +39,7 @@ export function TaxonomyTabs({
               : 'border-transparent bg-transparent text-[#6b7280] hover:text-[#111827]'
           }`}
         >
-          {tab.label}
+          {t(tab.labelKey)}
         </button>
       ))}
     </div>

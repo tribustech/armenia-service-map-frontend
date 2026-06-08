@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -24,6 +25,9 @@ export function TopicForm({
   onSubmit: (payload: TopicFormPayload) => Promise<void> | void;
   onCancel?: () => void;
 }) {
+  const t = useTranslations('admin.taxonomy');
+  const tCommon = useTranslations('admin.common');
+  const tStatuses = useTranslations('admin.statuses');
   const [name, setName] = useState(initialValue?.name ?? '');
   const [status, setStatus] = useState<'ACTIVE' | 'INACTIVE'>(initialValue?.status ?? 'ACTIVE');
   const [subtopics, setSubtopics] = useState<EditableSubtopic[]>(
@@ -86,17 +90,17 @@ export function TopicForm({
     event.preventDefault();
 
     if (!name.trim()) {
-      setError('Service topic is required');
+      setError(t('form.errors.topicRequired'));
       return;
     }
 
     if (subtopics.some((subtopic) => !subtopic.name.trim())) {
-      setError('Each sub-topic needs a name');
+      setError(t('form.errors.subtopicNameRequired'));
       return;
     }
 
     if (duplicateNames.size > 0) {
-      setError('Sub-topic names must be unique');
+      setError(t('form.errors.subtopicNamesUnique'));
       return;
     }
 
@@ -124,20 +128,20 @@ export function TopicForm({
       <div className="admin-panel rounded-xl border border-[#e8e8e8] bg-white p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="w-full md:max-w-md">
-            <Input label="Service topic" value={name} onChange={(event) => setName(event.target.value)} required />
+            <Input label={t('entities.serviceTopic')} value={name} onChange={(event) => setName(event.target.value)} required />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-[#374151]">{status === 'ACTIVE' ? 'Active' : 'Inactive'}</span>
+            <span className="text-sm font-medium text-[#374151]">{status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}</span>
             <Switch
               checked={status === 'ACTIVE'}
               onCheckedChange={(checked) => setStatus(checked ? 'ACTIVE' : 'INACTIVE')}
-              ariaLabel="Topic status"
+              ariaLabel={t('form.topicStatusAria')}
             />
           </div>
         </div>
 
         <div className="mt-6">
-          <h2 className="text-base font-semibold text-[#111827]">Sub-topics</h2>
+          <h2 className="text-base font-semibold text-[#111827]">{t('form.subtopics')}</h2>
           <div className="mt-4 space-y-3">
             {subtopics.map((subtopic, index) => {
               const duplicate = duplicateNames.has(subtopic.name.trim().toLowerCase());
@@ -147,24 +151,24 @@ export function TopicForm({
                   <div className="flex flex-col gap-3 md:flex-row md:items-end">
                     <div className="min-w-0 flex-1">
                       <Input
-                        label="Sub-topic name"
-                        aria-label="Sub-topic name"
+                        label={t('form.subtopicName')}
+                        aria-label={t('form.subtopicName')}
                         value={subtopic.name}
-                        error={duplicate ? 'Duplicate name' : undefined}
+                        error={duplicate ? t('form.duplicateName') : undefined}
                         onChange={(event) => updateSubtopic(index, { name: event.target.value })}
                       />
                     </div>
                     <div className="flex items-center gap-3 md:pb-3">
-                      <span className="text-sm font-medium text-[#374151]">{subtopic.status === 'ACTIVE' ? 'Active' : 'Inactive'}</span>
+                      <span className="text-sm font-medium text-[#374151]">{subtopic.status === 'ACTIVE' ? tStatuses('active') : tStatuses('inactive')}</span>
                       <Switch
                         checked={subtopic.status === 'ACTIVE'}
                         onCheckedChange={(checked) => updateSubtopic(index, { status: checked ? 'ACTIVE' : 'INACTIVE' })}
-                        ariaLabel={`Sub-topic ${index + 1} status`}
+                        ariaLabel={t('form.subtopicStatusAria', { index: index + 1 })}
                       />
                     </div>
                     <div className="flex items-center md:pb-2">
                       <Button type="button" variant="ghost" className="px-0 text-[#6b7280] hover:bg-transparent hover:text-[#111827]" onClick={() => removeSubtopic(index)}>
-                      Remove
+                      {t('form.remove')}
                       </Button>
                     </div>
                   </div>
@@ -174,7 +178,7 @@ export function TopicForm({
           </div>
 
           <button type="button" className="mt-4 text-sm font-medium text-[#E8922D]" onClick={addSubtopic}>
-            Add another sub-topic
+            {t('form.addSubtopic')}
           </button>
         </div>
 
@@ -183,9 +187,9 @@ export function TopicForm({
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {tCommon('cancel')}
         </Button>
-        <Button type="submit">{mode === 'create' ? 'Save changes' : 'Save changes'}</Button>
+        <Button type="submit">{tCommon('saveChanges')}</Button>
       </div>
     </form>
   );

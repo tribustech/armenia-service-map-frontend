@@ -30,7 +30,7 @@ describe('TopicSubtopicsTable', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Set Counselling inactive' }));
+    await user.click(screen.getByRole('button', { name: 'form.setRowStatusAria:Counselling,inactive' }));
     expect(onToggleStatus).toHaveBeenCalledWith({ id: 'child-1', status: 'INACTIVE' });
   });
 });

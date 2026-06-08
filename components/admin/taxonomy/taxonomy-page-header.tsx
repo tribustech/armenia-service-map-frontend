@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export function TaxonomyPageHeader({
   breadcrumbHref = '/admin/taxonomy',
-  breadcrumbLabel = 'Nomenclature',
+  breadcrumbLabel,
   title,
   action,
 }: {
@@ -13,11 +14,13 @@ export function TaxonomyPageHeader({
   title: string;
   action?: { href: string; label: string };
 }) {
+  const t = useTranslations('admin.taxonomy');
+
   return (
     <div>
       <div className="mb-2 text-sm text-[#6b7280]">
         <Link href={breadcrumbHref} className="hover:underline">
-          {breadcrumbLabel}
+          {breadcrumbLabel ?? t('title')}
         </Link>
         {' > '}
         {title}
