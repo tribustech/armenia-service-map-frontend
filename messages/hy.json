@@ -198,6 +198,43 @@
     "loginPanelBody": "Շարունակեք RefugeeSupport.am-ի նույն փորձառության մեջ և օգտվեք այն գործիքներից, որոնք օգնում են ձեր թիմին արագ ու վստահ արձագանքել։"
   },
   "admin": {
+    "common": {
+      "searchPlaceholder": "Որոնել...",
+      "cancel": "Չեղարկել",
+      "save": "Պահպանել",
+      "saveChanges": "Պահպանել փոփոխությունները",
+      "delete": "Ջնջել",
+      "edit": "Խմբագրել",
+      "view": "Դիտել",
+      "add": "Ավելացնել",
+      "noResults": "Արդյունքներ չեն գտնվել",
+      "loading": "Բեռնվում է...",
+      "confirmDeleteService": "Ջնջե՞լ այս ծառայությունը:"
+    },
+    "statuses": {
+      "draft": "Սևագիր",
+      "published": "Հրապարակված",
+      "available": "Հասանելի",
+      "availableSoon": "Շուտով հասանելի",
+      "unavailable": "Անհասանելի",
+      "new": "Նոր",
+      "inProgress": "Ընթացքի մեջ",
+      "solved": "Լուծված",
+      "closed": "Փակված",
+      "pending": "Սպասման մեջ",
+      "rejected": "Մերժված",
+      "suspended": "Կասեցված",
+      "active": "Ակտիվ",
+      "inactive": "Ոչ ակտիվ",
+      "allStates": "Բոլոր վիճակները",
+      "allStatuses": "Բոլոր կարգավիճակները"
+    },
+    "pagination": {
+      "showing": "Ցուցադրվում է {from}-ից {to} {total}-ից",
+      "perPage": "Մեկ էջում",
+      "rowsPerPage": "Տողեր մեկ էջում",
+      "goToPage": "Անցնել {page} էջ"
+    },
     "sidebar": {
       "dashboard": "Վահանակ",
       "serviceDirectory": "Ծառայությունների կատալոգ",

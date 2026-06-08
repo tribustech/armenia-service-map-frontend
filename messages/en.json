@@ -198,6 +198,43 @@
     "loginPanelBody": "Stay connected to the same RefugeeSupport.am experience while you access the tools your team uses to respond quickly and confidently."
   },
   "admin": {
+    "common": {
+      "searchPlaceholder": "Search...",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saveChanges": "Save changes",
+      "delete": "Delete",
+      "edit": "Edit",
+      "view": "View",
+      "add": "Add",
+      "noResults": "No results found",
+      "loading": "Loading...",
+      "confirmDeleteService": "Delete this service?"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "available": "Available",
+      "availableSoon": "Available soon",
+      "unavailable": "Unavailable",
+      "new": "New",
+      "inProgress": "In progress",
+      "solved": "Solved",
+      "closed": "Closed",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "suspended": "Suspended",
+      "active": "Active",
+      "inactive": "Inactive",
+      "allStates": "All states",
+      "allStatuses": "All statuses"
+    },
+    "pagination": {
+      "showing": "Showing {from} to {to} of {total} results",
+      "perPage": "Per page",
+      "rowsPerPage": "Rows per page",
+      "goToPage": "Go to page {page}"
+    },
     "sidebar": {
       "dashboard": "Dashboard",
       "serviceDirectory": "Service directory",
