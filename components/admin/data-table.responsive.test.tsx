@@ -5,6 +5,10 @@ import { DataTable } from '@/components/admin/data-table';
 
 type Row = { id: string; title: string; status: string; region: string };
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 vi.mock('@/components/admin/admin-surface', () => ({
   AdminInset: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div {...props}>{children}</div>,
 }));
@@ -51,5 +55,18 @@ describe('DataTable responsive rendering', () => {
     expect(titleHeader.className).toContain('font-medium');
     expect(titleHeader.className).not.toContain('uppercase');
     expect(titleHeader.className).not.toContain('tracking-[0.14em]');
+  });
+
+  it('falls back to the translated noResults label when empty and no emptyLabel prop is given', () => {
+    render(<DataTable columns={columns} data={[]} />);
+
+    expect(screen.getByText('noResults')).toBeInTheDocument();
+  });
+
+  it('uses a caller-supplied emptyLabel prop over the translated default', () => {
+    render(<DataTable columns={columns} data={[]} emptyLabel="Nothing here" />);
+
+    expect(screen.getByText('Nothing here')).toBeInTheDocument();
+    expect(screen.queryByText('noResults')).not.toBeInTheDocument();
   });
 });

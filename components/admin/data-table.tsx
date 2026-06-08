@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   flexRender,
   getCoreRowModel,
@@ -39,8 +40,10 @@ export function DataTable<TData>({
   sorting,
   onSortingChange,
   mobileCard,
-  emptyLabel = 'No results found',
+  emptyLabel,
 }: DataTableProps<TData>) {
+  const t = useTranslations('admin.common');
+  const resolvedEmptyLabel = emptyLabel ?? t('noResults');
   const table = useReactTable({
     data,
     columns,
@@ -89,7 +92,7 @@ export function DataTable<TData>({
               );
             })
           ) : (
-            <AdminInset className="border border-[#e8e8e8] bg-white p-6 text-center text-sm text-[#6b7280]">{emptyLabel}</AdminInset>
+            <AdminInset className="border border-[#e8e8e8] bg-white p-6 text-center text-sm text-[#6b7280]">{resolvedEmptyLabel}</AdminInset>
           )}
         </div>
       ) : null}
@@ -146,7 +149,7 @@ export function DataTable<TData>({
             {table.getRowModel().rows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-5 py-10 text-center text-[#6b7280]">
-                  {emptyLabel}
+                  {resolvedEmptyLabel}
                 </td>
               </tr>
             ) : (

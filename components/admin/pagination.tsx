@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { TableSelect } from '@/components/ui/table-controls';
 
 interface PaginationProps {
@@ -19,6 +20,7 @@ export function Pagination({
   onPageChange,
   onPerPageChange,
 }: PaginationProps) {
+  const t = useTranslations('admin.pagination');
   const from = (page - 1) * perPage + 1;
   const to = Math.min(page * perPage, total);
 
@@ -34,17 +36,15 @@ export function Pagination({
 
   return (
     <div className="flex flex-col gap-4 border-t border-[#f0f0f0] px-4 py-4 text-sm md:flex-row md:items-center md:justify-between md:px-5">
-      <span className="text-[#6b7280]">
-        Showing {from} to {to} of {total} results
-      </span>
+      <span className="text-[#6b7280]">{t('showing', { from, to, total })}</span>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-[#6b7280]">Per page</span>
+          <span className="text-[#6b7280]">{t('perPage')}</span>
           <TableSelect
             value={perPage}
             onChange={(e) => onPerPageChange(Number(e.target.value))}
-            aria-label="Rows per page"
+            aria-label={t('rowsPerPage')}
             className="w-[94px]"
           >
             {[5, 10, 25, 50].map((n) => (
@@ -66,7 +66,7 @@ export function Pagination({
                 key={p}
                 type="button"
                 onClick={() => onPageChange(p)}
-                aria-label={`Go to page ${p}`}
+                aria-label={t('goToPage', { page: p })}
                 aria-current={p === page ? 'page' : undefined}
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   p === page

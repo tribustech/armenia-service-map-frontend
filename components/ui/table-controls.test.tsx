@@ -3,6 +3,15 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Pagination } from '@/components/admin/pagination';
 import { TableSearchInput, TableSelect } from '@/components/ui/table-controls';
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: Record<string, string | number>) => {
+    if (values) {
+      return key + ':' + Object.entries(values).map(([k, v]) => `${k}=${v}`).join(',');
+    }
+    return key;
+  },
+}));
+
 describe('table controls', () => {
   it('renders a search icon inside the shared search input', () => {
     render(<TableSearchInput aria-label="Search needs" />);
@@ -44,7 +53,7 @@ describe('table controls', () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText('Rows per page'), { target: { value: '25' } });
+    fireEvent.change(screen.getByLabelText('rowsPerPage'), { target: { value: '25' } });
 
     expect(screen.getByTestId('table-select-chevron')).toBeInTheDocument();
     expect(onPerPageChange).toHaveBeenCalledWith(25);
