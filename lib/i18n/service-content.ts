@@ -7,6 +7,7 @@ export function getLocalizedServiceContent(service: Service, locale: string) {
       title: service.title,
       shortDescription: service.shortDescription,
       description: service.description,
+      howToAccess: service.howToAccess,
     };
   }
 
@@ -16,5 +17,6 @@ export function getLocalizedServiceContent(service: Service, locale: string) {
       ? service.shortDescriptionHy
       : service.shortDescription,
     description: service.descriptionHy?.trim() ? service.descriptionHy : service.description,
+    howToAccess: service.howToAccessHy?.trim() ? service.howToAccessHy : service.howToAccess,
   };
 }

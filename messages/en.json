@@ -105,7 +105,8 @@
     "allRegions": "All regions",
     "targetGroups": "Target groups",
     "availability": "Availability",
-    "aboutService": "About this service"
+    "aboutService": "About this service",
+    "howToAccess": "How to access the service"
   },
   "about": {
     "title": "About RefugeeSupport.am",

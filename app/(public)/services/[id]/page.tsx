@@ -109,6 +109,16 @@ export default function PublicServiceDetailPage() {
             <div className="prose mt-4 max-w-none text-[#4a5565] prose-p:my-2" dangerouslySetInnerHTML={{ __html: content.description }} />
           </section>
 
+          {content.howToAccess ? (
+            <section className="mt-7 rounded-xl border border-[#e5e7eb] bg-[#f9fafb] p-5 md:p-6">
+              <h2 className="text-xl font-bold text-[#101828]">{t('howToAccess')}</h2>
+              <div
+                className="prose mt-4 max-w-none text-[#4a5565] prose-p:my-2"
+                dangerouslySetInnerHTML={{ __html: content.howToAccess }}
+              />
+            </section>
+          ) : null}
+
           <div className="mt-8 text-center">
             <Link
               href="/services"
