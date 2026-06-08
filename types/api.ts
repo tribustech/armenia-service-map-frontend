@@ -239,6 +239,8 @@ export interface Service {
   shortDescriptionHy: string | null;
   description: string;
   descriptionHy: string | null;
+  howToAccess: string;
+  howToAccessHy: string | null;
   organisationId: string;
   regionId: string | null;
   status: 'DRAFT' | 'PUBLISHED';

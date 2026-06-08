@@ -17,6 +17,8 @@ export interface ServiceMutationInput {
   shortDescriptionHy?: string | null;
   description: string;
   descriptionHy?: string | null;
+  howToAccess: string;
+  howToAccessHy?: string | null;
   organisationId?: string;
   regionId?: string;
   isAvailable?: boolean;
