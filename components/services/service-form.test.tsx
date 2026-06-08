@@ -2,6 +2,16 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ServiceForm } from '@/components/services/service-form';
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: Record<string, string | number>) => {
+    if (!values) return key;
+    return Object.entries(values).reduce(
+      (acc, [name, value]) => acc.replace(`{${name}}`, String(value)),
+      key,
+    );
+  },
+}));
+
 vi.mock('@/lib/api/services', () => ({
   usePublicTopics: () => ({ data: [] }),
   usePublicRegions: () => ({ data: [] }),
@@ -27,8 +37,8 @@ describe('ServiceForm', () => {
       />,
     );
 
-    const languageLabel = screen.getByText('Language');
-    const organisationLabel = screen.getByText('Organisation');
+    const languageLabel = screen.getByText('language');
+    const organisationLabel = screen.getByText('organisation');
     const relation = languageLabel.compareDocumentPosition(organisationLabel);
 
     expect(relation & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -46,7 +56,7 @@ describe('ServiceForm', () => {
       />,
     );
 
-    expect(screen.getByText('Organisation')).toBeInTheDocument();
+    expect(screen.getByText('organisation')).toBeInTheDocument();
 
     rerender(
       <ServiceForm
@@ -58,10 +68,10 @@ describe('ServiceForm', () => {
       />,
     );
 
-    expect(screen.queryByText('Organisation')).not.toBeInTheDocument();
+    expect(screen.queryByText('organisation')).not.toBeInTheDocument();
   });
 
-  it('renders the "How to access the service" rich-text field', () => {
+  it('renders the "how to access the service" rich-text field', () => {
     render(
       <ServiceForm
         showOrganisationField={false}
@@ -72,6 +82,6 @@ describe('ServiceForm', () => {
       />,
     );
 
-    expect(screen.getByText('How to access the service (English)')).toBeInTheDocument();
+    expect(screen.getByText('howToAccessField')).toBeInTheDocument();
   });
 });

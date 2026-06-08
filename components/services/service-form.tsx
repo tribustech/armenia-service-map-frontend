@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RichTextEditor } from '@/components/shared/rich-text-editor';
@@ -72,8 +73,10 @@ export function ServiceForm({
   onCancel,
   onSubmit,
 }: ServiceFormProps) {
+  const t = useTranslations('serviceForm');
   const [form, setForm] = useState<ServiceFormState>(EMPTY_FORM);
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
+  const languageLabel = activeLanguage === 'en' ? t('english') : t('armenian');
   const [errors, setErrors] = useState<Partial<Record<FieldErrorKey, string>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { data: topics } = usePublicTopics();
@@ -105,15 +108,15 @@ export function ServiceForm({
 
   function validate(values: ServiceFormState) {
     const nextErrors: Partial<Record<FieldErrorKey, string>> = {};
-    if (!values.title.trim()) nextErrors.title = 'Title is required.';
-    if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = 'Short description is required.';
-    if (!toPlainText(values.description)) nextErrors.description = 'Description is required.';
-    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = 'How to access the service is required.';
+    if (!values.title.trim()) nextErrors.title = t('validation.titleRequired');
+    if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
+    if (!toPlainText(values.description)) nextErrors.description = t('validation.descriptionRequired');
+    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = t('validation.howToAccessRequired');
     if (showOrganisationField && !values.organisationId) {
-      nextErrors.organisationId = 'Organisation is required.';
+      nextErrors.organisationId = t('validation.organisationRequired');
     }
     if (values.availabilityStart && values.availabilityEnd && values.availabilityEnd < values.availabilityStart) {
-      nextErrors.availabilityEnd = 'End date cannot be before start date.';
+      nextErrors.availabilityEnd = t('validation.endBeforeStart');
     }
     return nextErrors;
   }
@@ -144,7 +147,7 @@ export function ServiceForm({
         availabilityEnd: form.availabilityEnd || undefined,
       });
     } catch (error) {
-      setSubmitError(getErrorMessage(error, 'Unable to save service. Please try again.'));
+      setSubmitError(getErrorMessage(error, t('saveError')));
     }
   }
 
@@ -155,7 +158,7 @@ export function ServiceForm({
       ) : null}
       <div className="space-y-10 rounded-xl bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06),0px_0px_0px_0px_#ececee]">
         <div>
-          <label className="mb-2 block text-sm font-medium text-[#111827]">Language</label>
+          <label className="mb-2 block text-sm font-medium text-[#111827]">{t('language')}</label>
           <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
             <button
               type="button"
@@ -164,7 +167,7 @@ export function ServiceForm({
                 activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
               }`}
             >
-              English
+              {t('english')}
             </button>
             <button
               type="button"
@@ -173,20 +176,20 @@ export function ServiceForm({
                 activeLanguage === 'hy' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
               }`}
             >
-              Armenian
+              {t('armenian')}
             </button>
           </div>
         </div>
 
         {showOrganisationField ? (
           <div className="max-w-[492px]">
-            <label className="mb-2 block text-sm font-medium text-[#111827]">Organisation</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('organisation')}</label>
             <select
               value={form.organisationId}
               onChange={(event) => updateField('organisationId', event.target.value)}
               className={selectClasses}
             >
-              <option value="">Select organisation...</option>
+              <option value="">{t('selectOrganisation')}</option>
               {organisationOptions.map((organisation) => (
                 <option key={organisation.id} value={organisation.id}>
                   {organisation.name}
@@ -199,14 +202,14 @@ export function ServiceForm({
 
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">Status</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('status')}</label>
             <select
               value={form.status}
               onChange={(event) => updateField('status', event.target.value as 'DRAFT' | 'PUBLISHED')}
               className={selectClasses}
             >
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">{t('draft')}</option>
+              <option value="PUBLISHED">{t('published')}</option>
             </select>
           </div>
           <div className="flex items-end pb-2">
@@ -216,14 +219,14 @@ export function ServiceForm({
                 checked={form.isAvailable}
                 onChange={(event) => updateField('isAvailable', event.target.checked)}
               />
-              Service currently available
+              {t('serviceCurrentlyAvailable')}
             </label>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
           <Input
-            label={activeLanguage === 'en' ? 'Title (English)' : 'Title (Armenian)'}
+            label={t('titleField', { language: languageLabel })}
             value={activeLanguage === 'en' ? form.title : form.titleHy}
             onChange={(event) =>
               updateField(activeLanguage === 'en' ? 'title' : 'titleHy', event.target.value)
@@ -232,13 +235,13 @@ export function ServiceForm({
             error={activeLanguage === 'en' ? errors.title : undefined}
           />
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">Location</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('location')}</label>
             <select
               value={form.regionId}
               onChange={(event) => updateField('regionId', event.target.value)}
               className={selectClasses}
             >
-              <option value="">Where it is available</option>
+              <option value="">{t('whereAvailable')}</option>
               {regions?.map((region) => (
                 <option key={region.id} value={region.id}>
                   {region.name}
@@ -250,7 +253,7 @@ export function ServiceForm({
 
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">Topics</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('topics')}</label>
             <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
               <div className="flex flex-col gap-2">
                 {topicOptions.map((topic) => (
@@ -274,7 +277,7 @@ export function ServiceForm({
             </div>
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">Target groups</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('targetGroups')}</label>
             <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
               <div className="flex flex-col gap-2">
                 {(targetGroups ?? []).map((targetGroup) => (
@@ -301,14 +304,14 @@ export function ServiceForm({
 
         <div className="grid grid-cols-2 gap-6">
           <Input
-            label="Start date"
+            label={t('startDate')}
             type="date"
             value={form.availabilityStart}
             onChange={(event) => updateField('availabilityStart', event.target.value)}
             error={errors.availabilityStart}
           />
           <Input
-            label="End date"
+            label={t('endDate')}
             type="date"
             value={form.availabilityEnd}
             onChange={(event) => updateField('availabilityEnd', event.target.value)}
@@ -318,7 +321,7 @@ export function ServiceForm({
 
         <div>
           <label className="mb-2 block text-sm font-medium text-[#111827]">
-            Short description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            {t('shortDescriptionField', { language: languageLabel })}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
@@ -333,7 +336,7 @@ export function ServiceForm({
 
         <div>
           <label className="mb-2 block text-sm font-medium text-[#111827]">
-            Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            {t('descriptionField', { language: languageLabel })}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.description : form.descriptionHy}
@@ -346,7 +349,7 @@ export function ServiceForm({
 
         <div>
           <label className="mb-2 block text-sm font-medium text-[#111827]">
-            How to access the service ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+            {t('howToAccessField', { language: languageLabel })}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
@@ -362,10 +365,10 @@ export function ServiceForm({
 
       <div className="flex justify-end gap-4">
         <Button type="button" variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('cancel')}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : submitLabel}
+          {isSubmitting ? t('saving') : submitLabel}
         </Button>
       </div>
     </form>

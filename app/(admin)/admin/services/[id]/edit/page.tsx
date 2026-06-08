@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -50,12 +51,16 @@ const EMPTY_FORM: ServiceFormState = {
 export default function EditServicePage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const t = useTranslations('serviceForm');
+  const tServices = useTranslations('admin.services');
+  const tCommon = useTranslations('admin.common');
   const { data: service, isLoading } = useAdminService(id);
   const update = useUpdateService();
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
   const { data: targetGroups } = usePublicTargetGroups();
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
+  const languageLabel = activeLanguage === 'en' ? t('english') : t('armenian');
 
   const topicOptions = useMemo(
     () =>
@@ -102,16 +107,16 @@ export default function EditServicePage() {
 
   function validate(values: ServiceFormState) {
     const nextErrors: Partial<Record<keyof ServiceFormState, string>> = {};
-    if (!values.title.trim()) nextErrors.title = 'Title is required.';
-    if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = 'Short description is required.';
-    if (!toPlainText(values.description)) nextErrors.description = 'Description is required.';
-    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = 'How to access the service is required.';
+    if (!values.title.trim()) nextErrors.title = t('validation.titleRequired');
+    if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
+    if (!toPlainText(values.description)) nextErrors.description = t('validation.descriptionRequired');
+    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = t('validation.howToAccessRequired');
     if (
       values.availabilityStart &&
       values.availabilityEnd &&
       values.availabilityEnd < values.availabilityStart
     ) {
-      nextErrors.availabilityEnd = 'End date cannot be before start date.';
+      nextErrors.availabilityEnd = t('validation.endBeforeStart');
     }
     return nextErrors;
   }
@@ -151,7 +156,7 @@ export default function EditServicePage() {
       });
       router.push(`/admin/services/${id}`);
     } catch (error) {
-      const message = getErrorMessage(error, 'Unable to update service. Please try again.');
+      const message = getErrorMessage(error, t('updateError'));
       const mappedField = mapErrorMessageToField<keyof ServiceFormState>(message, [
         { field: 'title', pattern: /title/i },
         { field: 'shortDescription', pattern: /short.?description/i },
@@ -175,17 +180,17 @@ export default function EditServicePage() {
       {/* Breadcrumbs */}
       <div className="flex items-center gap-3 pt-8 text-sm text-[#6b7280]">
         <Link href="/admin/services" className="font-medium hover:underline">
-          Service directory
+          {tServices('title')}
         </Link>
         <ChevronRightIcon className="h-4 w-4" />
         <Link href={`/admin/services/${id}`} className="font-medium hover:underline">
           {service?.title}
         </Link>
         <ChevronRightIcon className="h-4 w-4" />
-        <span className="font-medium">Edit</span>
+        <span className="font-medium">{t('editBreadcrumb')}</span>
       </div>
 
-      <h1 className="mt-3 text-3xl font-bold text-[#111827]">Edit service</h1>
+      <h1 className="mt-3 text-3xl font-bold text-[#111827]">{t('editTitle')}</h1>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         {submitError ? (
@@ -198,40 +203,40 @@ export default function EditServicePage() {
           {/* Title + Location */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">Status</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('status')}</label>
               <select
                 value={form.status}
                 onChange={(e) => updateField('status', e.target.value)}
                 className={selectClasses}
               >
-                <option value="DRAFT">Draft</option>
-                <option value="PUBLISHED">Published</option>
+                <option value="DRAFT">{t('draft')}</option>
+                <option value="PUBLISHED">{t('published')}</option>
               </select>
             </div>
             <div className="flex items-end gap-2 pb-1">
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.isAvailable} onChange={(e) => updateField('isAvailable', e.target.checked)} />
-                Available
+                {t('available')}
               </label>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <Input
-              label={activeLanguage === 'en' ? 'Title (English)' : 'Title (Armenian)'}
+              label={t('titleField', { language: languageLabel })}
               value={activeLanguage === 'en' ? form.title : form.titleHy}
               onChange={(e) => updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)}
               error={activeLanguage === 'en' ? errors.title : undefined}
               required={activeLanguage === 'en'}
             />
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">Location</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('location')}</label>
               <select
                 value={form.regionId}
                 onChange={(e) => updateField('regionId', e.target.value)}
                 className={selectClasses}
               >
-                <option value="">Where it is available</option>
+                <option value="">{t('whereAvailable')}</option>
                 {regions?.map((r) => (
                   <option key={r.id} value={r.id}>{r.name}</option>
                 ))}
@@ -243,7 +248,7 @@ export default function EditServicePage() {
           {/* Topics + Target group */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">Topics</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('topics')}</label>
               <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
                 <div className="flex flex-col gap-2">
                   {topicOptions.map((topic) => (
@@ -267,7 +272,7 @@ export default function EditServicePage() {
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">Target groups</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('targetGroups')}</label>
               <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
                 <div className="flex flex-col gap-2">
                   {(targetGroups ?? []).map((targetGroup) => (
@@ -295,14 +300,14 @@ export default function EditServicePage() {
           {/* Start date + End date */}
           <div className="grid grid-cols-2 gap-6">
             <Input
-              label="Start date"
+              label={t('startDate')}
               type="date"
               value={form.availabilityStart}
               onChange={(e) => updateField('availabilityStart', e.target.value)}
               error={errors.availabilityStart}
             />
             <Input
-              label="End date"
+              label={t('endDate')}
               type="date"
               value={form.availabilityEnd}
               onChange={(e) => updateField('availabilityEnd', e.target.value)}
@@ -320,7 +325,7 @@ export default function EditServicePage() {
                   activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
                 }`}
               >
-                English
+                {t('english')}
               </button>
               <button
                 type="button"
@@ -329,14 +334,14 @@ export default function EditServicePage() {
                   activeLanguage === 'hy' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
                 }`}
               >
-                Armenian
+                {t('armenian')}
               </button>
             </div>
           </div>
 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#111827]">
-              Short description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+              {t('shortDescriptionField', { language: languageLabel })}
             </label>
             <RichTextEditor
               content={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
@@ -352,7 +357,7 @@ export default function EditServicePage() {
           {/* Description - rich text */}
           <div>
             <label className="mb-2 block text-sm font-medium text-[#111827]">
-              Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+              {t('descriptionField', { language: languageLabel })}
             </label>
             <RichTextEditor
               content={activeLanguage === 'en' ? form.description : form.descriptionHy}
@@ -365,7 +370,7 @@ export default function EditServicePage() {
 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#111827]">
-              How to access the service ({activeLanguage === 'en' ? 'English' : 'Armenian'})
+              {t('howToAccessField', { language: languageLabel })}
             </label>
             <RichTextEditor
               content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
@@ -382,10 +387,10 @@ export default function EditServicePage() {
         {/* Action buttons */}
         <div className="flex justify-end gap-4">
           <Button type="button" variant="secondary" onClick={() => router.back()}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button type="submit" disabled={update.isPending}>
-            {update.isPending ? 'Saving...' : 'Save changes'}
+            {update.isPending ? t('saving') : tCommon('saveChanges')}
           </Button>
         </div>
       </form>
