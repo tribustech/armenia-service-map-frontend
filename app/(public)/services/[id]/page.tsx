@@ -11,6 +11,7 @@ export default function PublicServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const locale = useLocale();
   const t = useTranslations('serviceDetail');
+  const tServices = useTranslations('services');
   const tHome = useTranslations('home');
   const tNav = useTranslations('nav');
 
@@ -79,12 +80,21 @@ export default function PublicServiceDetailPage() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2 md:justify-end">
-              {service.topics.map((topicEntry) => (
-                <span key={topicEntry.topic.id} className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-semibold text-[#1447e6]">
-                  {topicEntry.topic.name}
-                </span>
-              ))}
+            <div className="flex flex-col items-start gap-3 md:items-end">
+              {service.availabilityState === 'AVAILABLE' ? (
+                <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-semibold text-[#166534]">{tServices('available')}</span>
+              ) : service.availabilityState === 'AVAILABLE_SOON' ? (
+                <span className="rounded-full bg-[#fef9c3] px-3 py-1 text-xs font-semibold text-[#854d0e]">{tServices('availableSoon')}</span>
+              ) : (
+                <span className="rounded-full bg-[#fee2e2] px-3 py-1 text-xs font-semibold text-[#b91c1c]">{tServices('unavailable')}</span>
+              )}
+              <div className="flex flex-wrap gap-2 md:justify-end">
+                {service.topics.map((topicEntry) => (
+                  <span key={topicEntry.topic.id} className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-semibold text-[#1447e6]">
+                    {topicEntry.topic.name}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
