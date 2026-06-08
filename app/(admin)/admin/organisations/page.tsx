@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
@@ -10,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TableSearchInput } from '@/components/ui/table-controls';
 import { useOrganisations } from '@/lib/api/organisations';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
+import { formatStatusLabel, ORG_STATUS_LABEL_KEYS } from '@/lib/formatting/status-label';
 import type { Organisation } from '@/types/api';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
@@ -23,6 +24,9 @@ const accountBadge: Record<Organisation['status'], 'success' | 'warning' | 'dang
 
 export default function OrganisationsPage() {
   const router = useRouter();
+  const t = useTranslations('admin.organisations');
+  const tCommon = useTranslations('admin.common');
+  const tStatuses = useTranslations('admin.statuses');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -34,20 +38,24 @@ export default function OrganisationsPage() {
   const { data, isLoading } = useOrganisations({ page, perPage, search, sortBy, sortOrder });
 
   const columns: ColumnDef<Organisation, unknown>[] = [
-    { accessorKey: 'name', header: 'Name', enableSorting: true },
+    { accessorKey: 'name', header: t('columns.name'), enableSorting: true },
     {
       accessorKey: 'status',
-      header: 'Account',
-      cell: ({ getValue }) => (
-        <Badge variant={accountBadge[getValue() as Organisation['status']]}>
-          {formatStatusLabel(String(getValue()))}
-        </Badge>
-      ),
+      header: t('columns.account'),
+      cell: ({ getValue }) => {
+        const status = String(getValue());
+        const labelKey = ORG_STATUS_LABEL_KEYS[status];
+        return (
+          <Badge variant={accountBadge[getValue() as Organisation['status']]}>
+            {labelKey ? tStatuses(labelKey) : formatStatusLabel(status)}
+          </Badge>
+        );
+      },
       enableSorting: true,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last access',
+      header: t('columns.lastAccess'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
       enableSorting: true,
     },
@@ -59,7 +67,7 @@ export default function OrganisationsPage() {
           onClick={() => router.push(`/admin/organisations/${row.original.id}`)}
           className="text-sm text-[#E8922D] hover:underline"
         >
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -69,20 +77,20 @@ export default function OrganisationsPage() {
     <div>
       <AdminPageHeader>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">Users management</h1>
-          <p className="mt-1 text-sm text-[#6b7280]">Review organisation health, access, and coverage at a glance.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">{t('title')}</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">{t('description')}</p>
         </div>
-        <Button onClick={() => router.push('/admin/organisations/new')}>Add organisation</Button>
+        <Button onClick={() => router.push('/admin/organisations/new')}>{t('addOrganisation')}</Button>
       </AdminPageHeader>
 
       <AdminPanel className="mt-6 overflow-hidden">
         <div className="border-b border-[#f0f0f0] px-5 py-4">
-          <h2 className="text-lg font-semibold text-[#111827]">Organisations</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">{t('list')}</h2>
         </div>
 
         <AdminToolbar>
           <TableSearchInput
-            placeholder="Search..."
+            placeholder={tCommon('searchPlaceholder')}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="sm:w-72"
@@ -102,14 +110,14 @@ export default function OrganisationsPage() {
               onSortingChange={setSorting}
               mobileCard={(row) => ({
                 title: row.name,
-                badges: <Badge variant={accountBadge[row.status]}>{formatStatusLabel(row.status)}</Badge>,
+                badges: <Badge variant={accountBadge[row.status]}>{ORG_STATUS_LABEL_KEYS[row.status] ? tStatuses(ORG_STATUS_LABEL_KEYS[row.status]) : formatStatusLabel(row.status)}</Badge>,
                 fields: [
-                  { label: 'Last access', value: new Date(row.updatedAt).toLocaleDateString() },
-                  { label: 'Region', value: row.region?.name || '—' },
-                  { label: 'Users', value: row._count.users },
-                  { label: 'Services', value: row._count.services },
+                  { label: t('columns.lastAccess'), value: new Date(row.updatedAt).toLocaleDateString() },
+                  { label: t('mobile.region'), value: row.region?.name || '—' },
+                  { label: t('mobile.users'), value: row._count.users },
+                  { label: t('mobile.services'), value: row._count.services },
                 ],
-                action: <button type="button" onClick={() => router.push(`/admin/organisations/${row.id}`)} className="admin-link-button">View</button>,
+                action: <button type="button" onClick={() => router.push(`/admin/organisations/${row.id}`)} className="admin-link-button">{tCommon('view')}</button>,
               })}
             />
             {data && (

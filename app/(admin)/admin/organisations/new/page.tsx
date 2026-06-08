@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useCreateOrganisation } from '@/lib/api/organisations';
@@ -21,6 +22,8 @@ type FormField = keyof FormState;
 
 export default function NewOrganisationPage() {
   const router = useRouter();
+  const t = useTranslations('admin.organisations');
+  const tCommon = useTranslations('admin.common');
   const createOrg = useCreateOrganisation();
   const [form, setForm] = useState<FormState>({
     name: '',
@@ -41,12 +44,12 @@ export default function NewOrganisationPage() {
 
   function validate(values: FormState) {
     const nextErrors: Partial<Record<FormField, string>> = {};
-    if (!values.name.trim()) nextErrors.name = 'Organisation name is required.';
+    if (!values.name.trim()) nextErrors.name = t('validation.nameRequired');
     if (values.contactEmail.trim() && !isValidEmail(values.contactEmail)) {
-      nextErrors.contactEmail = 'Enter a valid contact email.';
+      nextErrors.contactEmail = t('validation.invalidEmail');
     }
     if (values.contactPhone.trim() && !isValidPhone(values.contactPhone)) {
-      nextErrors.contactPhone = 'Enter a valid contact phone number.';
+      nextErrors.contactPhone = t('validation.invalidPhone');
     }
     return nextErrors;
   }
@@ -65,7 +68,7 @@ export default function NewOrganisationPage() {
       await createOrg.mutateAsync(data);
       router.push('/admin/organisations');
     } catch (error) {
-      const message = getErrorMessage(error, 'Unable to create organisation. Please try again.');
+      const message = getErrorMessage(error, t('validation.createFailed'));
       const mappedField = mapErrorMessageToField<FormField>(message, [
         { field: 'name', pattern: /name|organisation/i },
         { field: 'contactEmail', pattern: /email/i },
@@ -83,11 +86,11 @@ export default function NewOrganisationPage() {
   return (
     <div>
       <div className="mb-2 text-sm text-[#6b7280]">
-        <Link href="/admin/organisations" className="hover:underline">Users management</Link>
+        <Link href="/admin/organisations" className="hover:underline">{t('title')}</Link>
         {' > '}
-        <span>Add new organisation</span>
+        <span>{t('addNew')}</span>
       </div>
-      <h1 className="text-2xl font-bold">Add new organisation</h1>
+      <h1 className="text-2xl font-bold">{t('addNew')}</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-2xl space-y-4 rounded-lg border bg-white p-6">
         {submitError ? (
@@ -97,24 +100,24 @@ export default function NewOrganisationPage() {
         ) : null}
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="Organisation name *"
+            label={t('form.nameRequired')}
             value={form.name}
             onChange={(e) => updateField('name', e.target.value)}
             error={errors.name}
             aria-invalid={Boolean(errors.name)}
             required
           />
-          <Input label="Website" value={form.website} onChange={(e) => updateField('website', e.target.value)} />
+          <Input label={t('form.website')} value={form.website} onChange={(e) => updateField('website', e.target.value)} />
         </div>
         <Input
-          label="Address"
+          label={t('form.address')}
           value={form.address}
           onChange={(e) => updateField('address', e.target.value)}
           error={errors.address}
         />
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="Contact email"
+            label={t('form.contactEmail')}
             type="email"
             value={form.contactEmail}
             onChange={(e) => updateField('contactEmail', e.target.value)}
@@ -122,7 +125,7 @@ export default function NewOrganisationPage() {
             aria-invalid={Boolean(errors.contactEmail)}
           />
           <Input
-            label="Contact phone"
+            label={t('form.contactPhone')}
             value={form.contactPhone}
             onChange={(e) => updateField('contactPhone', e.target.value)}
             error={errors.contactPhone}
@@ -130,7 +133,7 @@ export default function NewOrganisationPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-[#374151]">Description</label>
+          <label className="mb-1 block text-sm font-medium text-[#374151]">{t('form.description')}</label>
           <textarea
             value={form.description}
             onChange={(e) => updateField('description', e.target.value)}
@@ -145,9 +148,9 @@ export default function NewOrganisationPage() {
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="secondary" onClick={() => router.back()}>Cancel</Button>
+          <Button type="button" variant="secondary" onClick={() => router.back()}>{tCommon('cancel')}</Button>
           <Button type="submit" disabled={createOrg.isPending}>
-            {createOrg.isPending ? 'Saving...' : 'Save changes'}
+            {createOrg.isPending ? t('form.saving') : tCommon('saveChanges')}
           </Button>
         </div>
       </form>

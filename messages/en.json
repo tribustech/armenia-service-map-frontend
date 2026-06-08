@@ -344,14 +344,77 @@
       "deactivate": "Deactivate organisation",
       "activate": "Activate organisation",
       "details": "Organisation details",
-      "users": "Organisation users"
+      "users": "Organisation users",
+      "description": "Review organisation health, access, and coverage at a glance.",
+      "list": "Organisations",
+      "addNew": "Add new organisation",
+      "notFound": "Organisation not found",
+      "detailSectionsAria": "Organisation detail sections",
+      "columns": {
+        "name": "Name",
+        "account": "Account",
+        "lastAccess": "Last access"
+      },
+      "actions": {
+        "approve": "Approve organisation",
+        "reject": "Reject organisation",
+        "approving": "Approving...",
+        "rejecting": "Rejecting...",
+        "activating": "Activating...",
+        "deactivating": "Deactivating..."
+      },
+      "form": {
+        "name": "Name",
+        "nameRequired": "Organisation name *",
+        "website": "Website",
+        "address": "Address",
+        "contactEmail": "Contact email",
+        "contactPhone": "Contact phone",
+        "contactPerson": "Contact person",
+        "description": "Description",
+        "location": "Location",
+        "submittedVia": "Submitted via",
+        "reviewedAt": "Reviewed at",
+        "rejectionReason": "Rejection reason",
+        "saving": "Saving..."
+      },
+      "values": {
+        "submittedViaAdmin": "Admin",
+        "awaitingReview": "Awaiting review",
+        "noReasonProvided": "No reason provided"
+      },
+      "validation": {
+        "nameRequired": "Organisation name is required.",
+        "invalidEmail": "Enter a valid contact email.",
+        "invalidPhone": "Enter a valid contact phone number.",
+        "createFailed": "Unable to create organisation. Please try again."
+      },
+      "mobile": {
+        "region": "Region",
+        "users": "Users",
+        "services": "Services"
+      },
+      "pendingNotice": "This organisation was submitted from the public Join the network form and is waiting for review.",
+      "rejectionModal": {
+        "title": "Reject organisation",
+        "reasonLabel": "Rejection reason",
+        "reasonPlaceholder": "Optional note for why this organisation was rejected",
+        "confirm": "Confirm rejection"
+      }
     },
     "users": {
       "allUsers": "All users",
       "addUser": "Add user",
       "deactivateAccount": "Deactivate account",
       "resetPassword": "Reset password",
-      "userDetails": "User details"
+      "userDetails": "User details",
+      "columns": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "role": "Role",
+        "joined": "Joined",
+        "email": "Email"
+      }
     },
     "services": {
       "title": "Service directory",

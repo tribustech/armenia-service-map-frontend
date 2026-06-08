@@ -6,6 +6,14 @@ export const NEED_STATUS_LABEL_KEYS: Record<string, string> = {
   CLOSED: 'closed',
 };
 
+// Maps the uppercase organisation status enum to keys under the `admin.statuses` i18n namespace.
+export const ORG_STATUS_LABEL_KEYS: Record<string, string> = {
+  ACTIVE: 'active',
+  PENDING: 'pending',
+  REJECTED: 'rejected',
+  SUSPENDED: 'suspended',
+};
+
 export function formatStatusLabel(status: string): string {
   const normalized = status.trim();
   if (!normalized) return 'Unknown';
