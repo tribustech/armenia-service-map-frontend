@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import PublicServiceDetailPage from '@/app/(public)/services/[id]/page';
 
-const serviceState = { availabilityState: 'AVAILABLE_SOON' as string };
+const serviceState = { availabilityState: 'AVAILABLE' as string };
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 's1' }),
@@ -44,6 +44,16 @@ vi.mock('@/lib/api/services', () => ({
 }));
 
 describe('PublicServiceDetailPage availability badge', () => {
+  beforeEach(() => {
+    serviceState.availabilityState = 'AVAILABLE';
+  });
+
+  it('renders the Available badge for AVAILABLE state', () => {
+    serviceState.availabilityState = 'AVAILABLE';
+    render(<PublicServiceDetailPage />);
+    expect(screen.getByText('available')).toBeInTheDocument();
+  });
+
   it('renders the Available soon badge for AVAILABLE_SOON state', () => {
     serviceState.availabilityState = 'AVAILABLE_SOON';
     render(<PublicServiceDetailPage />);
