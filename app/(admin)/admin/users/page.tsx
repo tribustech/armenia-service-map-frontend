@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
@@ -12,9 +13,16 @@ import { TableSearchInput } from '@/components/ui/table-controls';
 import { useUsers } from '@/lib/api/users';
 import type { User } from '@/types/api';
 import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
+import { USER_ROLE_LABEL_KEYS, formatStatusLabel } from '@/lib/formatting/status-label';
 
 export default function UsersPage() {
   const router = useRouter();
+  const t = useTranslations('admin.users');
+  const tCols = useTranslations('admin.users.columns');
+  const tRoles = useTranslations('admin.users.roles');
+  const tCommon = useTranslations('admin.common');
+  const roleLabel = (role: string) =>
+    USER_ROLE_LABEL_KEYS[role] ? tRoles(USER_ROLE_LABEL_KEYS[role]) : formatStatusLabel(role);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -26,25 +34,25 @@ export default function UsersPage() {
   const { data, isLoading } = useUsers({ page, perPage, search, sortBy, sortOrder });
 
   const columns: ColumnDef<User, unknown>[] = [
-    { accessorKey: 'firstName', header: 'First name', enableSorting: true },
-    { accessorKey: 'lastName', header: 'Last name', enableSorting: true },
-    { accessorKey: 'email', header: 'Email' },
+    { accessorKey: 'firstName', header: tCols('firstName'), enableSorting: true },
+    { accessorKey: 'lastName', header: tCols('lastName'), enableSorting: true },
+    { accessorKey: 'email', header: tCols('email') },
     {
       accessorKey: 'role',
-      header: 'Role',
+      header: tCols('role'),
       cell: ({ getValue }) => (
-        <Badge variant="neutral">{(getValue() as string).replace(/_/g, ' ')}</Badge>
+        <Badge variant="neutral">{roleLabel(getValue() as string)}</Badge>
       ),
     },
     {
       accessorFn: (row) => row.organisation?.name,
       id: 'organisation',
-      header: 'Organisation',
+      header: tCols('organisation'),
       cell: ({ getValue }) => (getValue() as string) || '—',
     },
     {
       accessorKey: 'createdAt',
-      header: 'Created',
+      header: tCols('created'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
       enableSorting: true,
     },
@@ -56,7 +64,7 @@ export default function UsersPage() {
           onClick={() => router.push(`/admin/users/${row.original.id}`)}
           className="text-sm text-[#E8922D] hover:underline"
         >
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -66,16 +74,16 @@ export default function UsersPage() {
     <div>
       <AdminPageHeader>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">All users</h1>
-          <p className="mt-1 text-sm text-[#6b7280]">Manage admin and organisation accounts from one polished directory.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#111827]">{t('allUsers')}</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">{t('description')}</p>
         </div>
-        <Button onClick={() => router.push('/admin/users/new')}>Add user</Button>
+        <Button onClick={() => router.push('/admin/users/new')}>{t('addUser')}</Button>
       </AdminPageHeader>
 
       <AdminPanel className="mt-6 overflow-hidden">
         <AdminToolbar layout="compact-end">
           <TableSearchInput
-            placeholder="Search..."
+            placeholder={tCommon('searchPlaceholder')}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             size="compact"
@@ -96,13 +104,13 @@ export default function UsersPage() {
               onSortingChange={setSorting}
               mobileCard={(row) => ({
                 title: `${row.firstName} ${row.lastName}`.trim(),
-                badges: <Badge variant="neutral">{row.role.replace(/_/g, ' ')}</Badge>,
+                badges: <Badge variant="neutral">{roleLabel(row.role)}</Badge>,
                 fields: [
-                  { label: 'Email', value: row.email },
-                  { label: 'Organisation', value: row.organisation?.name || '—' },
-                  { label: 'Created', value: new Date(row.createdAt).toLocaleDateString() },
+                  { label: tCols('email'), value: row.email },
+                  { label: tCols('organisation'), value: row.organisation?.name || '—' },
+                  { label: tCols('created'), value: new Date(row.createdAt).toLocaleDateString() },
                 ],
-                action: <button type="button" onClick={() => router.push(`/admin/users/${row.id}`)} className="admin-link-button">View</button>,
+                action: <button type="button" onClick={() => router.push(`/admin/users/${row.id}`)} className="admin-link-button">{tCommon('view')}</button>,
               })}
             />
             {data && (

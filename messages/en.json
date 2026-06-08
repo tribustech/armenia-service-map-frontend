@@ -408,12 +408,40 @@
       "deactivateAccount": "Deactivate account",
       "resetPassword": "Reset password",
       "userDetails": "User details",
+      "description": "Manage admin and organisation accounts from one polished directory.",
+      "usersManagement": "Users management",
+      "addNew": "Add new user",
+      "notFound": "User not found",
+      "status": "Status",
+      "deactivateConfirm": "Deactivate this user?",
       "columns": {
         "firstName": "First name",
         "lastName": "Last name",
         "role": "Role",
         "joined": "Joined",
-        "email": "Email"
+        "email": "Email",
+        "organisation": "Organisation",
+        "created": "Created"
+      },
+      "form": {
+        "firstNameRequired": "First name *",
+        "lastNameRequired": "Last name *",
+        "emailRequired": "Email address *",
+        "email": "Email address",
+        "role": "Role",
+        "saving": "Saving..."
+      },
+      "roles": {
+        "orgMember": "Org Member",
+        "orgAdmin": "Org Admin",
+        "superAdmin": "Super Admin"
+      },
+      "validation": {
+        "firstNameRequired": "First name is required.",
+        "lastNameRequired": "Last name is required.",
+        "emailRequired": "Email is required.",
+        "invalidEmail": "Enter a valid email address.",
+        "createFailed": "Unable to create user. Please try again."
       }
     },
     "services": {

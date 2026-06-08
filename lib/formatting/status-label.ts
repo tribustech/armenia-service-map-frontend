@@ -14,6 +14,20 @@ export const ORG_STATUS_LABEL_KEYS: Record<string, string> = {
   SUSPENDED: 'suspended',
 };
 
+// Maps the uppercase user status enum to keys under the `admin.statuses` i18n namespace.
+export const USER_STATUS_LABEL_KEYS: Record<string, string> = {
+  ACTIVE: 'active',
+  PENDING: 'pending',
+  SUSPENDED: 'suspended',
+};
+
+// Maps the uppercase user role enum to keys under the `admin.users.roles` i18n namespace.
+export const USER_ROLE_LABEL_KEYS: Record<string, string> = {
+  ORG_MEMBER: 'orgMember',
+  ORG_ADMIN: 'orgAdmin',
+  SUPER_ADMIN: 'superAdmin',
+};
+
 export function formatStatusLabel(status: string): string {
   const normalized = status.trim();
   if (!normalized) return 'Unknown';
