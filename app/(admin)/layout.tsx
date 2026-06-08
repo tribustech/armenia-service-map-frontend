@@ -16,8 +16,9 @@ function getSidebarMode(width: number): AdminSidebarMode {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
   const [sidebarMode, setSidebarMode] = useState<AdminSidebarMode>(() => {
     if (typeof window === 'undefined') {
       return 'full';
@@ -45,16 +46,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
       router.push('/login');
+    } else if (!isSuperAdmin) {
+      router.push('/org/dashboard');
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, isSuperAdmin, router]);
 
   if (isLoading) {
     return <ShellLoadingScreen tone="admin" />;
   }
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || !isSuperAdmin) return null;
 
   return (
     <div

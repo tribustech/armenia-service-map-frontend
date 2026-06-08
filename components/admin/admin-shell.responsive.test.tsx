@@ -18,6 +18,7 @@ vi.mock('@/lib/auth/auth-context', () => ({
       firstName: 'Admin',
       lastName: 'User',
       email: 'admin@example.com',
+      role: 'SUPER_ADMIN',
     },
     logout: vi.fn(),
   }),
