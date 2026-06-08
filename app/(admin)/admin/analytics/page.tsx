@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,6 +52,7 @@ function downloadCsv(filename: string, rows: Array<Record<string, string | numbe
 }
 
 export default function AdminAnalyticsPage() {
+  const t = useTranslations('admin.analytics');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(12);
   const [search, setSearch] = useState('');
@@ -87,7 +89,7 @@ export default function AdminAnalyticsPage() {
       labels,
       datasets: [
         {
-          label: 'Searches',
+          label: t('searchesLegend'),
           data: values,
           borderColor: '#d6761e',
           backgroundColor: '#f7c58f',
@@ -96,7 +98,7 @@ export default function AdminAnalyticsPage() {
         },
       ],
     };
-  }, [frequency]);
+  }, [frequency, t]);
 
   const heatmapLookup = useMemo(() => {
     const map = new Map<string, number>();
@@ -110,8 +112,8 @@ export default function AdminAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-[#111827]">Analytics</h1>
-          <p className="mt-1 text-sm text-[#6b7280]">Search behavior, filter usage, and quality insights.</p>
+          <h1 className="text-2xl font-semibold text-[#111827]">{t('title')}</h1>
+          <p className="mt-1 text-sm text-[#6b7280]">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -120,19 +122,19 @@ export default function AdminAnalyticsPage() {
       ) : (
         <>
           <section className="grid gap-4 md:grid-cols-3">
-            <StatCard title="Total searches" value={overview?.totalSearches ?? 0} tone="amber" />
-            <StatCard title="Total unique searches" value={overview?.totalUniqueSearches ?? 0} tone="teal" />
-            <StatCard title="Zero-result searches" value={overview?.totalZeroResultSearches ?? 0} tone="rose" />
+            <StatCard title={t('totalSearches')} value={overview?.totalSearches ?? 0} tone="amber" />
+            <StatCard title={t('totalUniqueSearches')} value={overview?.totalUniqueSearches ?? 0} tone="teal" />
+            <StatCard title={t('zeroResultSearches')} value={overview?.totalZeroResultSearches ?? 0} tone="rose" />
           </section>
 
           <section className="grid gap-4 xl:grid-cols-3">
-            <Panel title="Top search queries" subtitle="Most frequent terms used by visitors.">
-              <QueryList rows={topQueries ?? []} empty="No searches yet." />
+            <Panel title={t('topQueries')} subtitle={t('topQueriesSubtitle')}>
+              <QueryList rows={topQueries ?? []} empty={t('noSearches')} />
             </Panel>
-            <Panel title="Zero-result queries" subtitle="Queries with no matching services.">
-              <QueryList rows={zeroQueries ?? []} empty="No zero-result queries." danger />
+            <Panel title={t('zeroResultQueries')} subtitle={t('zeroResultQueriesSubtitle')}>
+              <QueryList rows={zeroQueries ?? []} empty={t('noZeroResults')} danger />
             </Panel>
-            <Panel title="Search frequency trend" subtitle="Daily search volume over the last 30 buckets.">
+            <Panel title={t('searchTrend')} subtitle={t('searchTrendSubtitle')}>
               <Line
                 data={lineData}
                 options={{
@@ -147,8 +149,8 @@ export default function AdminAnalyticsPage() {
           <section className="admin-panel">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f0f0f0] px-5 py-4">
               <div>
-                <h2 className="text-lg font-semibold text-[#111827]">All searches</h2>
-                <p className="text-xs text-[#6b7280]">Date, term, and result count for operational review.</p>
+                <h2 className="text-lg font-semibold text-[#111827]">{t('allSearches')}</h2>
+                <p className="text-xs text-[#6b7280]">{t('allSearchesSubtitle')}</p>
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -157,7 +159,7 @@ export default function AdminAnalyticsPage() {
                     setSearch(event.target.value);
                     setPage(1);
                   }}
-                  placeholder="Search query text..."
+                  placeholder={t('searchPlaceholder')}
                   className="rounded-xl border border-[#d1d5db] px-3 py-2 text-sm text-[#374151] outline-none focus:border-[#E8922D]"
                 />
                 <button
@@ -173,7 +175,7 @@ export default function AdminAnalyticsPage() {
                   }}
                   className="rounded-xl bg-[#E8922D] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#d4801f]"
                 >
-                  Download CSV
+                  {t('downloadCsv')}
                 </button>
               </div>
             </div>
@@ -181,9 +183,9 @@ export default function AdminAnalyticsPage() {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#f0f0f0] bg-white text-left text-[#6b7280]">
-                    <th className="px-5 py-3 font-medium">Date</th>
-                    <th className="px-5 py-3 font-medium">Query</th>
-                    <th className="px-5 py-3 font-medium"># Results</th>
+                    <th className="px-5 py-3 font-medium">{t('dateColumn')}</th>
+                    <th className="px-5 py-3 font-medium">{t('queryColumn')}</th>
+                    <th className="px-5 py-3 font-medium">{t('resultsColumn')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,7 +202,11 @@ export default function AdminAnalyticsPage() {
             {allSearches ? (
               <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-xs text-[#6b7280]">
                 <span>
-                  Page {allSearches.meta.page} / {allSearches.meta.totalPages} ({allSearches.meta.total} rows)
+                  {t('pageInfo', {
+                    page: allSearches.meta.page,
+                    totalPages: allSearches.meta.totalPages,
+                    total: allSearches.meta.total,
+                  })}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
@@ -209,7 +215,7 @@ export default function AdminAnalyticsPage() {
                     onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                     className="rounded-lg border border-[#d1d5db] px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Prev
+                    {t('prev')}
                   </button>
                   <button
                     type="button"
@@ -217,7 +223,7 @@ export default function AdminAnalyticsPage() {
                     onClick={() => setPage((prev) => prev + 1)}
                     className="rounded-lg border border-[#d1d5db] px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Next
+                    {t('next')}
                   </button>
                   <select
                     value={perPage}
@@ -237,16 +243,16 @@ export default function AdminAnalyticsPage() {
           </section>
 
           <section className="grid gap-4 xl:grid-cols-2">
-            <Panel title="Most used filters" subtitle="Top regions and topics selected in search.">
+            <Panel title={t('mostUsedFilters')} subtitle={t('mostUsedFiltersSubtitle')}>
               <Bar
                 data={{
                   labels: [
-                    ...(mostUsedFilters?.regionUsage.map((item) => `Region: ${item.regionName}`) ?? []),
-                    ...(mostUsedFilters?.topicUsage.map((item) => `Topic: ${item.topicName}`) ?? []),
+                    ...(mostUsedFilters?.regionUsage.map((item) => t('regionLabel', { name: item.regionName })) ?? []),
+                    ...(mostUsedFilters?.topicUsage.map((item) => t('topicLabel', { name: item.topicName })) ?? []),
                   ],
                   datasets: [
                     {
-                      label: 'Usage count',
+                      label: t('usageCountLegend'),
                       data: [
                         ...(mostUsedFilters?.regionUsage.map((item) => item.count) ?? []),
                         ...(mostUsedFilters?.topicUsage.map((item) => item.count) ?? []),
@@ -263,16 +269,16 @@ export default function AdminAnalyticsPage() {
               />
             </Panel>
 
-            <Panel title="Least used filters" subtitle="Long-tail filters with lowest usage.">
+            <Panel title={t('leastUsedFilters')} subtitle={t('leastUsedFiltersSubtitle')}>
               <Bar
                 data={{
                   labels: [
-                    ...(leastUsedFilters?.regionUsage.map((item) => `Region: ${item.regionName}`) ?? []),
-                    ...(leastUsedFilters?.topicUsage.map((item) => `Topic: ${item.topicName}`) ?? []),
+                    ...(leastUsedFilters?.regionUsage.map((item) => t('regionLabel', { name: item.regionName })) ?? []),
+                    ...(leastUsedFilters?.topicUsage.map((item) => t('topicLabel', { name: item.topicName })) ?? []),
                   ],
                   datasets: [
                     {
-                      label: 'Usage count',
+                      label: t('usageCountLegend'),
                       data: [
                         ...(leastUsedFilters?.regionUsage.map((item) => item.count) ?? []),
                         ...(leastUsedFilters?.topicUsage.map((item) => item.count) ?? []),
@@ -291,13 +297,13 @@ export default function AdminAnalyticsPage() {
           </section>
 
           <section className="admin-panel p-5">
-            <h2 className="text-lg font-semibold text-[#111827]">Filter combinations heatmap</h2>
-            <p className="mt-1 text-xs text-[#6b7280]">Topics (rows) x Regions (columns).</p>
+            <h2 className="text-lg font-semibold text-[#111827]">{t('filterHeatmap')}</h2>
+            <p className="mt-1 text-xs text-[#6b7280]">{t('filterHeatmapSubtitle')}</p>
             <div className="mt-4 overflow-x-auto">
               <table className="min-w-full border-separate border-spacing-1 text-xs">
                 <thead>
                   <tr>
-                    <th className="px-2 py-1 text-left text-[#6b7280]">Topic \\ Region</th>
+                    <th className="px-2 py-1 text-left text-[#6b7280]">{t('heatmapCorner')}</th>
                     {heatmapData?.regions.map((region) => (
                       <th key={region.id} className="px-2 py-1 text-left text-[#6b7280]">
                         {region.name}
