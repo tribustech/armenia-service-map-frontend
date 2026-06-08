@@ -6,6 +6,11 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    values ? `${key}:${Object.values(values).join(',')}` : key,
+}));
+
 vi.mock('@/lib/api/taxonomy', () => ({
   useTopics: () => ({
     isLoading: false,

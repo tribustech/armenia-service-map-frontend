@@ -3,6 +3,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TopicSubtopicsTable } from './topic-subtopics-table';
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    values ? `${key}:${Object.values(values).join(',')}` : key,
+}));
+
 describe('TopicSubtopicsTable', () => {
   it('fires a status toggle callback for one subtopic row', async () => {
     const user = userEvent.setup();
