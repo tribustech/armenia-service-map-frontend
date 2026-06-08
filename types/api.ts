@@ -245,6 +245,7 @@ export interface Service {
   regionId: string | null;
   status: 'DRAFT' | 'PUBLISHED';
   isAvailable: boolean;
+  availabilityState: 'AVAILABLE' | 'AVAILABLE_SOON' | 'UNAVAILABLE';
   availabilityStart: string | null;
   availabilityEnd: string | null;
   targetGroup: string[];
