@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
@@ -59,9 +60,10 @@ function SidebarNav({
   mode: AdminSidebarMode;
   pathname: string;
   openSections: Record<string, boolean>;
-  onToggleSection: (title: string) => void;
+  onToggleSection: (id: string) => void;
   onNavigate?: () => void;
 }) {
+  const t = useTranslations('admin.sidebar');
   const isRail = mode === 'rail';
   const items = isRail ? adminNav.flatMap((section) => section.items) : [];
   const activeHref = getBestActiveHref(
@@ -71,18 +73,19 @@ function SidebarNav({
 
   if (isRail) {
     return (
-      <nav className="flex flex-1 flex-col items-center gap-2 overflow-y-auto px-2 py-4" aria-label="Admin navigation">
+      <nav className="flex flex-1 flex-col items-center gap-2 overflow-y-auto px-2 py-4" aria-label={t('navAriaLabel')}>
         {items.map((item) => {
           const isActive = activeHref === item.href;
           const Icon = item.icon;
+          const label = t(item.labelKey);
 
           return (
             <Link
               key={item.href}
               href={item.href}
-              aria-label={item.label}
+              aria-label={label}
               aria-current={isActive ? 'page' : undefined}
-              title={item.label}
+              title={label}
               className={`flex h-10 w-10 items-center justify-center border-l-[3px] transition-colors ${
                 isActive
                   ? 'border-l-[#E8922D] text-[#E8922D]'
@@ -101,25 +104,25 @@ function SidebarNav({
     <nav
       id={mode === 'drawer' ? 'admin-mobile-navigation' : undefined}
       className="flex-1 overflow-y-auto px-4 pb-6 pt-2"
-      aria-label="Admin navigation"
+      aria-label={t('navAriaLabel')}
     >
       {adminNav.map((section, i) => {
-        const sectionTitle = section.title;
-        const controlsId = sectionTitle
-          ? `admin-sidebar-section-${sectionTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
-          : undefined;
+        const sectionId = section.id;
+        const sectionTitle = section.titleKey ? t(section.titleKey) : undefined;
+        const controlsId = sectionId ? `admin-sidebar-section-${sectionId}` : undefined;
+        const isOpen = sectionId ? openSections[sectionId] !== false : true;
 
         return (
           <div key={i} className="py-3">
-            {sectionTitle ? (
+            {sectionId && sectionTitle ? (
               <SectionHeader
                 title={sectionTitle}
-                open={openSections[sectionTitle] !== false}
+                open={isOpen}
                 controlsId={controlsId!}
-                onToggle={() => onToggleSection(sectionTitle)}
+                onToggle={() => onToggleSection(sectionId)}
               />
             ) : null}
-            {(!sectionTitle || openSections[sectionTitle] !== false) ? (
+            {isOpen ? (
               <div className="flex flex-col gap-1" id={controlsId}>
                 {section.items.map((item) => {
                   const isActive = activeHref === item.href;
@@ -138,7 +141,7 @@ function SidebarNav({
                       onClick={onNavigate}
                     >
                       <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#E8922D]' : 'text-[#9ca3af]'}`} />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   );
                 })}
@@ -161,9 +164,10 @@ function SidebarPanel({
   mode: AdminSidebarMode;
   pathname: string;
   openSections: Record<string, boolean>;
-  onToggleSection: (title: string) => void;
+  onToggleSection: (id: string) => void;
   onCloseMobileNav: () => void;
 }) {
+  const t = useTranslations('admin.topbar');
   const isRail = mode === 'rail';
 
   return (
@@ -172,7 +176,7 @@ function SidebarPanel({
         {isRail ? (
           <p className="text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#9ca3af]">A</p>
         ) : (
-          <p className="text-sm font-semibold uppercase tracking-[0.1em] text-[#9ca3af]">Admin</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.1em] text-[#9ca3af]">{t('adminLabel')}</p>
         )}
       </div>
 
@@ -188,6 +192,7 @@ function SidebarPanel({
 }
 
 export function AdminSidebar({ mode, mobileNavOpen, onCloseMobileNav }: AdminSidebarProps) {
+  const t = useTranslations('admin.topbar');
   const pathname = usePathname();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
@@ -208,8 +213,8 @@ export function AdminSidebar({ mode, mobileNavOpen, onCloseMobileNav }: AdminSid
     };
   }, [mobileNavOpen, mode, onCloseMobileNav]);
 
-  const toggleSection = (title: string) => {
-    setOpenSections((prev) => ({ ...prev, [title]: !(prev[title] !== false) }));
+  const toggleSection = (id: string) => {
+    setOpenSections((prev) => ({ ...prev, [id]: !(prev[id] !== false) }));
   };
 
   if (mode === 'drawer') {
@@ -221,7 +226,7 @@ export function AdminSidebar({ mode, mobileNavOpen, onCloseMobileNav }: AdminSid
       <div className="fixed inset-0 z-40 md:hidden">
         <button
           type="button"
-          aria-label="Close navigation menu"
+          aria-label={t('closeMenu')}
           className="absolute inset-0 bg-black/20"
           onClick={onCloseMobileNav}
         />
@@ -229,16 +234,16 @@ export function AdminSidebar({ mode, mobileNavOpen, onCloseMobileNav }: AdminSid
           id="admin-mobile-navigation"
           role="dialog"
           aria-modal="true"
-          aria-label="Admin navigation"
+          aria-label={t('adminNavigation')}
           className="relative z-10 flex h-full w-[18.5rem] max-w-[85vw] flex-col border-r border-[#e5e5e5] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
         >
           <div className="flex items-center justify-between border-b border-[#e5e5e5] px-5 py-4">
-            <p className="text-sm font-semibold text-[#111827]">Navigation</p>
+            <p className="text-sm font-semibold text-[#111827]">{t('navigation')}</p>
             <button
               type="button"
               onClick={onCloseMobileNav}
               className="text-[#6b7280] transition hover:text-[#111827]"
-              aria-label="Close navigation menu"
+              aria-label={t('closeMenu')}
             >
               <XMarkIcon className="h-5 w-5" />
             </button>

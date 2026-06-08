@@ -10,49 +10,59 @@ import {
 import { type ComponentType, type SVGProps } from 'react';
 
 export type AdminNavItem = {
-  label: string;
+  /** Key under `admin.sidebar.*` resolving to the display label. */
+  labelKey: string;
+  /** Key under `admin.sidebar.*` used as a section title. */
+  titleKey?: string;
   href: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
 };
 
 export type AdminNavSection = {
-  title?: string;
+  /** Key under `admin.sidebar.*` resolving to the section title. */
+  titleKey?: string;
+  /** Stable identifier used to track open/closed state per section. */
+  id?: string;
   items: AdminNavItem[];
 };
 
 export const adminNav: AdminNavSection[] = [
   {
-    items: [{ label: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon }],
+    items: [{ labelKey: 'dashboard', href: '/admin/dashboard', icon: HomeIcon }],
   },
   {
-    title: 'Services',
-    items: [{ label: 'Service directory', href: '/admin/services', icon: ArchiveBoxIcon }],
+    id: 'services',
+    titleKey: 'services',
+    items: [{ labelKey: 'serviceDirectory', href: '/admin/services', icon: ArchiveBoxIcon }],
   },
   {
-    title: 'Needs & Queries',
+    id: 'needs',
+    titleKey: 'needsAndQueries',
     items: [
-      { label: 'Need reports', href: '/admin/needs', icon: InboxIcon },
-      { label: 'Needs map', href: '/admin/needs/map', icon: MapIcon },
-      { label: 'Analytics', href: '/admin/analytics', icon: ArrowTrendingUpIcon },
+      { labelKey: 'needReports', href: '/admin/needs', icon: InboxIcon },
+      { labelKey: 'needsMap', href: '/admin/needs/map', icon: MapIcon },
+      { labelKey: 'analytics', href: '/admin/analytics', icon: ArrowTrendingUpIcon },
     ],
   },
   {
-    title: 'Configurations',
+    id: 'configurations',
+    titleKey: 'configurations',
     items: [
-      { label: 'User management', href: '/admin/organisations', icon: UserGroupIcon },
-      { label: 'Taxonomy', href: '/admin/taxonomy', icon: ViewColumnsIcon },
+      { labelKey: 'userManagement', href: '/admin/organisations', icon: UserGroupIcon },
+      { labelKey: 'taxonomy', href: '/admin/taxonomy', icon: ViewColumnsIcon },
     ],
   },
 ];
 
-export const adminBreadcrumbLabels: Record<string, string> = {
-  admin: 'Dashboard',
-  dashboard: 'Dashboard',
-  services: 'Service Directory',
-  needs: 'Need Reports',
-  map: 'Needs Map',
-  analytics: 'Analytics',
-  organisations: 'User Management',
-  users: 'Users',
-  taxonomy: 'Taxonomy',
+/** Maps a URL path segment to a key under `admin.breadcrumbs.*`. */
+export const adminBreadcrumbKeys: Record<string, string> = {
+  admin: 'dashboard',
+  dashboard: 'dashboard',
+  services: 'serviceDirectory',
+  needs: 'needReports',
+  map: 'needsMap',
+  analytics: 'analytics',
+  organisations: 'userManagement',
+  users: 'users',
+  taxonomy: 'taxonomy',
 };

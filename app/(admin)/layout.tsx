@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth/auth-context';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AdminSidebar } from '@/components/admin/sidebar';
@@ -16,6 +17,7 @@ function getSidebarMode(width: number): AdminSidebarMode {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('admin.topbar');
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
@@ -66,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       data-testid="admin-shell"
       className="flex h-screen overflow-hidden bg-[#f5f5f4]"
     >
-      <a href="#admin-main-content" className="skip-link">Skip to main content</a>
+      <a href="#admin-main-content" className="skip-link">{t('skipToContent')}</a>
       <AdminSidebar
         mode={sidebarMode}
         mobileNavOpen={mobileNavOpen}

@@ -10,6 +10,11 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    values ? `${key}:${Object.values(values).join(',')}` : key,
+}));
+
 vi.mock('@/lib/auth/auth-context', () => ({
   useAuth: () => ({
     isAuthenticated: true,
@@ -64,10 +69,10 @@ describe('Admin responsive navigation', () => {
       </AdminLayout>,
     );
 
-    const nav = await screen.findByLabelText('Admin navigation');
-    expect(within(nav).getByLabelText('Need reports')).toBeVisible();
-    expect(within(nav).queryByText('Need reports')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /open navigation menu/i })).not.toBeInTheDocument();
+    const nav = await screen.findByLabelText('navAriaLabel');
+    expect(within(nav).getByLabelText('needReports')).toBeVisible();
+    expect(within(nav).queryByText('needReports')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'openMenu' })).not.toBeInTheDocument();
   });
 
   it('opens the full navigation drawer from the topbar on mobile widths', async () => {
@@ -80,11 +85,12 @@ describe('Admin responsive navigation', () => {
       </AdminLayout>,
     );
 
-    await user.click(screen.getByRole('button', { name: /open navigation menu/i }));
+    await user.click(screen.getByRole('button', { name: 'openMenu' }));
 
     expect(screen.getByRole('banner').className).toContain('bg-[#f7f9fc]/95');
-    expect(screen.getByRole('dialog', { name: /admin navigation/i })).toBeVisible();
-    expect(screen.getByText('Need reports')).toBeVisible();
+    const dialog = screen.getByRole('dialog', { name: 'adminNavigation' });
+    expect(dialog).toBeVisible();
+    expect(within(dialog).getByText('needReports')).toBeVisible();
   });
 
   it('closes the mobile drawer after selecting a destination', async () => {
@@ -97,11 +103,11 @@ describe('Admin responsive navigation', () => {
       </AdminLayout>,
     );
 
-    await user.click(screen.getByRole('button', { name: /open navigation menu/i }));
-    await user.click(screen.getByRole('link', { name: 'Need reports' }));
+    await user.click(screen.getByRole('button', { name: 'openMenu' }));
+    await user.click(screen.getByRole('link', { name: 'needReports' }));
 
     await waitFor(() => {
-      expect(screen.queryByRole('dialog', { name: /admin navigation/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: 'adminNavigation' })).not.toBeInTheDocument();
     });
   });
 
@@ -115,13 +121,13 @@ describe('Admin responsive navigation', () => {
       </AdminLayout>,
     );
 
-    await user.click(screen.getByRole('button', { name: /open navigation menu/i }));
-    expect(screen.getByRole('dialog', { name: /admin navigation/i })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'openMenu' }));
+    expect(screen.getByRole('dialog', { name: 'adminNavigation' })).toBeVisible();
 
     await user.keyboard('{Escape}');
 
     await waitFor(() => {
-      expect(screen.queryByRole('dialog', { name: /admin navigation/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: 'adminNavigation' })).not.toBeInTheDocument();
     });
   });
 });

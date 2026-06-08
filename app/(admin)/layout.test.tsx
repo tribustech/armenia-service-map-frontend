@@ -8,6 +8,10 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
 }));
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 let authValue: {
   user: { role: string } | null;
   isAuthenticated: boolean;

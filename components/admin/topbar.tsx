@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Bars3Icon,
@@ -17,7 +18,7 @@ import {
   useNotifications,
   useUnreadCount,
 } from '@/lib/api/notifications';
-import { adminBreadcrumbLabels } from '@/components/admin/navigation';
+import { adminBreadcrumbKeys } from '@/components/admin/navigation';
 
 function formatRelative(dateString: string) {
   const date = new Date(dateString).getTime();
@@ -38,6 +39,8 @@ type AdminTopbarProps = {
 };
 
 export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTrigger }: AdminTopbarProps) {
+  const t = useTranslations('admin.topbar');
+  const tBreadcrumb = useTranslations('admin.breadcrumbs');
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -55,8 +58,11 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
   const breadcrumbs = useMemo(() => {
     const segments = pathname.split('/').filter(Boolean);
     const usable = segments.slice(1);
-    return usable.map((segment) => adminBreadcrumbLabels[segment] ?? segment);
-  }, [pathname]);
+    return usable.map((segment) => {
+      const key = adminBreadcrumbKeys[segment];
+      return key ? tBreadcrumb(key) : segment;
+    });
+  }, [pathname, tBreadcrumb]);
 
   const unreadCount = unreadData?.unreadCount ?? 0;
 
@@ -121,7 +127,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
               type="button"
               onClick={onToggleMobileNav}
               className="text-[#6b7280] transition hover:text-[#111827] md:hidden"
-              aria-label={mobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-label={mobileNavOpen ? t('closeMenu') : t('openMenu')}
               aria-expanded={mobileNavOpen}
               aria-controls="admin-mobile-navigation"
             >
@@ -129,7 +135,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
             </button>
           ) : null}
 
-          <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm text-[#6b7280]">
+          <nav aria-label={t('breadcrumb')} className="flex min-w-0 items-center gap-2 text-sm text-[#6b7280]">
             {breadcrumbs.map((label, index) => (
               <Fragment key={`${label}-${index}`}>
                 {index > 0 ? <ChevronRightIcon className="h-4 w-4 shrink-0 text-[#d1d5db]" /> : null}
@@ -150,7 +156,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
                 setProfileOpen(false);
               }}
               className="relative p-2 text-[#6b7280] transition hover:text-[#111827]"
-              aria-label={notificationsOpen ? 'Close notifications panel' : 'Open notifications panel'}
+              aria-label={notificationsOpen ? t('closeNotifications') : t('openNotifications')}
               aria-haspopup="menu"
               aria-expanded={notificationsOpen}
               aria-controls={notificationsMenuId}
@@ -166,18 +172,18 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
               <div
                 id={notificationsMenuId}
                 role="menu"
-                aria-label="Notifications"
+                aria-label={t('notificationsMenu')}
                 className="absolute right-0 mt-2 w-96 overflow-hidden rounded-lg border border-[#e5e5e5] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
               >
                 <div className="flex items-center justify-between border-b border-[#f0f0f0] px-4 py-3">
-                  <p className="text-sm font-semibold text-[#111827]">Notifications</p>
+                  <p className="text-sm font-semibold text-[#111827]">{t('notifications')}</p>
                   <button
                     type="button"
                     onClick={() => markAllRead.mutate()}
                     className="text-xs font-medium text-[#E8922D] hover:text-[#d4801f]"
                     role="menuitem"
                   >
-                    Mark all read
+                    {t('markAllRead')}
                   </button>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
@@ -201,7 +207,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
                           }
                         }}
                         role="menuitem"
-                        aria-label={item.readAt ? `Read notification: ${item.title}` : `Unread notification: ${item.title}`}
+                        aria-label={item.readAt ? t('readNotification', { title: item.title }) : t('unreadNotification', { title: item.title })}
                         className={`w-full border-b border-[#f0f0f0] px-4 py-3 text-left transition hover:bg-[#fafafa] ${
                           item.readAt ? 'bg-white' : 'bg-[#fafafa]'
                         }`}
@@ -214,7 +220,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
                       </button>
                     ))
                   ) : (
-                    <div className="px-4 py-8 text-center text-sm text-[#6b7280]">No notifications yet.</div>
+                    <div className="px-4 py-8 text-center text-sm text-[#6b7280]">{t('noNotifications')}</div>
                   )}
                 </div>
               </div>
@@ -229,7 +235,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
                 setNotificationsOpen(false);
               }}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1a1a1a] text-xs font-semibold text-white transition hover:bg-[#333]"
-              aria-label={profileOpen ? 'Close profile menu' : 'Open profile menu'}
+              aria-label={profileOpen ? t('closeProfile') : t('openProfile')}
               aria-haspopup="menu"
               aria-expanded={profileOpen}
               aria-controls={profileMenuId}
@@ -240,7 +246,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
               <div
                 id={profileMenuId}
                 role="menu"
-                aria-label="Profile menu"
+                aria-label={t('profileMenu')}
                 className="absolute right-0 mt-2 w-56 rounded-lg border border-[#e5e5e5] bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
               >
                 <div className="rounded-lg px-3 py-2">
@@ -254,7 +260,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
                   onClick={() => setProfileOpen(false)}
                 >
                   <CheckIcon className="h-4 w-4" />
-                  Go to dashboard
+                  {t('goToDashboard')}
                 </Link>
                 <button
                   type="button"
@@ -263,7 +269,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-[#dc2626] hover:bg-[#fef2f2]"
                 >
                   <ArrowRightOnRectangleIcon className="h-4 w-4" />
-                  Sign out
+                  {t('signOut')}
                 </button>
               </div>
             ) : null}
