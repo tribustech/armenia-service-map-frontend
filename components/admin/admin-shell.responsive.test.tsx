@@ -7,10 +7,11 @@ const pathnameState = { value: '/admin/needs' };
 
 vi.mock('next/navigation', () => ({
   usePathname: () => pathnameState.value,
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
 vi.mock('next-intl', () => ({
+  useLocale: () => 'en',
   useTranslations: () => (key: string, values?: Record<string, string | number>) =>
     values ? `${key}:${Object.values(values).join(',')}` : key,
 }));

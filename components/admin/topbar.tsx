@@ -19,6 +19,7 @@ import {
   useUnreadCount,
 } from '@/lib/api/notifications';
 import { adminBreadcrumbKeys } from '@/components/admin/navigation';
+import { LocaleSwitcher } from '@/components/shared/locale-switcher';
 
 function relativeDescriptor(dateString: string): { key: 'justNow' | 'minutesAgo' | 'hoursAgo' | 'daysAgo'; count: number } {
   const date = new Date(dateString).getTime();
@@ -153,6 +154,7 @@ export function AdminTopbar({ mobileNavOpen, onToggleMobileNav, showMobileNavTri
         </div>
 
         <div className="flex items-center gap-3">
+          <LocaleSwitcher />
           <div className="relative" ref={notificationsRef}>
             <button
               type="button"

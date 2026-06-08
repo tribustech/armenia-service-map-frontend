@@ -4,6 +4,7 @@ import { Fragment, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/lib/auth/auth-context';
+import { LocaleSwitcher } from '@/components/shared/locale-switcher';
 
 const segmentLabel: Record<string, string> = {
   org: 'Dashboard',
@@ -39,6 +40,7 @@ export function OrgTopbar() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <LocaleSwitcher />
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1a1a1a] text-xs font-semibold text-white">
             {user?.firstName?.[0]}{user?.lastName?.[0]}
           </div>
