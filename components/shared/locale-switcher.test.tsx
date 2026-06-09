@@ -45,6 +45,14 @@ describe('LocaleSwitcher', () => {
     await waitFor(() => expect(refresh).toHaveBeenCalled());
   });
 
+  it('lists Armenian before English in the menu', () => {
+    render(<LocaleSwitcher />);
+    fireEvent.click(screen.getByRole('button', { name: 'ariaLabel' }));
+    const options = screen.getAllByRole('menuitemradio');
+    expect(options[0]).toHaveTextContent('Հայերեն');
+    expect(options[1]).toHaveTextContent('English');
+  });
+
   it('does not POST when selecting the already-active locale', () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true });
     vi.stubGlobal('fetch', fetchMock);

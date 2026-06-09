@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
 const languages = [
-  { code: 'en', label: 'English' },
   { code: 'hy', label: 'Հայերեն' },
+  { code: 'en', label: 'English' },
 ] as const;
 
 /**
