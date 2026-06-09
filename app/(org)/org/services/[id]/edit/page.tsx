@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RichTextEditor } from '@/components/shared/rich-text-editor';
@@ -16,6 +16,7 @@ import {
   usePublicTargetGroups,
 } from '@/lib/api/services';
 import { getErrorMessage, mapErrorMessageToField, toPlainText } from '@/lib/validation';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 
 type ServiceFormState = {
   title: string;
@@ -56,6 +57,7 @@ const EMPTY_FORM: ServiceFormState = {
 export default function EditOrgServicePage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations('org.services');
   const tForm = useTranslations('serviceForm');
   const tStatuses = useTranslations('admin.statuses');
@@ -176,7 +178,7 @@ export default function EditOrgServicePage() {
   return (
     <div>
       <div className="mb-2 text-sm text-[#6b7280]">
-        <Link href="/org/services" className="hover:underline">{t('breadcrumb')}</Link>{' > '}<Link href={`/org/services/${id}`} className="hover:underline">{service?.title}</Link>{' > '}{tForm('editBreadcrumb')}
+        <Link href="/org/services" className="hover:underline">{t('breadcrumb')}</Link>{' > '}<Link href={`/org/services/${id}`} className="hover:underline">{service ? getLocalizedServiceContent(service, locale).title : ''}</Link>{' > '}{tForm('editBreadcrumb')}
       </div>
       <h1 className="text-2xl font-bold">{tForm('editTitle')}</h1>
 

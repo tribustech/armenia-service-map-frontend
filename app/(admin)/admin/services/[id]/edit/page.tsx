@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons
 import { useAdminService, useUpdateService, usePublicRegions, usePublicTargetGroups, usePublicTopics } from '@/lib/api/services';
 import { useOrganisations } from '@/lib/api/organisations';
 import { getErrorMessage, mapErrorMessageToField, toPlainText } from '@/lib/validation';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 
 type ServiceFormState = {
   title: string;
@@ -58,6 +59,7 @@ const EMPTY_FORM: ServiceFormState = {
 export default function EditServicePage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations('serviceForm');
   const tServices = useTranslations('admin.services');
   const tCommon = useTranslations('admin.common');
@@ -219,7 +221,7 @@ export default function EditServicePage() {
         </Link>
         <ChevronRightIcon className="h-4 w-4" />
         <Link href={`/admin/services/${id}`} className="font-medium hover:underline">
-          {service?.title}
+          {service ? getLocalizedServiceContent(service, locale).title : ''}
         </Link>
         <ChevronRightIcon className="h-4 w-4" />
         <span className="font-medium">{t('editBreadcrumb')}</span>
