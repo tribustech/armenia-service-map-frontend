@@ -20,6 +20,7 @@ export interface ServiceMutationInput {
   howToAccess: string;
   howToAccessHy?: string | null;
   organisationId?: string;
+  externalOrganisationName?: string | null;
   regionId?: string;
   isAvailable?: boolean;
   status?: 'DRAFT' | 'PUBLISHED';

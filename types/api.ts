@@ -241,7 +241,8 @@ export interface Service {
   descriptionHy: string | null;
   howToAccess: string;
   howToAccessHy: string | null;
-  organisationId: string;
+  organisationId: string | null;
+  externalOrganisationName?: string | null;
   regionId: string | null;
   status: 'DRAFT' | 'PUBLISHED';
   isAvailable: boolean;
@@ -252,7 +253,7 @@ export interface Service {
   targetGroups: { targetGroup: { id: string; name: string; status: string } }[];
   createdAt: string;
   updatedAt: string;
-  organisation: { id: string; name: string };
+  organisation?: { id: string; name: string } | null;
   region: { id: string; name: string } | null;
   topics: ServiceTopic[];
 }
