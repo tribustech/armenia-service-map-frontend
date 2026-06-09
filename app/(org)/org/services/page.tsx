@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
@@ -15,6 +16,9 @@ import { TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 
 export default function OrgServicesPage() {
   const router = useRouter();
+  const t = useTranslations('org.services');
+  const tStatuses = useTranslations('admin.statuses');
+  const tCommon = useTranslations('admin.common');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -26,16 +30,16 @@ export default function OrgServicesPage() {
   const { data, isLoading } = useOrgServices({ page, perPage, search, sortBy, sortOrder, status: status || undefined });
 
   const columns: ColumnDef<Service, unknown>[] = [
-    { accessorKey: 'title', header: 'Title', enableSorting: true },
+    { accessorKey: 'title', header: t('columns.title'), enableSorting: true },
     {
       accessorFn: (row) => row.region?.name ?? '',
       id: 'location',
-      header: 'Location',
+      header: t('columns.location'),
       enableSorting: true,
     },
     {
       accessorKey: 'isAvailable',
-      header: 'Availability',
+      header: t('columns.availability'),
       enableSorting: true,
       cell: ({ getValue }) => (
         getValue() ? (
@@ -48,7 +52,7 @@ export default function OrgServicesPage() {
     {
       accessorFn: (row) => row.topics.map((t) => t.topic.name).join(', '),
       id: 'topics',
-      header: 'Topics',
+      header: t('columns.topics'),
       cell: ({ row }) => {
         const firstTopic = row.original.topics?.[0]?.topic;
         if (!firstTopic) return null;
@@ -61,12 +65,12 @@ export default function OrgServicesPage() {
     },
     {
       accessorKey: 'status',
-      header: 'State',
+      header: t('columns.state'),
       cell: ({ getValue }) => {
         const value = String(getValue());
         return (
           <Badge variant={value === 'PUBLISHED' ? 'success' : 'warning'}>
-            {value === 'PUBLISHED' ? 'Published' : 'Draft'}
+            {value === 'PUBLISHED' ? tStatuses('published') : tStatuses('draft')}
           </Badge>
         );
       },
@@ -74,12 +78,12 @@ export default function OrgServicesPage() {
     {
       accessorFn: (row) => row.targetGroups?.map((entry) => entry.targetGroup.name).join(', ') ?? '',
       id: 'targetGroup',
-      header: 'Target group',
+      header: t('columns.targetGroup'),
       enableSorting: false,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Last updated',
+      header: t('columns.lastUpdated'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       enableSorting: true,
     },
@@ -92,7 +96,7 @@ export default function OrgServicesPage() {
           className="flex items-center gap-1 text-sm text-[#6b7280] hover:text-[#374151]"
         >
           <Cog6ToothIcon className="h-4 w-4" />
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -101,8 +105,8 @@ export default function OrgServicesPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Service listings</h1>
-        <Button onClick={() => router.push('/org/services/new')}>Add new service</Button>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <Button onClick={() => router.push('/org/services/new')}>{t('addNew')}</Button>
       </div>
       <div className="mt-6 rounded-lg border bg-white">
         <div className="flex items-center justify-end gap-2 p-4 pb-0">
@@ -114,11 +118,11 @@ export default function OrgServicesPage() {
             }}
             className="w-48"
           >
-            <option value="">All states</option>
-            <option value="DRAFT">Draft</option>
-            <option value="PUBLISHED">Published</option>
+            <option value="">{tStatuses('allStates')}</option>
+            <option value="DRAFT">{tStatuses('draft')}</option>
+            <option value="PUBLISHED">{tStatuses('published')}</option>
           </TableSelect>
-          <TableSearchInput placeholder="Search..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
+          <TableSearchInput placeholder={tCommon('searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="w-64" />
         </div>
         {isLoading ? (
           <div className="p-4">

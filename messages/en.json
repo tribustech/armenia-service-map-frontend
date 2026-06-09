@@ -758,6 +758,36 @@
       "servicesChartTitle": "Services created over time",
       "servicesChartSubtitle": "12-month trend of services created by your organisation.",
       "servicesChartDatasetLabel": "Services"
+    },
+    "services": {
+      "title": "Service listings",
+      "addNew": "Add new service",
+      "breadcrumb": "Services",
+      "newTitle": "Add new service",
+      "newBreadcrumb": "Add new service",
+      "createSubmit": "Create service",
+      "notFound": "Service not found",
+      "allRegions": "All regions",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "columns": {
+        "title": "Title",
+        "location": "Location",
+        "availability": "Availability",
+        "topics": "Topics",
+        "state": "State",
+        "targetGroup": "Target group",
+        "lastUpdated": "Last updated"
+      },
+      "detail": {
+        "region": "Region",
+        "availability": "Status",
+        "topics": "Topics",
+        "targetGroups": "Target groups",
+        "shortDescription": "Short description",
+        "description": "Description",
+        "howToAccess": "How to access the service"
+      }
     }
   }
 }

@@ -758,6 +758,36 @@
       "servicesChartTitle": "Ստեղծված ծառայությունները ժամանակի ընթացքում",
       "servicesChartSubtitle": "Ձեր կազմակերպության ստեղծած ծառայությունների 12-ամսյա միտումը։",
       "servicesChartDatasetLabel": "Ծառայություններ"
+    },
+    "services": {
+      "title": "Ծառայությունների ցանկ",
+      "addNew": "Ավելացնել նոր ծառայություն",
+      "breadcrumb": "Ծառայություններ",
+      "newTitle": "Ավելացնել նոր ծառայություն",
+      "newBreadcrumb": "Ավելացնել նոր ծառայություն",
+      "createSubmit": "Ստեղծել ծառայություն",
+      "notFound": "Ծառայությունը չի գտնվել",
+      "allRegions": "Բոլոր մարզերը",
+      "publish": "Հրապարակել",
+      "unpublish": "Հանել հրապարակումից",
+      "columns": {
+        "title": "Վերնագիր",
+        "location": "Տեղադրություն",
+        "availability": "Հասանելիություն",
+        "topics": "Թեմաներ",
+        "state": "Կարգավիճակ",
+        "targetGroup": "Թիրախային խումբ",
+        "lastUpdated": "Վերջին թարմացում"
+      },
+      "detail": {
+        "region": "Մարզ",
+        "availability": "Կարգավիճակ",
+        "topics": "Թեմաներ",
+        "targetGroups": "Թիրախային խմբեր",
+        "shortDescription": "Համառոտ նկարագրություն",
+        "description": "Նկարագրություն",
+        "howToAccess": "Ինչպես ստանալ ծառայությունը"
+      }
     }
   }
 }

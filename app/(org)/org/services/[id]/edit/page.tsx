@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RichTextEditor } from '@/components/shared/rich-text-editor';
@@ -55,6 +56,10 @@ const EMPTY_FORM: ServiceFormState = {
 export default function EditOrgServicePage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const t = useTranslations('org.services');
+  const tForm = useTranslations('serviceForm');
+  const tStatuses = useTranslations('admin.statuses');
+  const tCommon = useTranslations('admin.common');
   const { data: service, isLoading } = useOrgService(id);
   const update = useUpdateOrgService();
   const { data: topics } = usePublicTopics();
@@ -103,16 +108,16 @@ export default function EditOrgServicePage() {
 
   function validate(values: ServiceFormState) {
     const nextErrors: Partial<Record<keyof ServiceFormState, string>> = {};
-    if (!values.title.trim()) nextErrors.title = 'Title is required.';
-    if (!values.shortDescription.trim()) nextErrors.shortDescription = 'Short description is required.';
-    if (!toPlainText(values.description)) nextErrors.description = 'Description is required.';
-    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = 'How to access the service is required.';
+    if (!values.title.trim()) nextErrors.title = tForm('validation.titleRequired');
+    if (!values.shortDescription.trim()) nextErrors.shortDescription = tForm('validation.shortDescriptionRequired');
+    if (!toPlainText(values.description)) nextErrors.description = tForm('validation.descriptionRequired');
+    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = tForm('validation.howToAccessRequired');
     if (
       values.availabilityStart &&
       values.availabilityEnd &&
       values.availabilityEnd < values.availabilityStart
     ) {
-      nextErrors.availabilityEnd = 'End date cannot be before start date.';
+      nextErrors.availabilityEnd = tForm('validation.endBeforeStart');
     }
     return nextErrors;
   }
@@ -149,7 +154,7 @@ export default function EditOrgServicePage() {
       });
       router.push(`/org/services/${id}`);
     } catch (error) {
-      const message = getErrorMessage(error, 'Unable to update service. Please try again.');
+      const message = getErrorMessage(error, tForm('updateError'));
       const mappedField = mapErrorMessageToField<keyof ServiceFormState>(message, [
         { field: 'title', pattern: /title/i },
         { field: 'shortDescription', pattern: /short.?description/i },
@@ -171,9 +176,9 @@ export default function EditOrgServicePage() {
   return (
     <div>
       <div className="mb-2 text-sm text-[#6b7280]">
-        <Link href="/org/services" className="hover:underline">Services</Link>{' > '}<Link href={`/org/services/${id}`} className="hover:underline">{service?.title}</Link>{' > '}Edit
+        <Link href="/org/services" className="hover:underline">{t('breadcrumb')}</Link>{' > '}<Link href={`/org/services/${id}`} className="hover:underline">{service?.title}</Link>{' > '}{tForm('editBreadcrumb')}
       </div>
-      <h1 className="text-2xl font-bold">Edit service</h1>
+      <h1 className="text-2xl font-bold">{tForm('editTitle')}</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-3xl space-y-4 rounded-lg border bg-white p-6">
         {submitError ? (
@@ -189,7 +194,7 @@ export default function EditOrgServicePage() {
               activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
             }`}
           >
-            English
+            {tForm('english')}
           </button>
           <button
             type="button"
@@ -198,18 +203,18 @@ export default function EditOrgServicePage() {
               activeLanguage === 'hy' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
             }`}
           >
-            Armenian
+            {tForm('armenian')}
           </button>
         </div>
         <Input
-          label={activeLanguage === 'en' ? 'Title (English) *' : 'Title (Armenian)'}
+          label={tForm('titleField', { language: activeLanguage === 'en' ? tForm('english') : tForm('armenian') })}
           value={activeLanguage === 'en' ? form.title : form.titleHy}
           onChange={(e) => updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)}
           error={activeLanguage === 'en' ? errors.title : undefined}
           required={activeLanguage === 'en'}
         />
         <Input
-          label={activeLanguage === 'en' ? 'Short description (English) *' : 'Short description (Armenian)'}
+          label={tForm('shortDescriptionField', { language: activeLanguage === 'en' ? tForm('english') : tForm('armenian') })}
           value={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
           onChange={(e) =>
             updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', e.target.value)
@@ -220,8 +225,7 @@ export default function EditOrgServicePage() {
 
         <div>
           <label className="mb-1 block text-sm font-medium text-[#374151]">
-            Description ({activeLanguage === 'en' ? 'English' : 'Armenian'})
-            {activeLanguage === 'en' ? ' *' : ''}
+            {tForm('descriptionField', { language: activeLanguage === 'en' ? tForm('english') : tForm('armenian') })}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.description : form.descriptionHy}
@@ -234,8 +238,7 @@ export default function EditOrgServicePage() {
 
         <div>
           <label className="mb-1 block text-sm font-medium text-[#374151]">
-            How to access the service ({activeLanguage === 'en' ? 'English' : 'Armenian'})
-            {activeLanguage === 'en' ? ' *' : ''}
+            {tForm('howToAccessField', { language: activeLanguage === 'en' ? tForm('english') : tForm('armenian') })}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
@@ -248,30 +251,30 @@ export default function EditOrgServicePage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-[#374151]">Status</label>
+            <label className="mb-1 block text-sm font-medium text-[#374151]">{tForm('status')}</label>
             <select value={form.status} onChange={(e) => updateField('status', e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500">
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
+              <option value="DRAFT">{tStatuses('draft')}</option>
+              <option value="PUBLISHED">{tStatuses('published')}</option>
             </select>
           </div>
           <div className="flex items-end gap-2 pb-1">
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.isAvailable} onChange={(e) => updateField('isAvailable', e.target.checked)} />
-              Available
+              {tForm('available')}
             </label>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="Start date"
+            label={tForm('startDate')}
             type="date"
             value={form.availabilityStart}
             onChange={(event) => updateField('availabilityStart', event.target.value)}
             error={errors.availabilityStart}
           />
           <Input
-            label="End date"
+            label={tForm('endDate')}
             type="date"
             value={form.availabilityEnd}
             onChange={(event) => updateField('availabilityEnd', event.target.value)}
@@ -281,9 +284,9 @@ export default function EditOrgServicePage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-[#374151]">Region</label>
+            <label className="mb-1 block text-sm font-medium text-[#374151]">{tForm('location')}</label>
             <select value={form.regionId} onChange={(e) => updateField('regionId', e.target.value)} className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500">
-              <option value="">All regions</option>
+              <option value="">{t('allRegions')}</option>
               {regions?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
             </select>
             {errors.regionId ? <p className="mt-1 text-xs text-red-600">{errors.regionId}</p> : null}
@@ -291,7 +294,7 @@ export default function EditOrgServicePage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-[#374151]">Topics</label>
+          <label className="mb-1 block text-sm font-medium text-[#374151]">{tForm('topics')}</label>
           <div className="flex flex-wrap gap-2">
             {topicOptions.map((topic) => (
               <label key={topic.id} className="flex items-center gap-1.5 text-sm">
@@ -305,7 +308,7 @@ export default function EditOrgServicePage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-[#374151]">Target groups</label>
+          <label className="mb-1 block text-sm font-medium text-[#374151]">{tForm('targetGroups')}</label>
           <div className="flex flex-wrap gap-2">
             {targetGroups?.map((t) => (
               <label key={t.id} className="flex items-center gap-1.5 text-sm">
@@ -319,8 +322,8 @@ export default function EditOrgServicePage() {
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="secondary" onClick={() => router.back()}>Cancel</Button>
-          <Button type="submit" disabled={update.isPending}>{update.isPending ? 'Saving...' : 'Save changes'}</Button>
+          <Button type="button" variant="secondary" onClick={() => router.back()}>{tForm('cancel')}</Button>
+          <Button type="submit" disabled={update.isPending}>{update.isPending ? tForm('saving') : tCommon('saveChanges')}</Button>
         </div>
       </form>
     </div>
