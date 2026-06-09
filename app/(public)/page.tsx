@@ -166,7 +166,7 @@ export default function HomePage() {
             {latestServices.data.map((service: Service) => {
               const content = getLocalizedServiceContent(service, locale);
               return (
-              <article key={service.id} className="flex flex-col rounded-2xl border border-[#e5e7eb] bg-white p-7 shadow-lg">
+              <article key={service.id} className="relative flex flex-col rounded-2xl border border-[#e5e7eb] bg-white p-7 shadow-lg transition-all hover:-translate-y-0.5 hover:border-[#155dfc]/40 hover:shadow-xl">
                 <div className="flex items-center gap-2 text-sm text-[#4a5565]">
                   <MapPinIcon />
                   <span>{service.region?.name || t('anywhereInArmenia')}</span>
@@ -177,7 +177,7 @@ export default function HomePage() {
                 </p>
                 <Link
                   href={`/services/${service.id}`}
-                  className="mt-5 inline-flex items-center justify-center rounded-[14px] border border-[#d1d5db] bg-[#f9fafb] px-5 py-2.5 text-sm font-semibold text-[#364153] transition-colors hover:bg-[#eef2ff]"
+                  className="mt-5 inline-flex items-center justify-center rounded-[14px] border border-[#d1d5db] bg-[#f9fafb] px-5 py-2.5 text-sm font-semibold text-[#364153] transition-colors hover:bg-[#eef2ff] after:absolute after:inset-0 after:content-['']"
                 >
                   {t('seeDetails')}
                 </Link>

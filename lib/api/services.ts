@@ -6,6 +6,8 @@ interface ServiceFilters extends PaginationParams {
   organisationId?: string;
   regionId?: string;
   topicId?: string;
+  /** Comma-separated topic ids; the API matches services tagged with any of them. */
+  topicIds?: string;
   isAvailable?: boolean;
   status?: 'DRAFT' | 'PUBLISHED';
 }

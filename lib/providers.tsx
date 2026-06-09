@@ -19,11 +19,14 @@ export function Providers({ children }: { children: ReactNode }) {
         mutationCache: new MutationCache({
           onSuccess: (_data, _variables, _context, mutation) => {
             const meta = mutation.options.meta as MutationToastMeta | undefined;
-            if (meta?.skipSuccessToast) return;
+            // Opt-in: only show a success toast when the mutation explicitly
+            // provides a message. Avoids a generic catch-all toast on every
+            // successful mutation in the app.
+            if (meta?.skipSuccessToast || !meta?.successMessage) return;
 
             publishToast({
               type: 'success',
-              message: meta?.successMessage || 'Action completed successfully.',
+              message: meta.successMessage,
             });
           },
           onError: (error, _variables, _context, mutation) => {

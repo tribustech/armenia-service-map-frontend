@@ -102,6 +102,7 @@ export default function UsersPage() {
               data={data?.data ?? []}
               sorting={sorting}
               onSortingChange={setSorting}
+              onRowClick={(row) => router.push(`/admin/users/${row.id}`)}
               mobileCard={(row) => ({
                 title: `${row.firstName} ${row.lastName}`.trim(),
                 badges: <Badge variant="neutral">{roleLabel(row.role)}</Badge>,

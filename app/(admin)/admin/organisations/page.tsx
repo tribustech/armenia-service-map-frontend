@@ -108,6 +108,7 @@ export default function OrganisationsPage() {
               data={data?.data ?? []}
               sorting={sorting}
               onSortingChange={setSorting}
+              onRowClick={(row) => router.push(`/admin/organisations/${row.id}`)}
               mobileCard={(row) => ({
                 title: row.name,
                 badges: <Badge variant={accountBadge[row.status]}>{ORG_STATUS_LABEL_KEYS[row.status] ? tStatuses(ORG_STATUS_LABEL_KEYS[row.status]) : formatStatusLabel(row.status)}</Badge>,

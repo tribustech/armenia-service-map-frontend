@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 
@@ -55,6 +55,66 @@ describe('DataTable responsive rendering', () => {
     expect(titleHeader.className).toContain('font-medium');
     expect(titleHeader.className).not.toContain('uppercase');
     expect(titleHeader.className).not.toContain('tracking-[0.14em]');
+  });
+
+  it('calls onRowClick with the row data when a desktop row is clicked', () => {
+    const onRowClick = vi.fn();
+    render(
+      <DataTable
+        columns={columns}
+        data={[{ id: '1', title: 'Housing support', status: 'NEW', region: 'Yerevan' }]}
+        onRowClick={onRowClick}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('cell', { name: 'Housing support' }));
+
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+    expect(onRowClick).toHaveBeenCalledWith({ id: '1', title: 'Housing support', status: 'NEW', region: 'Yerevan' });
+  });
+
+  it('does not call onRowClick when a nested interactive control inside the row is clicked', () => {
+    const onRowClick = vi.fn();
+    const columnsWithAction: ColumnDef<Row>[] = [
+      ...columns,
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: () => (
+          <button type="button">view</button>
+        ),
+      },
+    ];
+
+    render(
+      <DataTable
+        columns={columnsWithAction}
+        data={[{ id: '1', title: 'Housing support', status: 'NEW', region: 'Yerevan' }]}
+        onRowClick={onRowClick}
+      />,
+    );
+
+    fireEvent.click(within(screen.getByRole('table')).getByRole('button', { name: 'view' }));
+
+    expect(onRowClick).not.toHaveBeenCalled();
+  });
+
+  it('marks rows as clickable only when onRowClick is provided', () => {
+    const { rerender } = render(
+      <DataTable columns={columns} data={[{ id: '1', title: 'Housing support', status: 'NEW', region: 'Yerevan' }]} />,
+    );
+
+    expect(screen.getByRole('cell', { name: 'Housing support' }).closest('tr')?.className).not.toContain('cursor-pointer');
+
+    rerender(
+      <DataTable
+        columns={columns}
+        data={[{ id: '1', title: 'Housing support', status: 'NEW', region: 'Yerevan' }]}
+        onRowClick={() => {}}
+      />,
+    );
+
+    expect(screen.getByRole('cell', { name: 'Housing support' }).closest('tr')?.className).toContain('cursor-pointer');
   });
 
   it('falls back to the translated noResults label when empty and no emptyLabel prop is given', () => {

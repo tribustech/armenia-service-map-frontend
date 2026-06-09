@@ -113,6 +113,7 @@ function TopicsSection() {
             data={data?.data ?? []}
             sorting={sorting}
             onSortingChange={setSorting}
+            onRowClick={(row) => router.push(`/admin/taxonomy/topics/${row.id}`)}
             mobileCard={(row) => ({
               eyebrow: row.id,
               title: row.name,
@@ -228,6 +229,7 @@ function NeedTagsSection() {
             data={data?.data ?? []}
             sorting={sorting}
             onSortingChange={setSorting}
+            onRowClick={(row) => router.push(`/admin/taxonomy/need-tags/${row.id}`)}
             mobileCard={(row) => ({
               eyebrow: row.id,
               title: row.name,
@@ -343,6 +345,7 @@ function TargetGroupsSection() {
             data={data?.data ?? []}
             sorting={sorting}
             onSortingChange={setSorting}
+            onRowClick={(row) => router.push(`/admin/taxonomy/target-groups/${row.id}`)}
             mobileCard={(row) => ({
               eyebrow: row.id,
               title: row.name,

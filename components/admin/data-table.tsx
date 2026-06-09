@@ -32,6 +32,7 @@ interface DataTableProps<TData> {
   onSortingChange?: OnChangeFn<SortingState>;
   mobileCard?: (row: TData) => MobileCardConfig;
   emptyLabel?: string;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData>({
@@ -41,6 +42,7 @@ export function DataTable<TData>({
   onSortingChange,
   mobileCard,
   emptyLabel,
+  onRowClick,
 }: DataTableProps<TData>) {
   const t = useTranslations('admin.common');
   const resolvedEmptyLabel = emptyLabel ?? t('noResults');
@@ -65,8 +67,18 @@ export function DataTable<TData>({
               return (
                 <AdminInset
                   key={rowId}
-                  className="border border-[#dbe2ea] bg-white p-4"
+                  className={`border border-[#dbe2ea] bg-white p-4${onRowClick ? ' cursor-pointer' : ''}`}
                   data-testid={`mobile-data-card-${rowId}`}
+                  onClick={
+                    onRowClick
+                      ? (event: React.MouseEvent<HTMLElement>) => {
+                          if ((event.target as HTMLElement).closest('a,button,input,select,label')) {
+                            return;
+                          }
+                          onRowClick(row);
+                        }
+                      : undefined
+                  }
                 >
                   {card.eyebrow ? (
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9ca3af]">
@@ -154,7 +166,22 @@ export function DataTable<TData>({
               </tr>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="border-b border-[#f0f0f0] text-[#374151] transition-colors hover:bg-[#fafafa]">
+                <tr
+                  key={row.id}
+                  className={`border-b border-[#f0f0f0] text-[#374151] transition-colors hover:bg-[#fafafa]${
+                    onRowClick ? ' cursor-pointer' : ''
+                  }`}
+                  onClick={
+                    onRowClick
+                      ? (event) => {
+                          if ((event.target as HTMLElement).closest('a,button,input,select,label')) {
+                            return;
+                          }
+                          onRowClick(row.original);
+                        }
+                      : undefined
+                  }
+                >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-5 py-4 align-top">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

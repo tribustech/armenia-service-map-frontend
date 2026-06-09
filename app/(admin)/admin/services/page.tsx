@@ -175,6 +175,7 @@ export default function AdminServicesPage() {
               data={data?.data ?? []}
               sorting={sorting}
               onSortingChange={setSorting}
+              onRowClick={(row) => router.push(`/admin/services/${row.id}`)}
               mobileCard={(row) => ({
                 title: getLocalizedServiceContent(row, locale).title,
                 badges: (

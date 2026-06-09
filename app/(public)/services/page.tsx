@@ -8,6 +8,8 @@ import { ArmeniaMap } from '@/components/shared/armenia-map';
 import { Pagination } from '@/components/admin/pagination';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { SubscribeNotifyCard } from '@/components/public/subscribe-notify-card';
+import { OverflowChipRow } from '@/components/ui/overflow-chip-row';
+import { useMediaQuery } from '@/lib/hooks/use-media-query';
 import { sendPublicSearchLogBatchBeacon, useLogPublicSearchBatch } from '@/lib/api/analytics';
 import { usePublicRegionServiceCounts, usePublicRegions, usePublicServices, usePublicTopics } from '@/lib/api/services';
 import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
@@ -48,6 +50,7 @@ function ServicesContent() {
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [selectedTopicId, setSelectedTopicId] = useState(searchParams.get('topicId') || '');
+  const [selectedSubtopicId, setSelectedSubtopicId] = useState('');
   const [selectedRegionId, setSelectedRegionId] = useState(searchParams.get('regionId') || '');
   const [onlyAvailable, setOnlyAvailable] = useState(searchParams.get('available') === 'true');
   const [analyticsQueue, setAnalyticsQueue] = useState<QueuedSearchLog[]>(() => {
@@ -71,20 +74,44 @@ function ServicesContent() {
   const lastQueuedSnapshotRef = useRef<string | null>(null);
   const queueRef = useRef<QueuedSearchLog[]>([]);
   const isFlushingRef = useRef(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const scrollToAnchor = (ref: React.RefObject<HTMLDivElement | null>) => {
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    // The site header is sticky and its height varies by breakpoint (the partner
+    // bar wraps on mobile), so measure it instead of using a fixed offset.
+    const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+    const gap = 16;
+    const top = element.getBoundingClientRect().top + window.scrollY - headerHeight - gap;
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
 
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
   const { data: regionServiceCounts } = usePublicRegionServiceCounts();
   const logPublicSearchBatch = useLogPublicSearchBatch();
   const trimmedSearch = search.trim();
+  // Union of the selected parent topic and its selected subtopic (a service matches either).
+  const activeTopicIds = [selectedTopicId, selectedSubtopicId].filter(Boolean);
   const { data, isLoading } = usePublicServices({
     page,
     perPage,
     search: trimmedSearch,
-    topicId: selectedTopicId || undefined,
+    topicIds: activeTopicIds.length ? activeTopicIds.join(',') : undefined,
     regionId: selectedRegionId || undefined,
     isAvailable: onlyAvailable || undefined,
   });
+
+  // Subtopics of the currently selected parent (only shown once a parent is picked).
+  const subtopics = selectedTopicId
+    ? topics?.find((topic) => topic.id === selectedTopicId)?.children ?? []
+    : [];
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   useEffect(() => {
     queueRef.current = analyticsQueue;
@@ -116,7 +143,7 @@ function ServicesContent() {
       const nextEvent: QueuedSearchLog = {
         query: trimmedSearch,
         regionId: selectedRegionId || null,
-        topicIds: selectedTopicId ? [selectedTopicId] : [],
+        topicIds: [selectedTopicId, selectedSubtopicId].filter(Boolean),
         resultsCount: data.meta.total,
       };
       const snapshotKey = JSON.stringify(nextEvent);
@@ -129,7 +156,7 @@ function ServicesContent() {
     }, SEARCH_LOG_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timeoutId);
-  }, [trimmedSearch, selectedRegionId, selectedTopicId, onlyAvailable, data, isLoading]);
+  }, [trimmedSearch, selectedRegionId, selectedTopicId, selectedSubtopicId, onlyAvailable, data, isLoading]);
 
   const flushQueue = useEffectEvent((preferBeacon = false) => {
     const currentQueue = queueRef.current;
@@ -194,6 +221,38 @@ function ServicesContent() {
       window.removeEventListener('pagehide', handlePageHide);
     };
   }, [analyticsQueue]);
+
+  const hasActiveFilters = Boolean(trimmedSearch || selectedRegionId || selectedTopicId || selectedSubtopicId || onlyAvailable);
+  const handleClearFilters = () => {
+    setSearch('');
+    setSelectedTopicId('');
+    setSelectedSubtopicId('');
+    setSelectedRegionId('');
+    setOnlyAvailable(false);
+    setPage(1);
+  };
+
+  // In map view the list is a separate block from the (sticky) map, so we land on
+  // the list itself; in list view the results region top already is the list.
+  const scrollToPaginationTarget = () => scrollToAnchor(view === 'map' ? listRef : resultsRef);
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    scrollToPaginationTarget();
+  };
+
+  const handlePerPageChange = (nextPerPage: number) => {
+    setPerPage(nextPerPage);
+    setPage(1);
+    scrollToPaginationTarget();
+  };
+
+  const handleRegionClick = (svgPathId: string) => {
+    const region = regions?.find((entry) => entry.svgPathId === svgPathId);
+    setSelectedRegionId(region?.id === selectedRegionId ? '' : (region?.id || ''));
+    setPage(1);
+    scrollToAnchor(listRef);
+  };
 
   const totalServices = data?.meta.total ?? 0;
   const selectedRegionName = regions?.find((region) => region.id === selectedRegionId)?.name;
@@ -278,6 +337,7 @@ function ServicesContent() {
                   aria-pressed={selectedTopicId === topic.id}
                   onClick={() => {
                     setSelectedTopicId((current) => (current === topic.id ? '' : topic.id));
+                    setSelectedSubtopicId('');
                     setPage(1);
                   }}
                   className={`rounded-[10px] border px-4 py-1.5 text-sm font-medium transition-colors ${
@@ -290,6 +350,38 @@ function ServicesContent() {
                 </button>
               ))}
             </div>
+
+            {subtopics.length > 0 ? (
+              <div className="relative mt-2 border-t border-[#eef1f5] pt-3">
+                <p className="mb-2.5 text-xs font-medium uppercase tracking-wide text-[#8a94a6]">
+                  {t('refineWithin', { topic: selectedTopicName ?? '' })}
+                </p>
+                <OverflowChipRow
+                  items={subtopics}
+                  getKey={(subtopic) => subtopic.id}
+                  maxRows={isDesktop ? 1 : 2}
+                  moreLabel={(hidden) => t('moreSubtopics', { count: hidden })}
+                  lessLabel={t('showLess')}
+                  renderChip={(subtopic) => (
+                    <button
+                      type="button"
+                      aria-pressed={selectedSubtopicId === subtopic.id}
+                      onClick={() => {
+                        setSelectedSubtopicId((current) => (current === subtopic.id ? '' : subtopic.id));
+                        setPage(1);
+                      }}
+                      className={`rounded-full border px-3 py-1 text-[13px] font-medium transition-colors ${
+                        selectedSubtopicId === subtopic.id
+                          ? 'border-[#155dfc] bg-[#eff6ff] text-[#155dfc]'
+                          : 'border-[#e5e7eb] bg-[#f9fafb] text-[#6a7282] hover:border-[#c3cad6] hover:text-[#364153]'
+                      }`}
+                    >
+                      {subtopic.name}
+                    </button>
+                  )}
+                />
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-6 flex flex-col gap-4 border-t border-[#e5e7eb] pt-4 md:flex-row md:items-center md:justify-between">
@@ -340,10 +432,18 @@ function ServicesContent() {
               </div>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => scrollToAnchor(listRef)}
+            className="mt-4 w-full rounded-[10px] bg-[#155dfc] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1247cc] md:hidden"
+          >
+            {t('viewResults', { count: totalServices })}
+          </button>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
+      <div ref={resultsRef} className="mx-auto max-w-7xl px-6 py-8">
         {view === 'map' ? (
           <div className="flex flex-col gap-5 lg:flex-row">
             <div className="flex flex-col gap-4 lg:w-3/5 lg:self-start lg:sticky lg:top-24">
@@ -356,11 +456,7 @@ function ServicesContent() {
                   selectedRegionId={regions?.find((region) => region.id === selectedRegionId)?.svgPathId}
                   countLabelSingular={t('serviceSingular')}
                   countLabelPlural={t('servicePlural')}
-                  onRegionClick={(svgPathId) => {
-                    const region = regions?.find((entry) => entry.svgPathId === svgPathId);
-                    setSelectedRegionId(region?.id === selectedRegionId ? '' : (region?.id || ''));
-                    setPage(1);
-                  }}
+                  onRegionClick={handleRegionClick}
                 />
               </div>
 
@@ -374,17 +470,29 @@ function ServicesContent() {
               </div>
             </div>
 
-            <div className="lg:w-2/5">
+            <div ref={listRef} className="lg:w-2/5">
               <h3 className="mb-4 text-lg font-semibold text-[#101828]">
                 {selectedRegionName
                   ? t('regionalServicesTitle', { region: selectedRegionName, count: totalServices })
                   : t('nationwideServices')}
               </h3>
-              <ServiceList data={data} isLoading={isLoading} />
+              <ServiceList
+                data={data}
+                isLoading={isLoading}
+                hasActiveFilters={hasActiveFilters}
+                onClearFilters={handleClearFilters}
+              />
             </div>
           </div>
         ) : (
-          <ServiceList data={data} isLoading={isLoading} />
+          <div ref={listRef}>
+            <ServiceList
+              data={data}
+              isLoading={isLoading}
+              hasActiveFilters={hasActiveFilters}
+              onClearFilters={handleClearFilters}
+            />
+          </div>
         )}
 
         {data && data.meta.totalPages > 1 ? (
@@ -394,11 +502,8 @@ function ServicesContent() {
               totalPages={data.meta.totalPages}
               total={data.meta.total}
               perPage={data.meta.perPage}
-              onPageChange={setPage}
-              onPerPageChange={(nextPerPage) => {
-                setPerPage(nextPerPage);
-                setPage(1);
-              }}
+              onPageChange={handlePageChange}
+              onPerPageChange={handlePerPageChange}
             />
           </div>
         ) : null}
@@ -423,9 +528,13 @@ function ServicesContent() {
 function ServiceList({
   data,
   isLoading,
+  hasActiveFilters,
+  onClearFilters,
 }: {
   data: PaginatedResponse<Service> | undefined;
   isLoading: boolean;
+  hasActiveFilters: boolean;
+  onClearFilters: () => void;
 }) {
   const t = useTranslations('services');
 
@@ -434,6 +543,10 @@ function ServiceList({
   }
 
   if (!data || data.data.length === 0) {
+    if (hasActiveFilters) {
+      return <EmptyResultsCta onClearFilters={onClearFilters} />;
+    }
+
     return <p className="py-12 text-center text-[#6a7282]">{t('noResults')}</p>;
   }
 
@@ -446,6 +559,35 @@ function ServiceList({
   );
 }
 
+function EmptyResultsCta({ onClearFilters }: { onClearFilters: () => void }) {
+  const t = useTranslations('services');
+  const tHome = useTranslations('home');
+
+  return (
+    <div className="flex flex-col items-center gap-5 rounded-2xl bg-gradient-to-r from-[#155dfc] to-[#4f39f6] px-6 py-10 text-center shadow-lg">
+      <div>
+        <h3 className="text-2xl font-bold text-white">{tHome('ctaTitle')}</h3>
+        <p className="mx-auto mt-2 max-w-md text-base text-[#dbeafe]">{tHome('ctaSubtitle')}</p>
+      </div>
+      <div className="flex flex-col items-center gap-3 sm:flex-row">
+        <Link
+          href="/report-a-need"
+          className="inline-flex items-center justify-center rounded-[14px] bg-white px-6 py-2.5 text-sm font-semibold text-[#155dfc] shadow-lg transition-colors hover:bg-[#f8fafc]"
+        >
+          {tHome('reportNeed')}
+        </Link>
+        <button
+          type="button"
+          onClick={onClearFilters}
+          className="inline-flex items-center justify-center rounded-[14px] border border-white/70 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+        >
+          {t('clearFilters')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ServiceCard({ service }: { service: Service }) {
   const t = useTranslations('services');
   const locale = useLocale();
@@ -453,7 +595,7 @@ function ServiceCard({ service }: { service: Service }) {
   const content = getLocalizedServiceContent(service, locale);
 
   return (
-    <article className="rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-lg">
+    <article className="relative rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-lg transition-all hover:-translate-y-0.5 hover:border-[#155dfc]/40 hover:shadow-xl">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-[#6a7282]">
@@ -494,7 +636,7 @@ function ServiceCard({ service }: { service: Service }) {
 
       <Link
         href={`/services/${service.id}`}
-        className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#155dfc] hover:text-[#1247cc]"
+        className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#155dfc] hover:text-[#1247cc] after:absolute after:inset-0 after:content-['']"
       >
         {t('open')}
         <ArrowRightMiniIcon />

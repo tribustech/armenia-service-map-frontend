@@ -129,6 +129,7 @@ export default function AdminNeedsPage() {
               data={data?.data ?? []}
               sorting={sorting}
               onSortingChange={setSorting}
+              onRowClick={(row) => router.push(`/admin/needs/${row.id}`)}
               mobileCard={(row) => ({
                 eyebrow: String(row.id).slice(0, 8),
                 title: row.title || row.description.slice(0, 60),

@@ -137,7 +137,7 @@ export default function OrgServicesPage() {
           </div>
         ) : (
           <>
-            <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} />
+            <DataTable columns={columns} data={data?.data ?? []} sorting={sorting} onSortingChange={setSorting} onRowClick={(row) => router.push(`/org/services/${row.id}`)} />
             {data && <Pagination page={data.meta.page} totalPages={data.meta.totalPages} total={data.meta.total} perPage={data.meta.perPage} onPageChange={setPage} onPerPageChange={(pp) => { setPerPage(pp); setPage(1); }} />}
           </>
         )}

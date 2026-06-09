@@ -52,72 +52,77 @@ export function SubscribeNotifyCard({
   return (
     <div className="mx-auto max-w-7xl px-6 pb-12">
       <div className="rounded-2xl border border-[#c7d2fe] bg-[#eef2ff] p-6 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white">
-            <BellIcon />
-          </div>
-          <div className="flex-1">
-            {subscribed ? (
-              <div>
-                <div className="flex items-center gap-2">
-                  <CheckIcon />
-                  <h3 className="text-lg font-bold text-[#101828]">{t('successTitle')}</h3>
-                </div>
-                {chips.length > 0 ? (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {chips.map((chip) => (
-                      <span key={chip} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#4338ca]">
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-                <p className="mt-3 max-w-2xl text-sm text-[#4a5565]">{t('successBody')}</p>
+        {subscribed ? (
+          <div>
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white">
+                <BellIcon />
               </div>
-            ) : (
-              <div>
+              <div className="flex flex-1 items-center gap-2">
+                <CheckIcon />
+                <h3 className="text-lg font-bold text-[#101828]">{t('successTitle')}</h3>
+              </div>
+            </div>
+            {chips.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {chips.map((chip) => (
+                  <span key={chip} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#4338ca]">
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            <p className="mt-3 text-sm text-[#4a5565]">{t('successBody')}</p>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white">
+                <BellIcon />
+              </div>
+              <div className="flex-1">
                 <h3 className="text-lg font-bold text-[#101828]">{t('title')}</h3>
                 <p className="mt-1 text-sm text-[#4a5565]">{t('description')}</p>
-
-                <div className="mt-4 rounded-xl border border-[#e0e7ff] bg-white p-4">
-                  <p className="text-xs font-semibold text-[#6a7282]">{t('notifiedAboutLabel')}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {chips.length > 0 ? (
-                      chips.map((chip) => (
-                        <span key={chip} className="rounded-full bg-[#eff6ff] px-3 py-1 text-xs font-semibold text-[#155dfc]">
-                          {chip}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-xs font-semibold text-[#155dfc]">
-                        {t('anyServices')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start">
-                  <div className="flex-1">
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setError('');
-                      }}
-                      placeholder={t('emailPlaceholder')}
-                      aria-label={t('emailPlaceholder')}
-                      error={error || undefined}
-                    />
-                  </div>
-                  <Button type="submit" disabled={subscribe.isPending} className="sm:mt-0">
-                    {subscribe.isPending ? t('submitting') : t('submit')}
-                  </Button>
-                </form>
               </div>
-            )}
+            </div>
+
+            <div className="mt-4 rounded-xl border border-[#e0e7ff] bg-white p-4">
+              <p className="text-xs font-semibold text-[#6a7282]">{t('notifiedAboutLabel')}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {chips.length > 0 ? (
+                  chips.map((chip) => (
+                    <span key={chip} className="rounded-full bg-[#eff6ff] px-3 py-1 text-xs font-semibold text-[#155dfc]">
+                      {chip}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-xs font-semibold text-[#155dfc]">
+                    {t('anyServices')}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start">
+              <div className="flex-1">
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError('');
+                  }}
+                  placeholder={t('emailPlaceholder')}
+                  aria-label={t('emailPlaceholder')}
+                  error={error || undefined}
+                />
+              </div>
+              <Button type="submit" disabled={subscribe.isPending} className="w-full sm:mt-0 sm:w-auto">
+                {subscribe.isPending ? t('submitting') : t('submit')}
+              </Button>
+            </form>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
