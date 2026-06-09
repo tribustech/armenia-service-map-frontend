@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ServiceForm } from '@/components/services/service-form';
 
 vi.mock('next-intl', () => ({
@@ -83,5 +84,87 @@ describe('ServiceForm', () => {
     );
 
     expect(screen.getByText('howToAccessField')).toBeInTheDocument();
+  });
+
+  it('reveals a required organisation name field when "outside network" is checked', async () => {
+    const user = userEvent.setup();
+    render(
+      <ServiceForm
+        showOrganisationField
+        allowExternalOrganisation
+        organisationOptions={[{ id: 'org-1', name: 'Organisation A' }]}
+        isSubmitting={false}
+        submitLabel="Save changes"
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    // Name field hidden until the box is checked; the org select is present.
+    expect(screen.queryByText('organisationName')).not.toBeInTheDocument();
+    expect(screen.getByText('selectOrganisation')).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('outsideNetwork'));
+
+    // Per the mockup the select stays (disabled) and the name field appears beside it.
+    expect(screen.getByText('organisationName')).toBeInTheDocument();
+    const orgSelect = screen.getByText('selectOrganisation').closest('select') as HTMLSelectElement;
+    expect(orgSelect).toBeInTheDocument();
+    expect(orgSelect.disabled).toBe(true);
+  });
+
+  it('submits externalOrganisationName without organisationId when outside network', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(
+      <ServiceForm
+        showOrganisationField
+        allowExternalOrganisation
+        organisationOptions={[{ id: 'org-1', name: 'Organisation A' }]}
+        isSubmitting={false}
+        submitLabel="Save changes"
+        onCancel={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    await user.click(screen.getByLabelText('outsideNetwork'));
+    await user.type(screen.getByLabelText('organisationName'), 'Helping Hands');
+    await user.type(screen.getByLabelText('titleField'), 'A title');
+    const editors = screen.getAllByLabelText('rich-text-editor');
+    await user.type(editors[0], 'short');
+    await user.type(editors[1], 'desc');
+    await user.type(editors[2], 'access');
+
+    await user.click(screen.getByText('Save changes'));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalOrganisationName: 'Helping Hands',
+        organisationId: undefined,
+      }),
+    );
+  });
+
+  it('shows a validation error when outside network is checked but name is blank', async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <ServiceForm
+        showOrganisationField
+        allowExternalOrganisation
+        organisationOptions={[{ id: 'org-1', name: 'Organisation A' }]}
+        isSubmitting={false}
+        submitLabel="Save changes"
+        onCancel={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    await user.click(screen.getByLabelText('outsideNetwork'));
+    await user.click(screen.getByText('Save changes'));
+
+    expect(screen.getByText('validation.organisationNameRequired')).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });
