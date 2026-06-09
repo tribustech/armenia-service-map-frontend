@@ -2,17 +2,19 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { AdminPanel } from '@/components/admin/admin-surface';
 import { Badge } from '@/components/ui/badge';
 import { ActionButton } from '@/components/ui/action-button';
 import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAdminService, useDeleteService, usePublishService, useUnpublishService } from '@/lib/api/services';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 import { serviceOrgName } from '@/lib/services/org-name';
 
 export default function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations('admin.services');
   const tStatus = useTranslations('admin.statuses');
   const tCommon = useTranslations('admin.common');
@@ -24,15 +26,17 @@ export default function ServiceDetailPage() {
   if (isLoading) return <DetailPageLoadingSkeleton />;
   if (!service) return <div className="p-8 text-[#6b7280]">{t('notFound')}</div>;
 
+  const content = getLocalizedServiceContent(service, locale);
+
   return (
     <div>
       <div className="mb-2 text-sm text-[#6b7280]">
-        <Link href="/admin/services" className="hover:underline">{t('title')}</Link>{' > '}{service.title}
+        <Link href="/admin/services" className="hover:underline">{t('title')}</Link>{' > '}{content.title}
       </div>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">{service.title}</h1>
+          <h1 className="text-2xl font-bold">{content.title}</h1>
           <Badge variant={service.status === 'PUBLISHED' ? 'success' : 'warning'}>
             {service.status === 'PUBLISHED' ? tStatus('published') : tStatus('draft')}
           </Badge>
@@ -57,7 +61,12 @@ export default function ServiceDetailPage() {
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
             <div>
               <div className="text-sm font-medium text-[#6b7280]">{t('organisation')}</div>
-              <div className="mt-1">{serviceOrgName(service)}</div>
+              <div className="mt-1 flex items-center gap-2">
+                {serviceOrgName(service)}
+                {!service.organisation && service.externalOrganisationName ? (
+                  <Badge variant="warning">{t('outsideNetworkBadge')}</Badge>
+                ) : null}
+              </div>
             </div>
             <div>
               <div className="text-sm font-medium text-[#6b7280]">{t('region')}</div>
@@ -82,18 +91,18 @@ export default function ServiceDetailPage() {
 
         <AdminPanel className="p-4 sm:p-5">
           <div className="text-sm font-medium text-[#6b7280] mb-2">{t('shortDescription')}</div>
-          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: service.shortDescription }} />
+          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: content.shortDescription }} />
         </AdminPanel>
 
         <AdminPanel className="p-4 sm:p-5">
           <div className="text-sm font-medium text-[#6b7280] mb-2">{t('descriptionLabel')}</div>
-          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: service.description }} />
+          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: content.description }} />
         </AdminPanel>
 
-        {service.howToAccess ? (
+        {content.howToAccess ? (
           <AdminPanel className="p-4 sm:p-5">
             <div className="text-sm font-medium text-[#6b7280] mb-2">{t('howToAccess')}</div>
-            <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: service.howToAccess }} />
+            <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: content.howToAccess }} />
           </AdminPanel>
         ) : null}
       </div>

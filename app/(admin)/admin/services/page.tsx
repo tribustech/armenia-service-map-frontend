@@ -46,6 +46,15 @@ export default function AdminServicesPage() {
       id: 'organisation',
       header: t('columns.organisation'),
       enableSorting: false,
+      cell: ({ row }) =>
+        !row.original.organisation && row.original.externalOrganisationName ? (
+          <span className="inline-flex items-center gap-2">
+            {serviceOrgName(row.original)}
+            <Badge variant="warning">{t('outsideNetworkBadge')}</Badge>
+          </span>
+        ) : (
+          serviceOrgName(row.original)
+        ),
     },
     {
       accessorFn: (row) => row.region?.name ?? '',
@@ -170,7 +179,18 @@ export default function AdminServicesPage() {
                   </>
                 ),
                 fields: [
-                  { label: t('columns.organisation'), value: serviceOrgName(row) },
+                  {
+                    label: t('columns.organisation'),
+                    value:
+                      !row.organisation && row.externalOrganisationName ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          {serviceOrgName(row)}
+                          <Badge variant="warning">{t('outsideNetworkBadge')}</Badge>
+                        </span>
+                      ) : (
+                        serviceOrgName(row)
+                      ),
+                  },
                   { label: t('columns.location'), value: row.region?.name || '—' },
                   { label: t('columns.targetGroup'), value: row.targetGroups?.map((item) => item.targetGroup.name).join(', ') || '—' },
                   { label: t('columns.topics'), value: row.topics?.length ? `${row.topics[0].topic.name}${row.topics.length > 1 ? ` +${row.topics.length - 1}` : ''}` : '—' },
