@@ -27,7 +27,7 @@ export default function AdminServicesPage() {
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<'DRAFT' | 'PUBLISHED' | ''>('');
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'updatedAt', desc: true }]);
 
   const sortBy = sorting[0]?.id;
   const sortOrder = sorting[0]?.desc ? 'desc' : 'asc';
@@ -55,10 +55,12 @@ export default function AdminServicesPage() {
       enableSorting: false,
       cell: ({ row }) =>
         !row.original.organisation && row.original.externalOrganisationName ? (
-          <span className="inline-flex items-center gap-2">
-            {serviceOrgName(row.original)}
-            <Badge variant="warning">{t('outsideNetworkBadge')}</Badge>
-          </span>
+          <div className="flex flex-col items-start gap-1">
+            <span>{serviceOrgName(row.original)}</span>
+            <span className="w-fit whitespace-nowrap rounded-full bg-[#fff7ed] px-2 py-0.5 text-xs font-medium text-[#E8922D]">
+              {t('outsideNetworkBadge')}
+            </span>
+          </div>
         ) : (
           serviceOrgName(row.original)
         ),
@@ -190,9 +192,11 @@ export default function AdminServicesPage() {
                     label: t('columns.organisation'),
                     value:
                       !row.organisation && row.externalOrganisationName ? (
-                        <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-flex flex-col items-end gap-1">
                           {serviceOrgName(row)}
-                          <Badge variant="warning">{t('outsideNetworkBadge')}</Badge>
+                          <span className="w-fit whitespace-nowrap rounded-full bg-[#fff7ed] px-2 py-0.5 text-xs font-medium text-[#E8922D]">
+                            {t('outsideNetworkBadge')}
+                          </span>
                         </span>
                       ) : (
                         serviceOrgName(row)
