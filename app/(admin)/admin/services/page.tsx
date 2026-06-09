@@ -10,6 +10,7 @@ import { AdminPageHeader, AdminPanel, AdminToolbar } from '@/components/admin/ad
 import { Button } from '@/components/ui/button';
 import { CheckCircleIcon, XCircleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useAdminServices } from '@/lib/api/services';
+import { serviceOrgName } from '@/lib/services/org-name';
 import type { Service } from '@/types/api';
 import { Badge } from '@/components/ui/badge';
 import { TableSearchInput, TableSelect } from '@/components/ui/table-controls';
@@ -41,7 +42,7 @@ export default function AdminServicesPage() {
   const columns: ColumnDef<Service, unknown>[] = [
     { accessorKey: 'title', header: t('columns.title'), enableSorting: true },
     {
-      accessorFn: (row) => row.organisation.name,
+      accessorFn: (row) => serviceOrgName(row),
       id: 'organisation',
       header: t('columns.organisation'),
       enableSorting: false,
@@ -169,7 +170,7 @@ export default function AdminServicesPage() {
                   </>
                 ),
                 fields: [
-                  { label: t('columns.organisation'), value: row.organisation.name },
+                  { label: t('columns.organisation'), value: serviceOrgName(row) },
                   { label: t('columns.location'), value: row.region?.name || '—' },
                   { label: t('columns.targetGroup'), value: row.targetGroups?.map((item) => item.targetGroup.name).join(', ') || '—' },
                   { label: t('columns.topics'), value: row.topics?.length ? `${row.topics[0].topic.name}${row.topics.length > 1 ? ` +${row.topics.length - 1}` : ''}` : '—' },

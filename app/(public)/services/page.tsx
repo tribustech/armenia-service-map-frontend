@@ -11,6 +11,7 @@ import { SubscribeNotifyCard } from '@/components/public/subscribe-notify-card';
 import { sendPublicSearchLogBatchBeacon, useLogPublicSearchBatch } from '@/lib/api/analytics';
 import { usePublicRegionServiceCounts, usePublicRegions, usePublicServices, usePublicTopics } from '@/lib/api/services';
 import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
+import { serviceOrgName } from '@/lib/services/org-name';
 import type { PaginatedResponse, Service } from '@/types/api';
 
 type ViewMode = 'list' | 'map';
@@ -457,7 +458,7 @@ function ServiceCard({ service }: { service: Service }) {
         <div>
           <div className="flex items-center gap-2 text-sm text-[#6a7282]">
             <MapPinIcon />
-            {service.organisation.name}
+            {serviceOrgName(service)}
           </div>
           <h3 className="mt-2 text-xl font-bold text-[#101828]">{content.title}</h3>
         </div>

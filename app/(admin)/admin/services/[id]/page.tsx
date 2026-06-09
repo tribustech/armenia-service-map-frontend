@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ActionButton } from '@/components/ui/action-button';
 import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAdminService, useDeleteService, usePublishService, useUnpublishService } from '@/lib/api/services';
+import { serviceOrgName } from '@/lib/services/org-name';
 
 export default function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,7 +57,7 @@ export default function ServiceDetailPage() {
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
             <div>
               <div className="text-sm font-medium text-[#6b7280]">{t('organisation')}</div>
-              <div className="mt-1">{service.organisation.name}</div>
+              <div className="mt-1">{serviceOrgName(service)}</div>
             </div>
             <div>
               <div className="text-sm font-medium text-[#6b7280]">{t('region')}</div>

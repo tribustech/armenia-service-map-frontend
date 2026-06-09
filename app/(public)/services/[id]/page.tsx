@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { usePublicService } from '@/lib/api/services';
 import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
+import { serviceOrgName } from '@/lib/services/org-name';
 
 export default function PublicServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +47,7 @@ export default function PublicServiceDetailPage() {
     description: content.shortDescription?.replace(/<[^>]*>/g, ''),
     provider: {
       '@type': 'Organization',
-      name: service.organisation.name,
+      name: serviceOrgName(service),
     },
     areaServed: service.region?.name || t('allRegions'),
     url: `https://refugeesupport.am/services/${service.id}`,
@@ -69,7 +70,7 @@ export default function PublicServiceDetailPage() {
             <div>
               <div className="flex items-center gap-2 text-sm text-[#6a7282]">
                 <MapPinIcon />
-                {service.organisation.name}
+                {serviceOrgName(service)}
               </div>
 
               <h1 className="mt-2 text-3xl font-bold text-[#101828]">{content.title}</h1>
@@ -99,7 +100,7 @@ export default function PublicServiceDetailPage() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <DetailCard label={t('organisation')} value={service.organisation.name} />
+            <DetailCard label={t('organisation')} value={serviceOrgName(service)} />
             <DetailCard label={t('region')} value={service.region?.name || t('allRegions')} />
             {service.targetGroup.length > 0 ? (
               <DetailCard label={t('targetGroups')} value={service.targetGroup.join(', ')} />
