@@ -233,13 +233,13 @@ export interface NeedsMapEntry {
 
 export interface Service {
   id: string;
-  title: string;
+  title: string | null;
   titleHy: string | null;
-  shortDescription: string;
+  shortDescription: string | null;
   shortDescriptionHy: string | null;
-  description: string;
+  description: string | null;
   descriptionHy: string | null;
-  howToAccess: string;
+  howToAccess: string | null;
   howToAccessHy: string | null;
   organisationId: string | null;
   externalOrganisationName?: string | null;

@@ -4,10 +4,11 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { NeedCtaBanner } from '@/components/public/need-cta-banner';
 import { JoinNetworkCta } from '@/components/public/join-network-cta';
 import { usePublicRegions, usePublicServices, usePublicTopics } from '@/lib/api/services';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 import type { Service } from '@/types/api';
 
 const topicColors = [
@@ -23,6 +24,7 @@ const topicColors = [
 
 export default function HomePage() {
   const t = useTranslations('home');
+  const locale = useLocale();
   const router = useRouter();
 
   const [search, setSearch] = useState('');
@@ -161,15 +163,17 @@ export default function HomePage() {
             <p className="mt-4 text-base text-[#4a5565] sm:text-lg">{t('latestServicesSubtitle')}</p>
           </div>
           <div className="mt-10 grid gap-8 md:grid-cols-3">
-            {latestServices.data.map((service: Service) => (
+            {latestServices.data.map((service: Service) => {
+              const content = getLocalizedServiceContent(service, locale);
+              return (
               <article key={service.id} className="flex flex-col rounded-2xl border border-[#e5e7eb] bg-white p-7 shadow-lg">
                 <div className="flex items-center gap-2 text-sm text-[#4a5565]">
                   <MapPinIcon />
                   <span>{service.region?.name || t('anywhereInArmenia')}</span>
                 </div>
-                <h3 className="mt-4 text-xl font-semibold text-[#101828]">{service.title}</h3>
+                <h3 className="mt-4 text-xl font-semibold text-[#101828]">{content.title}</h3>
                 <p className="mt-4 flex-1 text-sm leading-relaxed text-[#4a5565] line-clamp-4">
-                  {service.shortDescription?.replace(/<[^>]*>/g, '')}
+                  {content.shortDescription.replace(/<[^>]*>/g, '')}
                 </p>
                 <Link
                   href={`/services/${service.id}`}
@@ -178,7 +182,8 @@ export default function HomePage() {
                   {t('seeDetails')}
                 </Link>
               </article>
-            ))}
+              );
+            })}
           </div>
           <div className="mt-10 text-center">
             <Link

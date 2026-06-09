@@ -89,13 +89,13 @@ export default function EditServicePage() {
   const getBaseForm = (): ServiceFormState => {
     if (!service) return EMPTY_FORM;
     return {
-      title: service.title,
+      title: service.title ?? '',
       titleHy: service.titleHy ?? '',
-      shortDescription: service.shortDescription,
+      shortDescription: service.shortDescription ?? '',
       shortDescriptionHy: service.shortDescriptionHy ?? '',
-      description: service.description,
+      description: service.description ?? '',
       descriptionHy: service.descriptionHy ?? '',
-      howToAccess: service.howToAccess,
+      howToAccess: service.howToAccess ?? '',
       howToAccessHy: service.howToAccessHy ?? '',
       status: service.status,
       regionId: service.regionId || '',
