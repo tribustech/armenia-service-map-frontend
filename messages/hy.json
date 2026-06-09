@@ -788,6 +788,65 @@
         "description": "Նկարագրություն",
         "howToAccess": "Ինչպես ստանալ ծառայությունը"
       }
+    },
+    "needs": {
+      "title": "Հանձնարարված կարիքներ",
+      "viewMap": "Դիտել քարտեզը",
+      "breadcrumb": "Հանձնարարված կարիքներ",
+      "notFound": "Կարիքի հաշվետվությունը չի գտնվել",
+      "needFallback": "Կարիք {id}",
+      "needReportFallback": "Կարիքի հաշվետվություն {id}",
+      "columns": {
+        "id": "ID",
+        "title": "Վերնագիր",
+        "submittedBy": "Ներկայացրել է",
+        "region": "Մարզ",
+        "status": "Կարգավիճակ",
+        "submitted": "Ներկայացված է"
+      },
+      "detail": {
+        "descriptionHeading": "Կարիքի նկարագրություն",
+        "submittedByLabel": "Ներկայացրել է՝",
+        "contactLabel": "Կապ՝",
+        "addCommentHeading": "Ավելացնել մեկնաբանություն",
+        "commentPlaceholder": "Գրեք առաջընթացի թարմացում այս կարիքի համար",
+        "submitComment": "Ուղարկել մեկնաբանությունը",
+        "submittingComment": "Ուղարկվում է...",
+        "timelineHeading": "Գործողությունների ժամանակագրություն",
+        "timelineEmpty": "Դեռևս գործողություններ չկան:",
+        "detailsHeading": "Կարիքի մանրամասներ",
+        "statusLabel": "Կարգավիճակ",
+        "saveStatus": "Պահպանել կարգավիճակը",
+        "savingStatus": "Պահպանվում է...",
+        "assigneeLabel": "Պատասխանատու՝",
+        "unassigned": "Չհանձնարարված",
+        "submittedLabel": "Ներկայացված է՝",
+        "lastUpdatedLabel": "Վերջին թարմացում՝",
+        "regionLabel": "Մարզ՝",
+        "regionNotProvided": "Նշված չէ",
+        "tagsLabel": "Պիտակներ (միայն ընթերցման)",
+        "noTags": "Պիտակներ չկան"
+      },
+      "map": {
+        "breadcrumbMap": "Քարտեզ",
+        "title": "Կարիքների քարտեզ",
+        "showingRegion": "Ցուցադրվում են {region} մարզի հանձնարարված կարիքները",
+        "showingAll": "Ցուցադրվում են բոլոր հանձնարարված կարիքների հաշվետվությունները ըստ մարզի",
+        "regionBadge": "Մարզ՝ {region}",
+        "clearFilter": "Մաքրել զտիչը",
+        "colorScale": "Գունային սանդղակ՝ 0-10, 11-50, 51-100, >100 կարիքի հաշվետվություն:",
+        "regionCountsHeading": "ՄԱՐԶԵՐԻ ՀԱՇՎԱՐԿ",
+        "countLabelSingular": "կարիքի հաշվետվություն",
+        "countLabelPlural": "կարիքի հաշվետվություն",
+        "listHeading": "Հանձնարարված կարիքների հաշվետվությունների ցանկ",
+        "searchPlaceholder": "Որոնել ըստ վերնագրի կամ անվան...",
+        "columns": {
+          "location": "Տեղակայություն",
+          "tags": "Պիտակներ",
+          "submittedAt": "Ներկայացման ամսաթիվ"
+        },
+        "open": "Բացել"
+      }
     }
   }
 }

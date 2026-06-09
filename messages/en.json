@@ -788,6 +788,65 @@
         "description": "Description",
         "howToAccess": "How to access the service"
       }
+    },
+    "needs": {
+      "title": "Assigned needs",
+      "viewMap": "View map",
+      "breadcrumb": "Assigned needs",
+      "notFound": "Need report not found",
+      "needFallback": "Need {id}",
+      "needReportFallback": "Need report {id}",
+      "columns": {
+        "id": "ID",
+        "title": "Title",
+        "submittedBy": "Submitted by",
+        "region": "Region",
+        "status": "Status",
+        "submitted": "Submitted"
+      },
+      "detail": {
+        "descriptionHeading": "Need description",
+        "submittedByLabel": "Submitted by:",
+        "contactLabel": "Contact:",
+        "addCommentHeading": "Add comment",
+        "commentPlaceholder": "Write a progress update for this need",
+        "submitComment": "Submit comment",
+        "submittingComment": "Submitting...",
+        "timelineHeading": "Activity timeline",
+        "timelineEmpty": "No activity events yet.",
+        "detailsHeading": "Need details",
+        "statusLabel": "Status",
+        "saveStatus": "Save status",
+        "savingStatus": "Saving...",
+        "assigneeLabel": "Assignee:",
+        "unassigned": "Unassigned",
+        "submittedLabel": "Submitted:",
+        "lastUpdatedLabel": "Last updated:",
+        "regionLabel": "Region:",
+        "regionNotProvided": "Not provided",
+        "tagsLabel": "Tags (read-only)",
+        "noTags": "No tags"
+      },
+      "map": {
+        "breadcrumbMap": "Map",
+        "title": "Needs map",
+        "showingRegion": "Showing assigned needs in {region}",
+        "showingAll": "Showing all assigned need reports by region",
+        "regionBadge": "Region: {region}",
+        "clearFilter": "Clear filter",
+        "colorScale": "Color scale: 0-10, 11-50, 51-100, >100 need reports.",
+        "regionCountsHeading": "REGION COUNTS",
+        "countLabelSingular": "need report",
+        "countLabelPlural": "need reports",
+        "listHeading": "Assigned need reports list",
+        "searchPlaceholder": "Search by title or name...",
+        "columns": {
+          "location": "Location",
+          "tags": "Tags",
+          "submittedAt": "Submitted at"
+        },
+        "open": "Open"
+      }
     }
   }
 }

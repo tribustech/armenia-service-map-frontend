@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef } from '@tanstack/react-table';
 import { ArmeniaMap } from '@/components/shared/armenia-map';
 import { DataTable } from '@/components/admin/data-table';
@@ -10,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { NeedsMapLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useOrgNeeds, useOrgNeedsMap } from '@/lib/api/needs';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
+import { formatStatusLabel, NEED_STATUS_LABEL_KEYS } from '@/lib/formatting/status-label';
 import type { NeedReport } from '@/types/api';
 
 const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
@@ -21,6 +22,8 @@ const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'
 };
 
 export default function OrgNeedsMapPage() {
+  const t = useTranslations('org.needs');
+  const tStatuses = useTranslations('admin.statuses');
   const [selectedRegionId, setSelectedRegionId] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -49,12 +52,12 @@ export default function OrgNeedsMapPage() {
   const columns: ColumnDef<NeedReport, unknown>[] = [
     {
       accessorKey: 'id',
-      header: 'ID',
+      header: t('columns.id'),
       cell: ({ getValue }) => <span className="font-mono text-xs text-[#6b7280]">{String(getValue()).slice(0, 8)}</span>,
     },
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: t('columns.title'),
       cell: ({ row }) => (
         <span className="line-clamp-1 font-medium text-[#111827]">
           {row.original.title || row.original.description.slice(0, 60)}
@@ -64,25 +67,29 @@ export default function OrgNeedsMapPage() {
     {
       accessorFn: (row) => row.region?.name || '—',
       id: 'region',
-      header: 'Location',
+      header: t('map.columns.location'),
     },
     {
       accessorFn: (row) => row.tags.map((tag) => tag.needTag.name).join(', ') || '—',
       id: 'tags',
-      header: 'Tags',
+      header: t('map.columns.tags'),
       cell: ({ getValue }) => <span className="line-clamp-1 text-sm text-[#374151]">{String(getValue())}</span>,
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('columns.status'),
       cell: ({ getValue }) => {
         const value = String(getValue());
-        return <Badge variant={statusVariant[value] || 'neutral'}>{formatStatusLabel(value)}</Badge>;
+        return (
+          <Badge variant={statusVariant[value] || 'neutral'}>
+            {NEED_STATUS_LABEL_KEYS[value] ? tStatuses(NEED_STATUS_LABEL_KEYS[value]) : formatStatusLabel(value)}
+          </Badge>
+        );
       },
     },
     {
       accessorKey: 'createdAt',
-      header: 'Submitted at',
+      header: t('map.columns.submittedAt'),
       cell: ({ getValue }) => new Date(getValue() as string).toLocaleDateString(),
     },
     {
@@ -90,7 +97,7 @@ export default function OrgNeedsMapPage() {
       header: '',
       cell: ({ row }) => (
         <Link href={`/org/needs/${row.original.id}`} className="text-sm text-[#E8922D] hover:underline">
-          Open
+          {t('map.open')}
         </Link>
       ),
     },
@@ -99,19 +106,19 @@ export default function OrgNeedsMapPage() {
   return (
     <div>
       <div className="mb-2 text-sm text-[#6b7280]">
-        <Link href="/org/needs" className="hover:underline">Assigned needs</Link>{' > '}Map
+        <Link href="/org/needs" className="hover:underline">{t('breadcrumb')}</Link>{' > '}{t('map.breadcrumbMap')}
       </div>
-      <h1 className="text-2xl font-bold">Needs map</h1>
+      <h1 className="text-2xl font-bold">{t('map.title')}</h1>
       <p className="mt-2 text-[#6b7280]">
         {selectedRegion
-          ? `Showing assigned needs in ${selectedRegion.regionName}`
-          : 'Showing all assigned need reports by region'}
+          ? t('map.showingRegion', { region: selectedRegion.regionName })
+          : t('map.showingAll')}
       </p>
 
       {selectedRegion ? (
         <div className="mt-3 flex items-center gap-2">
           <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            Region: {selectedRegion.regionName}
+            {t('map.regionBadge', { region: selectedRegion.regionName })}
           </span>
           <button
             onClick={() => {
@@ -120,7 +127,7 @@ export default function OrgNeedsMapPage() {
             }}
             className="text-xs text-[#6b7280] underline hover:text-[#374151]"
           >
-            Clear filter
+            {t('map.clearFilter')}
           </button>
         </div>
       ) : null}
@@ -134,8 +141,8 @@ export default function OrgNeedsMapPage() {
               <ArmeniaMap
                 regionCounts={regionCounts}
                 selectedRegionId={selectedRegion?.svgPathId}
-                countLabelSingular="need report"
-                countLabelPlural="need reports"
+                countLabelSingular={t('map.countLabelSingular')}
+                countLabelPlural={t('map.countLabelPlural')}
                 densityMode
                 onRegionClick={(svgPathId) => {
                   const region = mapData?.find((entry) => entry.svgPathId === svgPathId);
@@ -145,13 +152,13 @@ export default function OrgNeedsMapPage() {
               />
             </div>
             <div className="mt-3 text-xs text-[#6b7280]">
-              Color scale: 0-10, 11-50, 51-100, &gt;100 need reports.
+              {t('map.colorScale')}
             </div>
           </div>
 
           <div className="lg:w-1/3">
             <div className="rounded-lg border bg-white p-4">
-              <h3 className="text-sm font-semibold text-[#6b7280]">REGION COUNTS</h3>
+              <h3 className="text-sm font-semibold text-[#6b7280]">{t('map.regionCountsHeading')}</h3>
               <div className="mt-3 space-y-2">
                 {mapData
                   ?.slice()
@@ -181,9 +188,9 @@ export default function OrgNeedsMapPage() {
 
       <div className="mt-8 rounded-lg border bg-white">
         <div className="flex items-center justify-between p-4 pb-0">
-          <h2 className="text-lg font-semibold text-[#111827]">Assigned need reports list</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">{t('map.listHeading')}</h2>
           <Input
-            placeholder="Search by title or name..."
+            placeholder={t('map.searchPlaceholder')}
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
