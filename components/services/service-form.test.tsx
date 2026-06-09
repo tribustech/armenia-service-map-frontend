@@ -64,7 +64,7 @@ describe('ServiceForm', () => {
     expect(englishTab.className).not.toContain('bg-white');
   });
 
-  it('blocks submit when the Armenian title is empty', () => {
+  it('blocks submit when only the English title is filled (Armenian title is required)', () => {
     const onSubmit = vi.fn();
     render(
       <ServiceForm
@@ -76,8 +76,23 @@ describe('ServiceForm', () => {
       />,
     );
 
+    // The form opens on the Armenian tab. Fill every *other* required Armenian
+    // field (short description, description, how-to-access) so the only blocker
+    // left is the Armenian title. The three rich-text editors render in field order.
+    const armenianEditors = screen.getAllByLabelText('rich-text-editor');
+    fireEvent.change(armenianEditors[0], { target: { value: 'short hy' } });
+    fireEvent.change(armenianEditors[1], { target: { value: 'desc hy' } });
+    fireEvent.change(armenianEditors[2], { target: { value: 'access hy' } });
+
+    // Switch to English and fill ONLY the English title, leaving the Armenian title blank.
+    fireEvent.click(screen.getByText('english'));
+    fireEvent.change(screen.getByLabelText('titleField'), { target: { value: 'English only title' } });
+
     fireEvent.click(screen.getByText('Create service'));
 
+    // Submit must still be blocked: validation requires the Armenian title (titleHy),
+    // which was never filled. If validate() checked the English `title` instead, this
+    // would (wrongly) submit, so this assertion specifically guards Armenian-required.
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
