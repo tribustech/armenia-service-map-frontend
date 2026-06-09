@@ -718,5 +718,31 @@
   },
   "localeSwitcher": {
     "ariaLabel": "Select language"
+  },
+  "org": {
+    "skipToContent": "Skip to main content",
+    "orgFallback": "Organisation",
+    "sidebar": {
+      "navAria": "Organisation navigation",
+      "dashboard": "Dashboard",
+      "services": "Service listings",
+      "needs": "Assigned needs",
+      "needsMap": "Needs map",
+      "profile": "Organisation profile",
+      "sectionServices": "Services",
+      "sectionNeeds": "Needs & Queries",
+      "sectionConfig": "Configurations"
+    },
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "services": "Service listings",
+      "needs": "Assigned needs",
+      "needsMap": "Needs map",
+      "profile": "Organisation profile"
+    },
+    "topbar": {
+      "breadcrumbAria": "Breadcrumb",
+      "signOut": "Sign out"
+    }
   }
 }

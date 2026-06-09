@@ -10,45 +10,48 @@ import {
   BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import { type ComponentType, type SVGProps } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { getBestActiveHref } from '@/lib/navigation/active-nav';
 
 type NavItem = {
-  label: string;
+  labelKey: string;
   href: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
 };
 
 type NavSection = {
-  title?: string;
+  titleKey?: string;
   items: NavItem[];
 };
 
 const orgNav: NavSection[] = [
   {
-    items: [{ label: 'Dashboard', href: '/org/dashboard', icon: HomeIcon }],
+    items: [{ labelKey: 'dashboard', href: '/org/dashboard', icon: HomeIcon }],
   },
   {
-    title: 'Services',
-    items: [{ label: 'Service listings', href: '/org/services', icon: ArchiveBoxIcon }],
+    titleKey: 'sectionServices',
+    items: [{ labelKey: 'services', href: '/org/services', icon: ArchiveBoxIcon }],
   },
   {
-    title: 'Needs & Queries',
+    titleKey: 'sectionNeeds',
     items: [
-      { label: 'Assigned needs', href: '/org/needs', icon: InboxIcon },
-      { label: 'Needs map', href: '/org/needs/map', icon: MapIcon },
+      { labelKey: 'needs', href: '/org/needs', icon: InboxIcon },
+      { labelKey: 'needsMap', href: '/org/needs/map', icon: MapIcon },
     ],
   },
   {
-    title: 'Configurations',
-    items: [{ label: 'Organisation profile', href: '/org/profile', icon: BuildingOffice2Icon }],
+    titleKey: 'sectionConfig',
+    items: [{ labelKey: 'profile', href: '/org/profile', icon: BuildingOffice2Icon }],
   },
 ];
 
 export function OrgSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const organisationName = user?.organisation?.name || 'Organisation';
+  const t = useTranslations('org.sidebar');
+  const tOrg = useTranslations('org');
+  const organisationName = user?.organisation?.name || tOrg('orgFallback');
   const activeHref = getBestActiveHref(
     pathname,
     orgNav.flatMap((section) => section.items).map((item) => item.href),
@@ -60,12 +63,12 @@ export function OrgSidebar() {
         <p className="text-sm font-semibold text-[#111827]">{organisationName}</p>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-3" aria-label="Organisation navigation">
+      <nav className="flex-1 overflow-y-auto px-4 pb-6 pt-3" aria-label={t('navAria')}>
         {orgNav.map((section, idx) => (
           <div key={idx} className="py-2">
-            {section.title ? (
+            {section.titleKey ? (
               <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#9ca3af]">
-                {section.title}
+                {t(section.titleKey)}
               </p>
             ) : null}
             <div className="space-y-1">
@@ -84,7 +87,7 @@ export function OrgSidebar() {
                     }`}
                   >
                     <Icon className={`h-5 w-5 ${isActive ? 'text-[#E8922D]' : 'text-[#9ca3af]'}`} />
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 );
               })}

@@ -718,5 +718,31 @@
   },
   "localeSwitcher": {
     "ariaLabel": "Ընտրել լեզուն"
+  },
+  "org": {
+    "skipToContent": "Անցնել հիմնական բովանդակությանը",
+    "orgFallback": "Կազմակերպություն",
+    "sidebar": {
+      "navAria": "Կազմակերպության նավիգացիա",
+      "dashboard": "Վահանակ",
+      "services": "Ծառայությունների ցանկ",
+      "needs": "Հանձնարարված կարիքներ",
+      "needsMap": "Կարիքների քարտեզ",
+      "profile": "Կազմակերպության պրոֆիլ",
+      "sectionServices": "Ծառայություններ",
+      "sectionNeeds": "Կարիքներ և հարցումներ",
+      "sectionConfig": "Կարգավորումներ"
+    },
+    "breadcrumbs": {
+      "dashboard": "Վահանակ",
+      "services": "Ծառայությունների ցանկ",
+      "needs": "Հանձնարարված կարիքներ",
+      "needsMap": "Կարիքների քարտեզ",
+      "profile": "Կազմակերպության պրոֆիլ"
+    },
+    "topbar": {
+      "breadcrumbAria": "Նավիգացիա",
+      "signOut": "Դուրս գալ"
+    }
   }
 }

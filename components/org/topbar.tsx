@@ -2,33 +2,39 @@
 
 import { Fragment, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/lib/auth/auth-context';
 import { LocaleSwitcher } from '@/components/shared/locale-switcher';
 
-const segmentLabel: Record<string, string> = {
-  org: 'Dashboard',
-  dashboard: 'Dashboard',
-  services: 'Service listings',
-  needs: 'Assigned needs',
-  map: 'Needs map',
-  profile: 'Organisation profile',
+const segmentLabelKey: Record<string, string> = {
+  org: 'dashboard',
+  dashboard: 'dashboard',
+  services: 'services',
+  needs: 'needs',
+  map: 'needsMap',
+  profile: 'profile',
 };
 
 export function OrgTopbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const t = useTranslations('org.topbar');
+  const tCrumbs = useTranslations('org.breadcrumbs');
 
   const breadcrumbs = useMemo(() => {
     const segments = pathname.split('/').filter(Boolean);
     const usable = segments.slice(1);
-    return usable.map((segment) => segmentLabel[segment] ?? segment);
-  }, [pathname]);
+    return usable.map((segment) => {
+      const key = segmentLabelKey[segment];
+      return key ? tCrumbs(key) : segment;
+    });
+  }, [pathname, tCrumbs]);
 
   return (
     <header className="sticky top-0 z-20 border-b border-[#f0f0f0] bg-white px-6 py-3">
       <div className="flex items-center justify-between gap-4">
-        <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm text-[#6b7280]">
+        <nav aria-label={t('breadcrumbAria')} className="flex min-w-0 items-center gap-2 text-sm text-[#6b7280]">
           {breadcrumbs.map((label, index) => (
             <Fragment key={`${label}-${index}`}>
               {index > 0 ? <ChevronRightIcon className="h-4 w-4 text-[#d1d5db]" /> : null}
@@ -49,7 +55,7 @@ export function OrgTopbar() {
             onClick={() => void logout()}
             className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]"
           >
-            Sign out
+            {t('signOut')}
           </button>
         </div>
       </div>
