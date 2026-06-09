@@ -19,8 +19,8 @@ const actionItems = [
 ] as const;
 
 const languages = [
-  { code: 'en', label: 'English' },
   { code: 'hy', label: 'Հայերեն' },
+  { code: 'en', label: 'English' },
 ] as const;
 
 export function PublicHeader() {
