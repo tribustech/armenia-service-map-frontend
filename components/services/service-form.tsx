@@ -82,7 +82,7 @@ export function ServiceForm({
 }: ServiceFormProps) {
   const t = useTranslations('serviceForm');
   const [form, setForm] = useState<ServiceFormState>(EMPTY_FORM);
-  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('hy');
   const languageLabel = activeLanguage === 'en' ? t('english') : t('armenian');
   const [errors, setErrors] = useState<Partial<Record<FieldErrorKey, string>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -126,10 +126,10 @@ export function ServiceForm({
 
   function validate(values: ServiceFormState) {
     const nextErrors: Partial<Record<FieldErrorKey, string>> = {};
-    if (!values.title.trim()) nextErrors.title = t('validation.titleRequired');
-    if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
-    if (!toPlainText(values.description)) nextErrors.description = t('validation.descriptionRequired');
-    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = t('validation.howToAccessRequired');
+    if (!values.titleHy.trim()) nextErrors.title = t('validation.titleRequired');
+    if (!toPlainText(values.shortDescriptionHy)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
+    if (!toPlainText(values.descriptionHy)) nextErrors.description = t('validation.descriptionRequired');
+    if (!toPlainText(values.howToAccessHy)) nextErrors.howToAccess = t('validation.howToAccessRequired');
     if (showOrganisationField) {
       if (values.isExternalOrganisation) {
         if (!values.externalOrganisationName.trim()) {
@@ -153,14 +153,14 @@ export function ServiceForm({
 
     try {
       await onSubmit({
-        title: form.title,
-        titleHy: form.titleHy.trim() ? form.titleHy : undefined,
-        shortDescription: form.shortDescription,
-        shortDescriptionHy: toPlainText(form.shortDescriptionHy) ? form.shortDescriptionHy : undefined,
-        description: form.description,
-        descriptionHy: toPlainText(form.descriptionHy) ? form.descriptionHy : undefined,
-        howToAccess: form.howToAccess,
-        howToAccessHy: toPlainText(form.howToAccessHy) ? form.howToAccessHy : undefined,
+        title: form.title.trim() ? form.title : undefined,
+        titleHy: form.titleHy,
+        shortDescription: toPlainText(form.shortDescription) ? form.shortDescription : undefined,
+        shortDescriptionHy: form.shortDescriptionHy,
+        description: toPlainText(form.description) ? form.description : undefined,
+        descriptionHy: form.descriptionHy,
+        howToAccess: toPlainText(form.howToAccess) ? form.howToAccess : undefined,
+        howToAccessHy: form.howToAccessHy,
         organisationId:
           showOrganisationField && !form.isExternalOrganisation ? form.organisationId : undefined,
         externalOrganisationName:
@@ -305,8 +305,8 @@ export function ServiceForm({
             onChange={(event) =>
               updateField(activeLanguage === 'en' ? 'title' : 'titleHy', event.target.value)
             }
-            required={activeLanguage === 'en'}
-            error={activeLanguage === 'en' ? errors.title : undefined}
+            required={activeLanguage === 'hy'}
+            error={activeLanguage === 'hy' ? errors.title : undefined}
           />
           <div>
             <label className="mb-2 block text-sm font-medium text-[#111827]">{t('location')}</label>
@@ -403,7 +403,7 @@ export function ServiceForm({
               updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', html)
             }
           />
-          {activeLanguage === 'en' && errors.shortDescription ? (
+          {activeLanguage === 'hy' && errors.shortDescription ? (
             <p className="mt-1 text-xs text-red-600">{errors.shortDescription}</p>
           ) : null}
         </div>
@@ -416,7 +416,7 @@ export function ServiceForm({
             content={activeLanguage === 'en' ? form.description : form.descriptionHy}
             onChange={(html) => updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)}
           />
-          {activeLanguage === 'en' && errors.description ? (
+          {activeLanguage === 'hy' && errors.description ? (
             <p className="mt-1 text-xs text-red-600">{errors.description}</p>
           ) : null}
         </div>
@@ -431,7 +431,7 @@ export function ServiceForm({
               updateField(activeLanguage === 'en' ? 'howToAccess' : 'howToAccessHy', html)
             }
           />
-          {activeLanguage === 'en' && errors.howToAccess ? (
+          {activeLanguage === 'hy' && errors.howToAccess ? (
             <p className="mt-1 text-xs text-red-600">{errors.howToAccess}</p>
           ) : null}
         </div>

@@ -67,7 +67,7 @@ export default function EditOrgServicePage() {
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
   const { data: targetGroups } = usePublicTargetGroups();
-  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('hy');
   const topicOptions = useMemo(
     () =>
       (topics ?? []).flatMap((topic) => [
@@ -110,10 +110,10 @@ export default function EditOrgServicePage() {
 
   function validate(values: ServiceFormState) {
     const nextErrors: Partial<Record<keyof ServiceFormState, string>> = {};
-    if (!values.title.trim()) nextErrors.title = tForm('validation.titleRequired');
-    if (!values.shortDescription.trim()) nextErrors.shortDescription = tForm('validation.shortDescriptionRequired');
-    if (!toPlainText(values.description)) nextErrors.description = tForm('validation.descriptionRequired');
-    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = tForm('validation.howToAccessRequired');
+    if (!values.titleHy.trim()) nextErrors.title = tForm('validation.titleRequired');
+    if (!values.shortDescriptionHy.trim()) nextErrors.shortDescription = tForm('validation.shortDescriptionRequired');
+    if (!toPlainText(values.descriptionHy)) nextErrors.description = tForm('validation.descriptionRequired');
+    if (!toPlainText(values.howToAccessHy)) nextErrors.howToAccess = tForm('validation.howToAccessRequired');
     if (
       values.availabilityStart &&
       values.availabilityEnd &&
@@ -131,21 +131,21 @@ export default function EditOrgServicePage() {
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      const normalizedTitleHy = form.titleHy.trim() ? form.titleHy : null;
-      const normalizedShortDescriptionHy = form.shortDescriptionHy.trim() ? form.shortDescriptionHy : null;
-      const normalizedDescriptionHy = toPlainText(form.descriptionHy) ? form.descriptionHy : null;
-      const normalizedHowToAccessHy = toPlainText(form.howToAccessHy) ? form.howToAccessHy : null;
+      const normalizedTitle = form.title.trim() ? form.title : null;
+      const normalizedShortDescription = form.shortDescription.trim() ? form.shortDescription : null;
+      const normalizedDescription = toPlainText(form.description) ? form.description : null;
+      const normalizedHowToAccess = toPlainText(form.howToAccess) ? form.howToAccess : null;
 
       await update.mutateAsync({
         id,
-        title: form.title,
-        titleHy: normalizedTitleHy,
-        shortDescription: form.shortDescription,
-        shortDescriptionHy: normalizedShortDescriptionHy,
-        description: form.description,
-        descriptionHy: normalizedDescriptionHy,
-        howToAccess: form.howToAccess,
-        howToAccessHy: normalizedHowToAccessHy,
+        title: normalizedTitle,
+        titleHy: form.titleHy,
+        shortDescription: normalizedShortDescription,
+        shortDescriptionHy: form.shortDescriptionHy,
+        description: normalizedDescription,
+        descriptionHy: form.descriptionHy,
+        howToAccess: normalizedHowToAccess,
+        howToAccessHy: form.howToAccessHy,
         status: form.status,
         regionId: form.regionId || undefined,
         isAvailable: form.isAvailable,
@@ -212,8 +212,8 @@ export default function EditOrgServicePage() {
           label={tForm('titleField', { language: activeLanguage === 'en' ? tForm('english') : tForm('armenian') })}
           value={activeLanguage === 'en' ? form.title : form.titleHy}
           onChange={(e) => updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)}
-          error={activeLanguage === 'en' ? errors.title : undefined}
-          required={activeLanguage === 'en'}
+          error={activeLanguage === 'hy' ? errors.title : undefined}
+          required={activeLanguage === 'hy'}
         />
         <Input
           label={tForm('shortDescriptionField', { language: activeLanguage === 'en' ? tForm('english') : tForm('armenian') })}
@@ -221,8 +221,8 @@ export default function EditOrgServicePage() {
           onChange={(e) =>
             updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', e.target.value)
           }
-          error={activeLanguage === 'en' ? errors.shortDescription : undefined}
-          required={activeLanguage === 'en'}
+          error={activeLanguage === 'hy' ? errors.shortDescription : undefined}
+          required={activeLanguage === 'hy'}
         />
 
         <div>
@@ -233,7 +233,7 @@ export default function EditOrgServicePage() {
             content={activeLanguage === 'en' ? form.description : form.descriptionHy}
             onChange={(html) => updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)}
           />
-          {activeLanguage === 'en' && errors.description ? (
+          {activeLanguage === 'hy' && errors.description ? (
             <p className="mt-1 text-xs text-red-600">{errors.description}</p>
           ) : null}
         </div>
@@ -246,7 +246,7 @@ export default function EditOrgServicePage() {
             content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
             onChange={(html) => updateField(activeLanguage === 'en' ? 'howToAccess' : 'howToAccessHy', html)}
           />
-          {activeLanguage === 'en' && errors.howToAccess ? (
+          {activeLanguage === 'hy' && errors.howToAccess ? (
             <p className="mt-1 text-xs text-red-600">{errors.howToAccess}</p>
           ) : null}
         </div>

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ServiceForm } from '@/components/services/service-form';
 
@@ -43,6 +43,42 @@ describe('ServiceForm', () => {
     const relation = languageLabel.compareDocumentPosition(organisationLabel);
 
     expect(relation & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('opens on the Armenian tab by default', () => {
+    render(
+      <ServiceForm
+        showOrganisationField={false}
+        isSubmitting={false}
+        submitLabel="Create service"
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    // The active tab carries the `bg-white ... shadow-sm` styling; the inactive one is muted.
+    const armenianTab = screen.getByText('armenian');
+    const englishTab = screen.getByText('english');
+    expect(armenianTab.className).toContain('bg-white');
+    expect(armenianTab.className).toContain('shadow-sm');
+    expect(englishTab.className).not.toContain('bg-white');
+  });
+
+  it('blocks submit when the Armenian title is empty', () => {
+    const onSubmit = vi.fn();
+    render(
+      <ServiceForm
+        showOrganisationField={false}
+        isSubmitting={false}
+        submitLabel="Create service"
+        onCancel={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Create service'));
+
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('shows organisation only when configured', () => {

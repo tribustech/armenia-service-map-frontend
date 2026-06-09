@@ -70,7 +70,7 @@ export default function EditServicePage() {
   const { data: targetGroups } = usePublicTargetGroups();
   const { data: orgs } = useOrganisations({ perPage: 100 });
   const organisationOptions = orgs?.data ?? [];
-  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('hy');
   const languageLabel = activeLanguage === 'en' ? t('english') : t('armenian');
 
   const topicOptions = useMemo(
@@ -121,10 +121,10 @@ export default function EditServicePage() {
 
   function validate(values: ServiceFormState) {
     const nextErrors: Partial<Record<keyof ServiceFormState, string>> = {};
-    if (!values.title.trim()) nextErrors.title = t('validation.titleRequired');
-    if (!toPlainText(values.shortDescription)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
-    if (!toPlainText(values.description)) nextErrors.description = t('validation.descriptionRequired');
-    if (!toPlainText(values.howToAccess)) nextErrors.howToAccess = t('validation.howToAccessRequired');
+    if (!values.titleHy.trim()) nextErrors.title = t('validation.titleRequired');
+    if (!toPlainText(values.shortDescriptionHy)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
+    if (!toPlainText(values.descriptionHy)) nextErrors.description = t('validation.descriptionRequired');
+    if (!toPlainText(values.howToAccessHy)) nextErrors.howToAccess = t('validation.howToAccessRequired');
     if (
       values.availabilityStart &&
       values.availabilityEnd &&
@@ -166,21 +166,21 @@ export default function EditServicePage() {
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      const normalizedTitleHy = form.titleHy.trim() ? form.titleHy : null;
-      const normalizedShortDescriptionHy = toPlainText(form.shortDescriptionHy) ? form.shortDescriptionHy : null;
-      const normalizedDescriptionHy = toPlainText(form.descriptionHy) ? form.descriptionHy : null;
-      const normalizedHowToAccessHy = toPlainText(form.howToAccessHy) ? form.howToAccessHy : null;
+      const normalizedTitle = form.title.trim() ? form.title : null;
+      const normalizedShortDescription = toPlainText(form.shortDescription) ? form.shortDescription : null;
+      const normalizedDescription = toPlainText(form.description) ? form.description : null;
+      const normalizedHowToAccess = toPlainText(form.howToAccess) ? form.howToAccess : null;
 
       await update.mutateAsync({
         id,
-        title: form.title,
-        titleHy: normalizedTitleHy,
-        shortDescription: form.shortDescription,
-        shortDescriptionHy: normalizedShortDescriptionHy,
-        description: form.description,
-        descriptionHy: normalizedDescriptionHy,
-        howToAccess: form.howToAccess,
-        howToAccessHy: normalizedHowToAccessHy,
+        title: normalizedTitle,
+        titleHy: form.titleHy,
+        shortDescription: normalizedShortDescription,
+        shortDescriptionHy: form.shortDescriptionHy,
+        description: normalizedDescription,
+        descriptionHy: form.descriptionHy,
+        howToAccess: normalizedHowToAccess,
+        howToAccessHy: form.howToAccessHy,
         status: form.status,
         regionId: form.regionId || undefined,
         isAvailable: form.isAvailable,
@@ -305,8 +305,8 @@ export default function EditServicePage() {
               label={t('titleField', { language: languageLabel })}
               value={activeLanguage === 'en' ? form.title : form.titleHy}
               onChange={(e) => updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)}
-              error={activeLanguage === 'en' ? errors.title : undefined}
-              required={activeLanguage === 'en'}
+              error={activeLanguage === 'hy' ? errors.title : undefined}
+              required={activeLanguage === 'hy'}
             />
             <div>
               <label className="mb-2 block text-sm font-medium text-[#111827]">{t('location')}</label>
@@ -428,7 +428,7 @@ export default function EditServicePage() {
                 updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', html)
               }
             />
-            {activeLanguage === 'en' && errors.shortDescription ? (
+            {activeLanguage === 'hy' && errors.shortDescription ? (
               <p className="mt-1 text-xs text-red-600">{errors.shortDescription}</p>
             ) : null}
           </div>
@@ -442,7 +442,7 @@ export default function EditServicePage() {
               content={activeLanguage === 'en' ? form.description : form.descriptionHy}
               onChange={(html) => updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)}
             />
-            {activeLanguage === 'en' && errors.description ? (
+            {activeLanguage === 'hy' && errors.description ? (
               <p className="mt-1 text-xs text-red-600">{errors.description}</p>
             ) : null}
           </div>
@@ -457,7 +457,7 @@ export default function EditServicePage() {
                 updateField(activeLanguage === 'en' ? 'howToAccess' : 'howToAccessHy', html)
               }
             />
-            {activeLanguage === 'en' && errors.howToAccess ? (
+            {activeLanguage === 'hy' && errors.howToAccess ? (
               <p className="mt-1 text-xs text-red-600">{errors.howToAccess}</p>
             ) : null}
           </div>

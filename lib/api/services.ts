@@ -11,14 +11,14 @@ interface ServiceFilters extends PaginationParams {
 }
 
 export interface ServiceMutationInput {
-  title: string;
-  titleHy?: string | null;
-  shortDescription: string;
-  shortDescriptionHy?: string | null;
-  description: string;
-  descriptionHy?: string | null;
-  howToAccess: string;
-  howToAccessHy?: string | null;
+  title?: string | null;
+  titleHy: string;
+  shortDescription?: string | null;
+  shortDescriptionHy: string;
+  description?: string | null;
+  descriptionHy: string;
+  howToAccess?: string | null;
+  howToAccessHy: string;
   organisationId?: string;
   externalOrganisationName?: string | null;
   regionId?: string;
