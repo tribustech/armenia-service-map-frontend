@@ -202,6 +202,8 @@
     "english": "Անգլերեն",
     "armenian": "Հայերեն",
     "selectOrganisation": "Ընտրեք կազմակերպություն...",
+    "outsideNetwork": "Ցանցից դուրս կազմակերպություն",
+    "organisationName": "Կազմակերպության անվանումը",
     "editTitle": "Խմբագրել ծառայությունը",
     "editBreadcrumb": "Խմբագրել",
     "organisation": "Կազմակերպություն",
@@ -228,6 +230,7 @@
       "descriptionRequired": "Նկարագրությունը պարտադիր է:",
       "howToAccessRequired": "Ծառայության հասանելիության եղանակը պարտադիր է:",
       "organisationRequired": "Կազմակերպությունը պարտադիր է:",
+      "organisationNameRequired": "Կազմակերպության անվանումը պարտադիր է",
       "endBeforeStart": "Ավարտի ամսաթիվը չի կարող լինել սկզբի ամսաթվից շուտ:"
     },
     "saveError": "Չհաջողվեց պահպանել ծառայությունը: Խնդրում ենք կրկին փորձել:",
@@ -557,6 +560,7 @@
       "shortDescription": "Համառոտ նկարագրություն",
       "descriptionLabel": "Նկարագրություն",
       "howToAccess": "Ինչպես ստանալ ծառայությունը",
+      "outsideNetworkBadge": "Ցանցից դուրս",
       "columns": {
         "title": "Վերնագիր",
         "organisation": "Կազմակերպություն",

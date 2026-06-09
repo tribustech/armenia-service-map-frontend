@@ -202,6 +202,8 @@
     "english": "English",
     "armenian": "Armenian",
     "selectOrganisation": "Select organisation...",
+    "outsideNetwork": "Organisation outside the network",
+    "organisationName": "Organisation name",
     "editTitle": "Edit service",
     "editBreadcrumb": "Edit",
     "organisation": "Organisation",
@@ -228,6 +230,7 @@
       "descriptionRequired": "Description is required.",
       "howToAccessRequired": "How to access the service is required.",
       "organisationRequired": "Organisation is required.",
+      "organisationNameRequired": "Organisation name is required",
       "endBeforeStart": "End date cannot be before start date."
     },
     "saveError": "Unable to save service. Please try again.",
@@ -557,6 +560,7 @@
       "shortDescription": "Short description",
       "descriptionLabel": "Description",
       "howToAccess": "How to access the service",
+      "outsideNetworkBadge": "Outside network",
       "columns": {
         "title": "Title",
         "organisation": "Organisation",
