@@ -29,3 +29,21 @@ describe('getLocalizedServiceContent howToAccess', () => {
     expect(result.howToAccess).toBe('EN access');
   });
 });
+
+describe('getLocalizedServiceContent symmetric fallback', () => {
+  it('falls back to Armenian for an English viewer when English is null', () => {
+    const result = getLocalizedServiceContent(
+      { ...base, title: null, titleHy: 'Հայ վերնագիր' } as unknown as Service,
+      'en',
+    );
+    expect(result.title).toBe('Հայ վերնագիր');
+  });
+
+  it('returns empty string when both languages are missing', () => {
+    const result = getLocalizedServiceContent(
+      { ...base, title: null, titleHy: null } as unknown as Service,
+      'en',
+    );
+    expect(result.title).toBe('');
+  });
+});
