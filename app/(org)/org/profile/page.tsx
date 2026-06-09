@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { type ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
@@ -9,7 +10,11 @@ import { Input } from '@/components/ui/input';
 import { DetailPageLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useOrgProfile, useOrgProfileUsers, useUpdateOrgProfile } from '@/lib/api/org-profile';
-import { formatStatusLabel } from '@/lib/formatting/status-label';
+import {
+  formatStatusLabel,
+  ORG_STATUS_LABEL_KEYS,
+  USER_STATUS_LABEL_KEYS,
+} from '@/lib/formatting/status-label';
 import { getErrorMessage, isValidEmail, isValidPhone, mapErrorMessageToField } from '@/lib/validation';
 import type { User } from '@/types/api';
 
@@ -39,6 +44,9 @@ const EMPTY_PROFILE_FORM: ProfileFormState = {
 };
 
 export default function OrgProfilePage() {
+  const t = useTranslations('org.profile');
+  const tCommon = useTranslations('admin.common');
+  const tStatuses = useTranslations('admin.statuses');
   const { user } = useAuth();
   const canEdit = user?.role === 'ORG_ADMIN';
   const [activeTab, setActiveTab] = useState<Tab>('details');
@@ -83,12 +91,12 @@ export default function OrgProfilePage() {
 
   function validate(values: ProfileFormState) {
     const nextErrors: Partial<Record<keyof ProfileFormState, string>> = {};
-    if (!values.name.trim()) nextErrors.name = 'Organisation name is required.';
+    if (!values.name.trim()) nextErrors.name = t('validation.nameRequired');
     if (values.contactPersonEmail.trim() && !isValidEmail(values.contactPersonEmail)) {
-      nextErrors.contactPersonEmail = 'Enter a valid contact email.';
+      nextErrors.contactPersonEmail = t('validation.invalidEmail');
     }
     if (values.contactPersonPhone.trim() && !isValidPhone(values.contactPersonPhone)) {
-      nextErrors.contactPersonPhone = 'Enter a valid contact phone number.';
+      nextErrors.contactPersonPhone = t('validation.invalidPhone');
     }
     return nextErrors;
   }
@@ -97,25 +105,30 @@ export default function OrgProfilePage() {
     {
       accessorFn: (row) => `${row.firstName} ${row.lastName}`,
       id: 'name',
-      header: 'Name',
+      header: t('users.columns.name'),
     },
     {
       accessorKey: 'email',
-      header: 'Email',
+      header: t('users.columns.email'),
     },
     {
       accessorKey: 'phone',
-      header: 'Phone',
+      header: t('users.columns.phone'),
       cell: ({ getValue }) => (getValue() as string | null) || '—',
     },
     {
       accessorKey: 'status',
-      header: 'Status',
-      cell: ({ getValue }) => formatStatusLabel(String(getValue())),
+      header: t('users.columns.status'),
+      cell: ({ getValue }) => {
+        const status = String(getValue());
+        return USER_STATUS_LABEL_KEYS[status]
+          ? tStatuses(USER_STATUS_LABEL_KEYS[status])
+          : formatStatusLabel(status);
+      },
     },
     {
       accessorKey: 'lastAccessAt',
-      header: 'Last access',
+      header: t('users.columns.lastAccess'),
       cell: ({ getValue }) => {
         const value = getValue() as string | null;
         return value ? new Date(value).toLocaleString() : '—';
@@ -141,7 +154,7 @@ export default function OrgProfilePage() {
         contactPersonPhone: form.contactPersonPhone || undefined,
       });
     } catch (error) {
-      const message = getErrorMessage(error, 'Unable to update organisation profile. Please try again.');
+      const message = getErrorMessage(error, t('updateError'));
       const mappedField = mapErrorMessageToField<keyof ProfileFormState>(message, [
         { field: 'name', pattern: /name|organisation/i },
         { field: 'website', pattern: /website|url/i },
@@ -157,18 +170,18 @@ export default function OrgProfilePage() {
   }
 
   if (isLoading) return <DetailPageLoadingSkeleton />;
-  if (!profile) return <div className="rounded-lg border bg-white p-6 text-sm text-[#6b7280]">Organisation profile not available.</div>;
+  if (!profile) return <div className="rounded-lg border bg-white p-6 text-sm text-[#6b7280]">{t('unavailable')}</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[#111827]">Organisation profile</h1>
-      <p className="mt-1 text-sm text-[#6b7280]">Review your organisation details and team members.</p>
+      <h1 className="text-2xl font-bold text-[#111827]">{t('title')}</h1>
+      <p className="mt-1 text-sm text-[#6b7280]">{t('description')}</p>
 
       <div
         className="mt-4 flex gap-1 rounded-lg bg-gray-100 p-1"
         style={{ width: 'fit-content' }}
         role="tablist"
-        aria-label="Organisation profile sections"
+        aria-label={t('sectionsLabel')}
       >
         <button
           type="button"
@@ -181,7 +194,7 @@ export default function OrgProfilePage() {
             activeTab === 'details' ? 'bg-white text-emerald-700 shadow-sm' : 'text-[#6b7280] hover:text-gray-800'
           }`}
         >
-          Organisation details
+          {t('tabs.details')}
         </button>
         <button
           type="button"
@@ -194,7 +207,7 @@ export default function OrgProfilePage() {
             activeTab === 'users' ? 'bg-white text-emerald-700 shadow-sm' : 'text-[#6b7280] hover:text-gray-800'
           }`}
         >
-          Organisation users
+          {t('tabs.users')}
         </button>
       </div>
 
@@ -212,56 +225,56 @@ export default function OrgProfilePage() {
           ) : null}
           <div className="grid gap-4 md:grid-cols-2">
             <Input
-              label="Organisation name"
+              label={t('fields.name')}
               value={form.name}
               onChange={(event) => handleFieldChange('name', event.target.value)}
               error={errors.name}
               disabled={!canEdit}
             />
             <Input
-              label="Website"
+              label={t('fields.website')}
               value={form.website}
               onChange={(event) => handleFieldChange('website', event.target.value)}
               error={errors.website}
               disabled={!canEdit}
             />
             <Input
-              label="Location"
+              label={t('fields.location')}
               value={form.location}
               onChange={(event) => handleFieldChange('location', event.target.value)}
               error={errors.location}
               disabled={!canEdit}
             />
             <Input
-              label="Category"
+              label={t('fields.category')}
               value={form.category}
               onChange={(event) => handleFieldChange('category', event.target.value)}
               error={errors.category}
               disabled={!canEdit}
             />
             <Input
-              label="Activity domain"
+              label={t('fields.activityDomain')}
               value={form.activityDomain}
               onChange={(event) => handleFieldChange('activityDomain', event.target.value)}
               error={errors.activityDomain}
               disabled={!canEdit}
             />
             <Input
-              label="Contact person name"
+              label={t('fields.contactPersonName')}
               value={form.contactPersonName}
               onChange={(event) => handleFieldChange('contactPersonName', event.target.value)}
               error={errors.contactPersonName}
               disabled={!canEdit}
             />
             <Input
-              label="Contact person email"
+              label={t('fields.contactPersonEmail')}
               value={form.contactPersonEmail}
               onChange={(event) => handleFieldChange('contactPersonEmail', event.target.value)}
               error={errors.contactPersonEmail}
               disabled={!canEdit}
             />
             <Input
-              label="Contact person phone"
+              label={t('fields.contactPersonPhone')}
               value={form.contactPersonPhone}
               onChange={(event) => handleFieldChange('contactPersonPhone', event.target.value)}
               error={errors.contactPersonPhone}
@@ -270,7 +283,7 @@ export default function OrgProfilePage() {
           </div>
 
           <div className="mt-4">
-            <label htmlFor="org-profile-description" className="mb-1 block text-sm font-medium text-[#374151]">Description</label>
+            <label htmlFor="org-profile-description" className="mb-1 block text-sm font-medium text-[#374151]">{t('fields.description')}</label>
             <textarea
               id="org-profile-description"
               value={form.description}
@@ -284,14 +297,19 @@ export default function OrgProfilePage() {
 
           <div className="mt-6 flex items-center justify-between">
             <p className="text-xs text-[#6b7280]">
-              Account status: <span className="font-medium text-[#374151]">{formatStatusLabel(profile.status)}</span>
+              {t('accountStatus')}{' '}
+              <span className="font-medium text-[#374151]">
+                {ORG_STATUS_LABEL_KEYS[profile.status]
+                  ? tStatuses(ORG_STATUS_LABEL_KEYS[profile.status])
+                  : formatStatusLabel(profile.status)}
+              </span>
             </p>
             {canEdit ? (
               <Button onClick={handleSave} disabled={updateProfile.isPending}>
-                {updateProfile.isPending ? 'Saving...' : 'Save changes'}
+                {updateProfile.isPending ? t('saving') : tCommon('saveChanges')}
               </Button>
             ) : (
-              <p className="text-xs text-[#6b7280]">Only organisation admins can edit details.</p>
+              <p className="text-xs text-[#6b7280]">{t('editRestricted')}</p>
             )}
           </div>
         </section>
@@ -303,8 +321,8 @@ export default function OrgProfilePage() {
           className="mt-6 rounded-lg border bg-white"
         >
           <div className="border-b p-4">
-            <h2 className="text-lg font-semibold text-[#111827]">Organisation users</h2>
-            <p className="text-sm text-[#6b7280]">Managed by super admins. This view is read-only.</p>
+            <h2 className="text-lg font-semibold text-[#111827]">{t('users.heading')}</h2>
+            <p className="text-sm text-[#6b7280]">{t('users.subtitle')}</p>
           </div>
 
           {usersQuery.isLoading ? (

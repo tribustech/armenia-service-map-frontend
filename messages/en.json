@@ -847,6 +847,47 @@
         },
         "open": "Open"
       }
+    },
+    "profile": {
+      "title": "Organisation profile",
+      "description": "Review your organisation details and team members.",
+      "unavailable": "Organisation profile not available.",
+      "sectionsLabel": "Organisation profile sections",
+      "tabs": {
+        "details": "Organisation details",
+        "users": "Organisation users"
+      },
+      "fields": {
+        "name": "Organisation name",
+        "website": "Website",
+        "location": "Location",
+        "category": "Category",
+        "activityDomain": "Activity domain",
+        "contactPersonName": "Contact person name",
+        "contactPersonEmail": "Contact person email",
+        "contactPersonPhone": "Contact person phone",
+        "description": "Description"
+      },
+      "validation": {
+        "nameRequired": "Organisation name is required.",
+        "invalidEmail": "Enter a valid contact email.",
+        "invalidPhone": "Enter a valid contact phone number."
+      },
+      "updateError": "Unable to update organisation profile. Please try again.",
+      "saving": "Saving...",
+      "accountStatus": "Account status:",
+      "editRestricted": "Only organisation admins can edit details.",
+      "users": {
+        "heading": "Organisation users",
+        "subtitle": "Managed by super admins. This view is read-only.",
+        "columns": {
+          "name": "Name",
+          "email": "Email",
+          "phone": "Phone",
+          "status": "Status",
+          "lastAccess": "Last access"
+        }
+      }
     }
   }
 }
