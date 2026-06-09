@@ -743,6 +743,21 @@
     "topbar": {
       "breadcrumbAria": "Breadcrumb",
       "signOut": "Sign out"
+    },
+    "dashboard": {
+      "welcomeEyebrow": "Welcome back",
+      "subtitle": "Track your organisation's service activity and assigned need-report progress.",
+      "addService": "Add new service",
+      "viewAssignedNeeds": "View assigned needs",
+      "totalServices": "Total services",
+      "assignedNeeds": "Assigned need reports",
+      "resolvedNeeds": "Resolved needs",
+      "needsChartTitle": "Assigned need reports over time",
+      "needsChartSubtitle": "12-month trend of needs assigned to your organisation.",
+      "needsChartDatasetLabel": "Assigned needs",
+      "servicesChartTitle": "Services created over time",
+      "servicesChartSubtitle": "12-month trend of services created by your organisation.",
+      "servicesChartDatasetLabel": "Services"
     }
   }
 }
