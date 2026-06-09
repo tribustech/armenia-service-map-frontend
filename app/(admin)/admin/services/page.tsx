@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
 import { AdminPageHeader, AdminPanel, AdminToolbar } from '@/components/admin/admin-surface';
@@ -21,6 +22,7 @@ export default function AdminServicesPage() {
   const t = useTranslations('admin.services');
   const tStatus = useTranslations('admin.statuses');
   const tCommon = useTranslations('admin.common');
+  const locale = useLocale();
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -40,7 +42,12 @@ export default function AdminServicesPage() {
   });
 
   const columns: ColumnDef<Service, unknown>[] = [
-    { accessorKey: 'title', header: t('columns.title'), enableSorting: true },
+    {
+      accessorKey: 'title',
+      header: t('columns.title'),
+      enableSorting: true,
+      cell: ({ row }) => getLocalizedServiceContent(row.original, locale).title,
+    },
     {
       accessorFn: (row) => serviceOrgName(row),
       id: 'organisation',
@@ -167,7 +174,7 @@ export default function AdminServicesPage() {
               sorting={sorting}
               onSortingChange={setSorting}
               mobileCard={(row) => ({
-                title: row.title,
+                title: getLocalizedServiceContent(row, locale).title,
                 badges: (
                   <>
                     <Badge variant={row.status === 'PUBLISHED' ? 'success' : 'warning'}>

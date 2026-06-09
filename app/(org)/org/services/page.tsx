@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { type ColumnDef, type SortingState } from '@tanstack/react-table';
+import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
 import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ export default function OrgServicesPage() {
   const t = useTranslations('org.services');
   const tStatuses = useTranslations('admin.statuses');
   const tCommon = useTranslations('admin.common');
+  const locale = useLocale();
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState('');
@@ -30,7 +32,12 @@ export default function OrgServicesPage() {
   const { data, isLoading } = useOrgServices({ page, perPage, search, sortBy, sortOrder, status: status || undefined });
 
   const columns: ColumnDef<Service, unknown>[] = [
-    { accessorKey: 'title', header: t('columns.title'), enableSorting: true },
+    {
+      accessorKey: 'title',
+      header: t('columns.title'),
+      enableSorting: true,
+      cell: ({ row }) => getLocalizedServiceContent(row.original, locale).title,
+    },
     {
       accessorFn: (row) => row.region?.name ?? '',
       id: 'location',
