@@ -39,6 +39,7 @@ export default function NewServicePage() {
 
       <ServiceForm
         showOrganisationField
+        allowExternalOrganisation
         organisationOptions={organisationOptions}
         isSubmitting={create.isPending}
         submitLabel={tCommon('saveChanges')}

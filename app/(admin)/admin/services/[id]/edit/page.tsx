@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { RichTextEditor } from '@/components/shared/rich-text-editor';
 import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAdminService, useUpdateService, usePublicRegions, usePublicTargetGroups, usePublicTopics } from '@/lib/api/services';
+import { useOrganisations } from '@/lib/api/organisations';
 import { getErrorMessage, mapErrorMessageToField, toPlainText } from '@/lib/validation';
 
 type ServiceFormState = {
@@ -28,6 +29,9 @@ type ServiceFormState = {
   topicIds: string[];
   availabilityStart: string;
   availabilityEnd: string;
+  organisationId: string;
+  isExternalOrganisation: boolean;
+  externalOrganisationName: string;
 };
 
 const EMPTY_FORM: ServiceFormState = {
@@ -46,6 +50,9 @@ const EMPTY_FORM: ServiceFormState = {
   topicIds: [],
   availabilityStart: '',
   availabilityEnd: '',
+  organisationId: '',
+  isExternalOrganisation: false,
+  externalOrganisationName: '',
 };
 
 export default function EditServicePage() {
@@ -59,6 +66,8 @@ export default function EditServicePage() {
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
   const { data: targetGroups } = usePublicTargetGroups();
+  const { data: orgs } = useOrganisations({ perPage: 100 });
+  const organisationOptions = orgs?.data ?? [];
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('en');
   const languageLabel = activeLanguage === 'en' ? t('english') : t('armenian');
 
@@ -95,6 +104,9 @@ export default function EditServicePage() {
       topicIds: service.topics.map((entry) => entry.topic.id),
       availabilityStart: service.availabilityStart?.split('T')[0] ?? '',
       availabilityEnd: service.availabilityEnd?.split('T')[0] ?? '',
+      organisationId: service.organisationId ?? '',
+      isExternalOrganisation: Boolean(service.externalOrganisationName),
+      externalOrganisationName: service.externalOrganisationName ?? '',
     };
   };
   const form = draftForm ?? getBaseForm();
@@ -118,8 +130,29 @@ export default function EditServicePage() {
     ) {
       nextErrors.availabilityEnd = t('validation.endBeforeStart');
     }
+    if (values.isExternalOrganisation) {
+      if (!values.externalOrganisationName.trim()) {
+        nextErrors.externalOrganisationName = t('validation.organisationNameRequired');
+      }
+    } else if (!values.organisationId) {
+      nextErrors.organisationId = t('validation.organisationRequired');
+    }
     return nextErrors;
   }
+
+  const handleExternalToggle = (checked: boolean) => {
+    setDraftForm((previous) => {
+      const base = previous ?? getBaseForm();
+      return {
+        ...base,
+        isExternalOrganisation: checked,
+        organisationId: checked ? '' : base.organisationId,
+        externalOrganisationName: checked ? base.externalOrganisationName : '',
+      };
+    });
+    setErrors((previous) => ({ ...previous, organisationId: undefined, externalOrganisationName: undefined }));
+    setSubmitError(null);
+  };
 
   const selectClasses =
     'w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06)] focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 appearance-none';
@@ -153,6 +186,8 @@ export default function EditServicePage() {
         topicIds: form.topicIds,
         availabilityStart: form.availabilityStart || undefined,
         availabilityEnd: form.availabilityEnd || undefined,
+        organisationId: form.isExternalOrganisation ? undefined : form.organisationId || undefined,
+        externalOrganisationName: form.isExternalOrganisation ? form.externalOrganisationName.trim() : undefined,
       });
       router.push(`/admin/services/${id}`);
     } catch (error) {
@@ -192,7 +227,8 @@ export default function EditServicePage() {
 
       <h1 className="mt-3 text-3xl font-bold text-[#111827]">{t('editTitle')}</h1>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+      {/* noValidate: prevents native browser validation from short-circuiting our custom validate() */}
+      <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-6">
         {submitError ? (
           <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {submitError}
@@ -200,7 +236,48 @@ export default function EditServicePage() {
         ) : null}
         {/* Form card */}
         <div className="space-y-10 rounded-xl bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06),0px_0px_0px_0px_#ececee]">
-          {/* Title + Location */}
+          {/* Organisation */}
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('organisation')}</label>
+              <select
+                aria-label={t('organisation')}
+                value={form.organisationId}
+                onChange={(e) => updateField('organisationId', e.target.value)}
+                disabled={form.isExternalOrganisation}
+                className={`${selectClasses} disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400`}
+              >
+                <option value="">{t('selectOrganisation')}</option>
+                {organisationOptions.map((organisation) => (
+                  <option key={organisation.id} value={organisation.id}>
+                    {organisation.name}
+                  </option>
+                ))}
+              </select>
+              {errors.organisationId ? <p className="mt-1 text-xs text-red-600">{errors.organisationId}</p> : null}
+              <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#111827]">
+                <input
+                  type="checkbox"
+                  checked={form.isExternalOrganisation}
+                  onChange={(e) => handleExternalToggle(e.target.checked)}
+                />
+                {t('outsideNetwork')}
+              </label>
+            </div>
+            {form.isExternalOrganisation ? (
+              <Input
+                label={t('organisationName')}
+                value={form.externalOrganisationName}
+                onChange={(e) => updateField('externalOrganisationName', e.target.value)}
+                required
+                error={errors.externalOrganisationName}
+              />
+            ) : (
+              <div />
+            )}
+          </div>
+
+          {/* Status + Available */}
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="mb-2 block text-sm font-medium text-[#111827]">{t('status')}</label>
