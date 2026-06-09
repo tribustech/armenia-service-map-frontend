@@ -108,7 +108,7 @@ describe('ServiceForm', () => {
 
     // Per the mockup the select stays (disabled) and the name field appears beside it.
     expect(screen.getByText('organisationName')).toBeInTheDocument();
-    const orgSelect = screen.getByText('selectOrganisation').closest('select') as HTMLSelectElement;
+    const orgSelect = screen.getByRole('combobox', { name: 'organisation' }) as HTMLSelectElement;
     expect(orgSelect).toBeInTheDocument();
     expect(orgSelect.disabled).toBe(true);
   });
@@ -166,5 +166,31 @@ describe('ServiceForm', () => {
 
     expect(screen.getByText('validation.organisationNameRequired')).toBeInTheDocument();
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('clears the organisation name and hides the field when "outside network" is unchecked', async () => {
+    const user = userEvent.setup();
+    render(
+      <ServiceForm
+        showOrganisationField
+        allowExternalOrganisation
+        organisationOptions={[{ id: 'org-1', name: 'Organisation A' }]}
+        isSubmitting={false}
+        submitLabel="Save changes"
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    const checkbox = screen.getByLabelText('outsideNetwork');
+    await user.click(checkbox);
+    await user.type(screen.getByLabelText('organisationName'), 'Helping Hands');
+    expect(screen.getByLabelText('organisationName')).toHaveValue('Helping Hands');
+
+    await user.click(checkbox); // uncheck
+    expect(screen.queryByLabelText('organisationName')).not.toBeInTheDocument();
+
+    await user.click(checkbox); // re-check — field should be empty again
+    expect(screen.getByLabelText('organisationName')).toHaveValue('');
   });
 });

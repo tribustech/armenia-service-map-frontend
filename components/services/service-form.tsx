@@ -181,7 +181,7 @@ export function ServiceForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-6">
+    <form onSubmit={handleSubmit} noValidate /* custom validate() handles all errors; suppress native browser validation */ className="mt-8 space-y-6">
       {submitError ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{submitError}</p>
       ) : null}
@@ -211,14 +211,56 @@ export function ServiceForm({
         </div>
 
         {showOrganisationField ? (
-          <div className="grid grid-cols-2 gap-6">
-            <div>
+          allowExternalOrganisation ? (
+            // Two-column layout: org select + optional external-org name field
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-[#111827]">{t('organisation')}</label>
+                <select
+                  aria-label={t('organisation')}
+                  value={form.organisationId}
+                  onChange={(event) => updateField('organisationId', event.target.value)}
+                  disabled={form.isExternalOrganisation}
+                  className={`${selectClasses} disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400`}
+                >
+                  <option value="">{t('selectOrganisation')}</option>
+                  {organisationOptions.map((organisation) => (
+                    <option key={organisation.id} value={organisation.id}>
+                      {organisation.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.organisationId ? <p className="mt-1 text-xs text-red-600">{errors.organisationId}</p> : null}
+                <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#111827]">
+                  <input
+                    type="checkbox"
+                    checked={form.isExternalOrganisation}
+                    onChange={(event) => handleExternalToggle(event.target.checked)}
+                  />
+                  {t('outsideNetwork')}
+                </label>
+              </div>
+              {form.isExternalOrganisation ? (
+                <Input
+                  label={t('organisationName')}
+                  value={form.externalOrganisationName}
+                  onChange={(event) => updateField('externalOrganisationName', event.target.value)}
+                  required
+                  error={errors.externalOrganisationName}
+                />
+              ) : (
+                <div />
+              )}
+            </div>
+          ) : (
+            // Single-column layout (original appearance for org-create / admin-create consumers)
+            <div className="max-w-[492px]">
               <label className="mb-2 block text-sm font-medium text-[#111827]">{t('organisation')}</label>
               <select
+                aria-label={t('organisation')}
                 value={form.organisationId}
                 onChange={(event) => updateField('organisationId', event.target.value)}
-                disabled={form.isExternalOrganisation}
-                className={`${selectClasses} disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400`}
+                className={selectClasses}
               >
                 <option value="">{t('selectOrganisation')}</option>
                 {organisationOptions.map((organisation) => (
@@ -228,29 +270,8 @@ export function ServiceForm({
                 ))}
               </select>
               {errors.organisationId ? <p className="mt-1 text-xs text-red-600">{errors.organisationId}</p> : null}
-              {allowExternalOrganisation ? (
-                <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#111827]">
-                  <input
-                    type="checkbox"
-                    checked={form.isExternalOrganisation}
-                    onChange={(event) => handleExternalToggle(event.target.checked)}
-                  />
-                  {t('outsideNetwork')}
-                </label>
-              ) : null}
             </div>
-            {form.isExternalOrganisation ? (
-              <Input
-                label={t('organisationName')}
-                value={form.externalOrganisationName}
-                onChange={(event) => updateField('externalOrganisationName', event.target.value)}
-                required
-                error={errors.externalOrganisationName}
-              />
-            ) : (
-              <div />
-            )}
-          </div>
+          )
         ) : null}
 
         <div className="grid grid-cols-2 gap-6">
