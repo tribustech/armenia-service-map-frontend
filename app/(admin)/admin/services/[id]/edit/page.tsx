@@ -1,60 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { RichTextEditor } from '@/components/shared/rich-text-editor';
+import { ServiceForm, type ServiceFormState } from '@/components/services/service-form';
 import { DetailPageLoadingSkeleton } from '@/components/shared/loading-skeletons';
-import { useAdminService, useUpdateService, usePublicRegions, usePublicTargetGroups, usePublicTopics } from '@/lib/api/services';
+import { useAdminService, useUpdateService } from '@/lib/api/services';
 import { useOrganisations } from '@/lib/api/organisations';
-import { getErrorMessage, mapErrorMessageToField, toPlainText } from '@/lib/validation';
 import { getLocalizedServiceContent } from '@/lib/i18n/service-content';
-
-type ServiceFormState = {
-  title: string;
-  titleHy: string;
-  shortDescription: string;
-  shortDescriptionHy: string;
-  description: string;
-  descriptionHy: string;
-  howToAccess: string;
-  howToAccessHy: string;
-  status: 'DRAFT' | 'PUBLISHED';
-  regionId: string;
-  isAvailable: boolean;
-  targetGroupIds: string[];
-  topicIds: string[];
-  availabilityStart: string;
-  availabilityEnd: string;
-  organisationId: string;
-  isExternalOrganisation: boolean;
-  externalOrganisationName: string;
-};
-
-const EMPTY_FORM: ServiceFormState = {
-  title: '',
-  titleHy: '',
-  shortDescription: '',
-  shortDescriptionHy: '',
-  description: '',
-  descriptionHy: '',
-  howToAccess: '',
-  howToAccessHy: '',
-  status: 'DRAFT',
-  regionId: '',
-  isAvailable: true,
-  targetGroupIds: [],
-  topicIds: [],
-  availabilityStart: '',
-  availabilityEnd: '',
-  organisationId: '',
-  isExternalOrganisation: false,
-  externalOrganisationName: '',
-};
 
 export default function EditServicePage() {
   const { id } = useParams<{ id: string }>();
@@ -65,152 +19,33 @@ export default function EditServicePage() {
   const tCommon = useTranslations('admin.common');
   const { data: service, isLoading } = useAdminService(id);
   const update = useUpdateService();
-  const { data: topics } = usePublicTopics();
-  const { data: regions } = usePublicRegions();
-  const { data: targetGroups } = usePublicTargetGroups();
   const { data: orgs } = useOrganisations({ perPage: 100 });
   const organisationOptions = orgs?.data ?? [];
-  const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('hy');
-  const languageLabel = activeLanguage === 'en' ? t('english') : t('armenian');
-
-  const topicOptions = useMemo(
-    () =>
-      (topics ?? []).flatMap((topic) => [
-        { id: topic.id, name: topic.name },
-        ...((topic.children ?? []).map((child) => ({
-          id: child.id,
-          name: `${topic.name} / ${child.name}`,
-        })) || []),
-      ]),
-    [topics],
-  );
-
-  const [draftForm, setDraftForm] = useState<ServiceFormState | null>(null);
-  const [errors, setErrors] = useState<Partial<Record<keyof ServiceFormState, string>>>({});
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const getBaseForm = (): ServiceFormState => {
-    if (!service) return EMPTY_FORM;
-    return {
-      title: service.title ?? '',
-      titleHy: service.titleHy ?? '',
-      shortDescription: service.shortDescription ?? '',
-      shortDescriptionHy: service.shortDescriptionHy ?? '',
-      description: service.description ?? '',
-      descriptionHy: service.descriptionHy ?? '',
-      howToAccess: service.howToAccess ?? '',
-      howToAccessHy: service.howToAccessHy ?? '',
-      status: service.status,
-      regionId: service.regionId || '',
-      isAvailable: service.isAvailable,
-      targetGroupIds: service.targetGroups.map((entry) => entry.targetGroup.id),
-      topicIds: service.topics.map((entry) => entry.topic.id),
-      availabilityStart: service.availabilityStart?.split('T')[0] ?? '',
-      availabilityEnd: service.availabilityEnd?.split('T')[0] ?? '',
-      organisationId: service.organisationId ?? '',
-      isExternalOrganisation: Boolean(service.externalOrganisationName),
-      externalOrganisationName: service.externalOrganisationName ?? '',
-    };
-  };
-  const form = draftForm ?? getBaseForm();
-
-  const updateField = (field: keyof ServiceFormState, value: ServiceFormState[keyof ServiceFormState]) => {
-    setDraftForm((previous) => ({ ...(previous ?? getBaseForm()), [field]: value }));
-    setErrors((previous) => ({ ...previous, [field]: undefined }));
-    setSubmitError(null);
-  };
-
-  function validate(values: ServiceFormState) {
-    const nextErrors: Partial<Record<keyof ServiceFormState, string>> = {};
-    if (!values.titleHy.trim()) nextErrors.title = t('validation.titleRequired');
-    if (!toPlainText(values.shortDescriptionHy)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
-    if (!toPlainText(values.descriptionHy)) nextErrors.description = t('validation.descriptionRequired');
-    if (!toPlainText(values.howToAccessHy)) nextErrors.howToAccess = t('validation.howToAccessRequired');
-    if (
-      values.availabilityStart &&
-      values.availabilityEnd &&
-      values.availabilityEnd < values.availabilityStart
-    ) {
-      nextErrors.availabilityEnd = t('validation.endBeforeStart');
-    }
-    if (values.isExternalOrganisation) {
-      if (!values.externalOrganisationName.trim()) {
-        nextErrors.externalOrganisationName = t('validation.organisationNameRequired');
-      }
-    } else if (!values.organisationId) {
-      nextErrors.organisationId = t('validation.organisationRequired');
-    }
-    return nextErrors;
-  }
-
-  const handleExternalToggle = (checked: boolean) => {
-    setDraftForm((previous) => {
-      const base = previous ?? getBaseForm();
-      return {
-        ...base,
-        isExternalOrganisation: checked,
-        organisationId: checked ? '' : base.organisationId,
-        externalOrganisationName: checked ? base.externalOrganisationName : '',
-      };
-    });
-    setErrors((previous) => ({ ...previous, organisationId: undefined, externalOrganisationName: undefined }));
-    setSubmitError(null);
-  };
-
-  const selectClasses =
-    'w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06)] focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 appearance-none';
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const validationErrors = validate(form);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
-
-    try {
-      const normalizedTitle = form.title.trim() ? form.title : null;
-      const normalizedShortDescription = toPlainText(form.shortDescription) ? form.shortDescription : null;
-      const normalizedDescription = toPlainText(form.description) ? form.description : null;
-      const normalizedHowToAccess = toPlainText(form.howToAccess) ? form.howToAccess : null;
-
-      await update.mutateAsync({
-        id,
-        title: normalizedTitle,
-        titleHy: form.titleHy,
-        shortDescription: normalizedShortDescription,
-        shortDescriptionHy: form.shortDescriptionHy,
-        description: normalizedDescription,
-        descriptionHy: form.descriptionHy,
-        howToAccess: normalizedHowToAccess,
-        howToAccessHy: form.howToAccessHy,
-        status: form.status,
-        regionId: form.regionId || undefined,
-        isAvailable: form.isAvailable,
-        targetGroupIds: form.targetGroupIds,
-        topicIds: form.topicIds,
-        availabilityStart: form.availabilityStart || undefined,
-        availabilityEnd: form.availabilityEnd || undefined,
-        organisationId: form.isExternalOrganisation ? undefined : form.organisationId || undefined,
-        externalOrganisationName: form.isExternalOrganisation ? form.externalOrganisationName.trim() : undefined,
-      });
-      router.push(`/admin/services/${id}`);
-    } catch (error) {
-      const message = getErrorMessage(error, t('updateError'));
-      const mappedField = mapErrorMessageToField<keyof ServiceFormState>(message, [
-        { field: 'title', pattern: /title/i },
-        { field: 'shortDescription', pattern: /short.?description/i },
-        { field: 'description', pattern: /description/i },
-        { field: 'regionId', pattern: /region|location/i },
-        { field: 'availabilityStart', pattern: /start/i },
-        { field: 'availabilityEnd', pattern: /end/i },
-      ]);
-      if (mappedField) {
-        setErrors((previous) => ({ ...previous, [mappedField]: message }));
-      } else {
-        setSubmitError(message);
-      }
-    }
-  }
 
   if (isLoading) return <DetailPageLoadingSkeleton />;
+
+  const initialValues: Partial<ServiceFormState> | undefined = service
+    ? {
+        title: service.title ?? '',
+        titleHy: service.titleHy ?? '',
+        shortDescription: service.shortDescription ?? '',
+        shortDescriptionHy: service.shortDescriptionHy ?? '',
+        description: service.description ?? '',
+        descriptionHy: service.descriptionHy ?? '',
+        howToAccess: service.howToAccess ?? '',
+        howToAccessHy: service.howToAccessHy ?? '',
+        status: service.status,
+        regionId: service.regionId || '',
+        isAvailable: service.isAvailable,
+        targetGroupIds: service.targetGroups.map((entry) => entry.targetGroup.id),
+        topicIds: service.topics.map((entry) => entry.topic.id),
+        availabilityStart: service.availabilityStart?.split('T')[0] ?? '',
+        availabilityEnd: service.availabilityEnd?.split('T')[0] ?? '',
+        organisationId: service.organisationId ?? '',
+        isExternalOrganisation: Boolean(service.externalOrganisationName),
+        externalOrganisationName: service.externalOrganisationName ?? '',
+      }
+    : undefined;
 
   return (
     <div className="mx-auto max-w-[1220px] pb-12">
@@ -229,250 +64,20 @@ export default function EditServicePage() {
 
       <h1 className="mt-3 text-3xl font-bold text-[#111827]">{t('editTitle')}</h1>
 
-      {/* noValidate: prevents native browser validation from short-circuiting our custom validate() */}
-      <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-6">
-        {submitError ? (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {submitError}
-          </p>
-        ) : null}
-        {/* Form card */}
-        <div className="space-y-10 rounded-xl bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06),0px_0px_0px_0px_#ececee]">
-          {/* Organisation */}
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('organisation')}</label>
-              <select
-                aria-label={t('organisation')}
-                value={form.organisationId}
-                onChange={(e) => updateField('organisationId', e.target.value)}
-                disabled={form.isExternalOrganisation}
-                className={`${selectClasses} disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400`}
-              >
-                <option value="">{t('selectOrganisation')}</option>
-                {organisationOptions.map((organisation) => (
-                  <option key={organisation.id} value={organisation.id}>
-                    {organisation.name}
-                  </option>
-                ))}
-              </select>
-              {errors.organisationId ? <p className="mt-1 text-xs text-red-600">{errors.organisationId}</p> : null}
-              <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#111827]">
-                <input
-                  type="checkbox"
-                  checked={form.isExternalOrganisation}
-                  onChange={(e) => handleExternalToggle(e.target.checked)}
-                />
-                {t('outsideNetwork')}
-              </label>
-            </div>
-            {form.isExternalOrganisation ? (
-              <Input
-                label={t('organisationName')}
-                value={form.externalOrganisationName}
-                onChange={(e) => updateField('externalOrganisationName', e.target.value)}
-                required
-                error={errors.externalOrganisationName}
-              />
-            ) : (
-              <div />
-            )}
-          </div>
-
-          {/* Status + Available */}
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('status')}</label>
-              <select
-                value={form.status}
-                onChange={(e) => updateField('status', e.target.value)}
-                className={selectClasses}
-              >
-                <option value="DRAFT">{t('draft')}</option>
-                <option value="PUBLISHED">{t('published')}</option>
-              </select>
-            </div>
-            <div className="flex items-end gap-2 pb-1">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={form.isAvailable} onChange={(e) => updateField('isAvailable', e.target.checked)} />
-                {t('available')}
-              </label>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <Input
-              label={t('titleField', { language: languageLabel })}
-              value={activeLanguage === 'en' ? form.title : form.titleHy}
-              onChange={(e) => updateField(activeLanguage === 'en' ? 'title' : 'titleHy', e.target.value)}
-              error={activeLanguage === 'hy' ? errors.title : undefined}
-              required={activeLanguage === 'hy'}
-            />
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('location')}</label>
-              <select
-                value={form.regionId}
-                onChange={(e) => updateField('regionId', e.target.value)}
-                className={selectClasses}
-              >
-                <option value="">{t('whereAvailable')}</option>
-                {regions?.map((r) => (
-                  <option key={r.id} value={r.id}>{r.name}</option>
-                ))}
-              </select>
-              {errors.regionId ? <p className="mt-1 text-xs text-red-600">{errors.regionId}</p> : null}
-            </div>
-          </div>
-
-          {/* Topics + Target group */}
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('topics')}</label>
-              <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
-                <div className="flex flex-col gap-2">
-                  {topicOptions.map((topic) => (
-                    <label key={topic.id} className="flex items-center gap-2 text-sm text-[#374151]">
-                      <input
-                        type="checkbox"
-                        checked={form.topicIds.includes(topic.id)}
-                        onChange={(e) =>
-                          updateField(
-                            'topicIds',
-                            e.target.checked
-                              ? [...form.topicIds, topic.id]
-                              : form.topicIds.filter((id) => id !== topic.id),
-                          )
-                        }
-                      />
-                      {topic.name}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('targetGroups')}</label>
-              <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
-                <div className="flex flex-col gap-2">
-                  {(targetGroups ?? []).map((targetGroup) => (
-                    <label key={targetGroup.id} className="flex items-center gap-2 text-sm text-[#374151]">
-                      <input
-                        type="checkbox"
-                        checked={form.targetGroupIds.includes(targetGroup.id)}
-                        onChange={(e) =>
-                          updateField(
-                            'targetGroupIds',
-                            e.target.checked
-                              ? [...form.targetGroupIds, targetGroup.id]
-                              : form.targetGroupIds.filter((id) => id !== targetGroup.id),
-                          )
-                        }
-                      />
-                      {targetGroup.name}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Start date + End date */}
-          <div className="grid grid-cols-2 gap-6">
-            <Input
-              label={t('startDate')}
-              type="date"
-              value={form.availabilityStart}
-              onChange={(e) => updateField('availabilityStart', e.target.value)}
-              error={errors.availabilityStart}
-            />
-            <Input
-              label={t('endDate')}
-              type="date"
-              value={form.availabilityEnd}
-              onChange={(e) => updateField('availabilityEnd', e.target.value)}
-              error={errors.availabilityEnd}
-            />
-          </div>
-
-          {/* Short description - rich text */}
-          <div>
-            <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
-              <button
-                type="button"
-                onClick={() => setActiveLanguage('en')}
-                className={`rounded-md px-3 py-1 text-xs font-medium ${
-                  activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
-                }`}
-              >
-                {t('english')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveLanguage('hy')}
-                className={`rounded-md px-3 py-1 text-xs font-medium ${
-                  activeLanguage === 'hy' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
-                }`}
-              >
-                {t('armenian')}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">
-              {t('shortDescriptionField', { language: languageLabel })}
-            </label>
-            <RichTextEditor
-              content={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
-              onChange={(html) =>
-                updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', html)
-              }
-            />
-            {activeLanguage === 'hy' && errors.shortDescription ? (
-              <p className="mt-1 text-xs text-red-600">{errors.shortDescription}</p>
-            ) : null}
-          </div>
-
-          {/* Description - rich text */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">
-              {t('descriptionField', { language: languageLabel })}
-            </label>
-            <RichTextEditor
-              content={activeLanguage === 'en' ? form.description : form.descriptionHy}
-              onChange={(html) => updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)}
-            />
-            {activeLanguage === 'hy' && errors.description ? (
-              <p className="mt-1 text-xs text-red-600">{errors.description}</p>
-            ) : null}
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">
-              {t('howToAccessField', { language: languageLabel })}
-            </label>
-            <RichTextEditor
-              content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
-              onChange={(html) =>
-                updateField(activeLanguage === 'en' ? 'howToAccess' : 'howToAccessHy', html)
-              }
-            />
-            {activeLanguage === 'hy' && errors.howToAccess ? (
-              <p className="mt-1 text-xs text-red-600">{errors.howToAccess}</p>
-            ) : null}
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex justify-end gap-4">
-          <Button type="button" variant="secondary" onClick={() => router.back()}>
-            {t('cancel')}
-          </Button>
-          <Button type="submit" disabled={update.isPending}>
-            {update.isPending ? t('saving') : tCommon('saveChanges')}
-          </Button>
-        </div>
-      </form>
+      <ServiceForm
+        mode="edit"
+        initialValues={initialValues}
+        showOrganisationField
+        allowExternalOrganisation
+        organisationOptions={organisationOptions}
+        isSubmitting={update.isPending}
+        submitLabel={tCommon('saveChanges')}
+        onCancel={() => router.back()}
+        onSubmit={async (payload) => {
+          await update.mutateAsync({ id, ...payload });
+          router.push(`/admin/services/${id}`);
+        }}
+      />
     </div>
   );
 }

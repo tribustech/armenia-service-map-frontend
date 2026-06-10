@@ -14,6 +14,9 @@ interface NeedFilters extends PaginationParams {
   regionId?: string;
   assignedOrganisationId?: string;
   tagId?: string;
+  tagIds?: string[];
+  startDate?: string;
+  endDate?: string;
 }
 
 function buildQuery(params: object) {

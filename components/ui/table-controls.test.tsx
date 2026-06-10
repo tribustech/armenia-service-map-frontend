@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Pagination } from '@/components/admin/pagination';
-import { TableSearchInput, TableSelect } from '@/components/ui/table-controls';
+import { TableSearchInput, TableSelect, TableMultiSelect } from '@/components/ui/table-controls';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) => {
@@ -57,5 +57,59 @@ describe('table controls', () => {
 
     expect(screen.getByTestId('table-select-chevron')).toBeInTheDocument();
     expect(onPerPageChange).toHaveBeenCalledWith(25);
+  });
+
+  describe('TableMultiSelect', () => {
+    const options = [
+      { value: 'a', label: 'Housing' },
+      { value: 'b', label: 'Legal aid' },
+    ];
+
+    it('shows the placeholder when nothing is selected and reveals options on click', () => {
+      render(
+        <TableMultiSelect
+          aria-label="Tags"
+          options={options}
+          selected={[]}
+          onChange={vi.fn()}
+          placeholder="All tags"
+          selectedLabel={(count) => `${count} tags`}
+        />,
+      );
+
+      const trigger = screen.getByLabelText('Tags');
+      expect(trigger).toHaveTextContent('All tags');
+      // Options hidden until opened.
+      expect(screen.queryByText('Housing')).not.toBeInTheDocument();
+
+      fireEvent.click(trigger);
+      expect(screen.getByText('Housing')).toBeInTheDocument();
+      expect(screen.getByText('Legal aid')).toBeInTheDocument();
+    });
+
+    it('summarises the selection count and toggles values', () => {
+      const onChange = vi.fn();
+      render(
+        <TableMultiSelect
+          aria-label="Tags"
+          options={options}
+          selected={['a']}
+          onChange={onChange}
+          placeholder="All tags"
+          selectedLabel={(count) => `${count} tags`}
+        />,
+      );
+
+      expect(screen.getByLabelText('Tags')).toHaveTextContent('1 tags');
+
+      fireEvent.click(screen.getByLabelText('Tags'));
+      // 'a' is already selected; clicking it deselects.
+      fireEvent.click(screen.getByText('Housing'));
+      expect(onChange).toHaveBeenCalledWith([]);
+
+      // Clicking an unselected option adds it.
+      fireEvent.click(screen.getByText('Legal aid'));
+      expect(onChange).toHaveBeenCalledWith(['a', 'b']);
+    });
   });
 });

@@ -229,7 +229,9 @@
     "howToAccessField": "Ինչպես ստանալ ծառայությունը ({language})",
     "cancel": "Չեղարկել",
     "saving": "Պահպանվում է...",
+    "errorSummaryTitle": "Խնդրում ենք ուղղել հետևյալը պահպանելուց առաջ՝",
     "validation": {
+      "required": "{field} դաշտը պարտադիր է:",
       "titleRequired": "Վերնագիրը պարտադիր է:",
       "shortDescriptionRequired": "Համառոտ նկարագրությունը պարտադիր է:",
       "descriptionRequired": "Նկարագրությունը պարտադիր է:",
@@ -638,6 +640,11 @@
         "columnTags": "Պիտակներ",
         "columnSubmittedAt": "Ներկայացման ամսաթիվ",
         "open": "Բացել",
+        "allTags": "Բոլոր պիտակները",
+        "tagsSelected": "{count} պիտակ",
+        "startDate": "Սկսած",
+        "endDate": "Մինչև",
+        "clearFilters": "Մաքրել զտիչները",
         "needSingular": "կարիքի հայտ",
         "needPlural": "կարիքի հայտ"
       }

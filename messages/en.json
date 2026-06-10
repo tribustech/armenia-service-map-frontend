@@ -229,7 +229,9 @@
     "howToAccessField": "How to access the service ({language})",
     "cancel": "Cancel",
     "saving": "Saving...",
+    "errorSummaryTitle": "Please fix the following before saving:",
     "validation": {
+      "required": "{field} is required.",
       "titleRequired": "Title is required.",
       "shortDescriptionRequired": "Short description is required.",
       "descriptionRequired": "Description is required.",
@@ -638,6 +640,11 @@
         "columnTags": "Tags",
         "columnSubmittedAt": "Submitted at",
         "open": "Open",
+        "allTags": "All tags",
+        "tagsSelected": "{count} tags",
+        "startDate": "From",
+        "endDate": "To",
+        "clearFilters": "Clear filters",
         "needSingular": "need report",
         "needPlural": "need reports"
       }

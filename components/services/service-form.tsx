@@ -1,15 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RichTextEditor } from '@/components/shared/rich-text-editor';
 import { usePublicRegions, usePublicTargetGroups, usePublicTopics } from '@/lib/api/services';
 import type { ServiceMutationInput } from '@/lib/api/services';
-import { getErrorMessage, toPlainText } from '@/lib/validation';
+import { getErrorMessage, mapErrorMessageToField, toPlainText } from '@/lib/validation';
 
-type ServiceFormState = {
+export type ServiceFormState = {
   title: string;
   titleHy: string;
   shortDescription: string;
@@ -35,12 +35,40 @@ type FieldErrorKey =
   | 'shortDescription'
   | 'description'
   | 'howToAccess'
+  | 'regionId'
   | 'organisationId'
   | 'externalOrganisationName'
+  | 'topics'
+  | 'targetGroups'
   | 'availabilityStart'
   | 'availabilityEnd';
 
+// Each validation issue carries an `inline` message shown beneath its field and a
+// `summary` message (which spells out the language for the bilingual fields) listed
+// in the error box at the top of the form.
+type ValidationIssue = {
+  key: FieldErrorKey;
+  inline: string;
+  summary: string;
+};
+
+// Maps a server-side error message back onto a specific field so it surfaces inline
+// and in the summary box instead of only as a generic top-level error. `shortDescription`
+// must precede `description` because /description/i also matches "short description".
+const SERVER_ERROR_FIELD_PATTERNS: Array<{ field: FieldErrorKey; pattern: RegExp }> = [
+  { field: 'title', pattern: /title/i },
+  { field: 'shortDescription', pattern: /short.?description/i },
+  { field: 'description', pattern: /description/i },
+  { field: 'regionId', pattern: /region|location/i },
+  { field: 'availabilityStart', pattern: /start/i },
+  { field: 'availabilityEnd', pattern: /end/i },
+];
+
 type ServiceFormProps = {
+  /** 'edit' clears emptied English fields with `null` (vs `undefined`) so a PATCH wipes them. */
+  mode?: 'create' | 'edit';
+  /** Pre-populates the form. Only read on mount, so render the form after data has loaded. */
+  initialValues?: Partial<ServiceFormState>;
   showOrganisationField: boolean;
   allowExternalOrganisation?: boolean;
   organisationOptions?: Array<{ id: string; name: string }>;
@@ -72,6 +100,8 @@ const EMPTY_FORM: ServiceFormState = {
 };
 
 export function ServiceForm({
+  mode = 'create',
+  initialValues,
   showOrganisationField,
   allowExternalOrganisation = false,
   organisationOptions = [],
@@ -81,11 +111,20 @@ export function ServiceForm({
   onSubmit,
 }: ServiceFormProps) {
   const t = useTranslations('serviceForm');
-  const [form, setForm] = useState<ServiceFormState>(EMPTY_FORM);
+  const [form, setForm] = useState<ServiceFormState>(() => ({ ...EMPTY_FORM, ...initialValues }));
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'hy'>('hy');
   const languageLabel = activeLanguage === 'en' ? t('english') : t('armenian');
-  const [errors, setErrors] = useState<Partial<Record<FieldErrorKey, string>>>({});
+  const [errors, setErrors] = useState<ValidationIssue[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const errorMap = useMemo(
+    () =>
+      errors.reduce<Partial<Record<FieldErrorKey, string>>>((acc, issue) => {
+        acc[issue.key] = issue.inline;
+        return acc;
+      }, {}),
+    [errors],
+  );
   const { data: topics } = usePublicTopics();
   const { data: regions } = usePublicRegions();
   const { data: targetGroups } = usePublicTargetGroups();
@@ -105,61 +144,142 @@ export function ServiceForm({
   const selectClasses =
     'w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06)] focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 appearance-none';
 
-  const updateField = <K extends keyof ServiceFormState>(field: K, value: ServiceFormState[K]) => {
-    setForm((previous) => ({ ...previous, [field]: value }));
-    setSubmitError(null);
-    if (field in errors) {
-      setErrors((previous) => ({ ...previous, [field]: undefined }));
+  // Visual-only required marker; aria-hidden keeps it out of the field's accessible name.
+  const requiredMark = <span aria-hidden="true"> *</span>;
+
+  function validate(values: ServiceFormState): ValidationIssue[] {
+    const issues: ValidationIssue[] = [];
+    // Armenian is the canonical language: the *Hy fields are required and their
+    // summary spells out "(Armenian)" so the user knows which tab to fix even when
+    // they filled in the English tab instead.
+    const armenian = t('armenian');
+    if (!values.titleHy.trim()) {
+      issues.push({
+        key: 'title',
+        inline: t('validation.titleRequired'),
+        summary: t('validation.required', { field: t('titleField', { language: armenian }) }),
+      });
     }
-  };
-
-  const handleExternalToggle = (checked: boolean) => {
-    setForm((previous) => ({
-      ...previous,
-      isExternalOrganisation: checked,
-      organisationId: checked ? '' : previous.organisationId,
-      externalOrganisationName: checked ? previous.externalOrganisationName : '',
-    }));
-    setSubmitError(null);
-    setErrors((previous) => ({ ...previous, organisationId: undefined, externalOrganisationName: undefined }));
-  };
-
-  function validate(values: ServiceFormState) {
-    const nextErrors: Partial<Record<FieldErrorKey, string>> = {};
-    if (!values.titleHy.trim()) nextErrors.title = t('validation.titleRequired');
-    if (!toPlainText(values.shortDescriptionHy)) nextErrors.shortDescription = t('validation.shortDescriptionRequired');
-    if (!toPlainText(values.descriptionHy)) nextErrors.description = t('validation.descriptionRequired');
-    if (!toPlainText(values.howToAccessHy)) nextErrors.howToAccess = t('validation.howToAccessRequired');
+    if (!toPlainText(values.shortDescriptionHy)) {
+      issues.push({
+        key: 'shortDescription',
+        inline: t('validation.shortDescriptionRequired'),
+        summary: t('validation.required', { field: t('shortDescriptionField', { language: armenian }) }),
+      });
+    }
+    if (!toPlainText(values.descriptionHy)) {
+      issues.push({
+        key: 'description',
+        inline: t('validation.descriptionRequired'),
+        summary: t('validation.required', { field: t('descriptionField', { language: armenian }) }),
+      });
+    }
+    if (!toPlainText(values.howToAccessHy)) {
+      issues.push({
+        key: 'howToAccess',
+        inline: t('validation.howToAccessRequired'),
+        summary: t('validation.required', { field: t('howToAccessField', { language: armenian }) }),
+      });
+    }
+    if (!values.regionId) {
+      const message = t('validation.required', { field: t('location') });
+      issues.push({ key: 'regionId', inline: message, summary: message });
+    }
     if (showOrganisationField) {
       if (values.isExternalOrganisation) {
         if (!values.externalOrganisationName.trim()) {
-          nextErrors.externalOrganisationName = t('validation.organisationNameRequired');
+          issues.push({
+            key: 'externalOrganisationName',
+            inline: t('validation.organisationNameRequired'),
+            summary: t('validation.required', { field: t('organisationName') }),
+          });
         }
       } else if (!values.organisationId) {
-        nextErrors.organisationId = t('validation.organisationRequired');
+        issues.push({
+          key: 'organisationId',
+          inline: t('validation.organisationRequired'),
+          summary: t('validation.required', { field: t('organisation') }),
+        });
       }
     }
-    if (values.availabilityStart && values.availabilityEnd && values.availabilityEnd < values.availabilityStart) {
-      nextErrors.availabilityEnd = t('validation.endBeforeStart');
+    if (values.topicIds.length === 0) {
+      const message = t('validation.required', { field: t('topics') });
+      issues.push({ key: 'topics', inline: message, summary: message });
     }
-    return nextErrors;
+    if (values.targetGroupIds.length === 0) {
+      const message = t('validation.required', { field: t('targetGroups') });
+      issues.push({ key: 'targetGroups', inline: message, summary: message });
+    }
+    // Dates are optional, but if both are set the end cannot precede the start.
+    if (values.availabilityStart && values.availabilityEnd && values.availabilityEnd < values.availabilityStart) {
+      const message = t('validation.endBeforeStart');
+      issues.push({ key: 'availabilityEnd', inline: message, summary: message });
+    }
+    return issues;
   }
+
+  // Once errors are shown, re-validate on every change and drop any issue that has been
+  // resolved — but never surface NEW issues for untouched fields before the user submits.
+  const reconcileErrors = (nextForm: ServiceFormState) => {
+    setErrors((previous) => {
+      if (previous.length === 0) return previous;
+      const stillInvalid = new Set(validate(nextForm).map((issue) => issue.key));
+      return previous.filter((issue) => stillInvalid.has(issue.key));
+    });
+  };
+
+  const updateField = <K extends keyof ServiceFormState>(field: K, value: ServiceFormState[K]) => {
+    const next = { ...form, [field]: value };
+    setForm(next);
+    setSubmitError(null);
+    reconcileErrors(next);
+  };
+
+  const handleExternalToggle = (checked: boolean) => {
+    const next: ServiceFormState = {
+      ...form,
+      isExternalOrganisation: checked,
+      organisationId: checked ? '' : form.organisationId,
+      externalOrganisationName: checked ? form.externalOrganisationName : '',
+    };
+    setForm(next);
+    setSubmitError(null);
+    reconcileErrors(next);
+  };
+
+  const scrollToErrorSummary = () => {
+    // Runs after the summary box is committed to the DOM. Guarded because scrollIntoView
+    // is not implemented in jsdom (test environment).
+    requestAnimationFrame(() => {
+      try {
+        errorSummaryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch {
+        /* no-op */
+      }
+    });
+  };
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const validationErrors = validate(form);
     setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+    if (validationErrors.length > 0) {
+      scrollToErrorSummary();
+      return;
+    }
 
+    // On edit, an emptied English field is sent as `null` to clear it; on create it is
+    // omitted with `undefined`.
+    const emptyEnglish = mode === 'edit' ? null : undefined;
     try {
       await onSubmit({
-        title: form.title.trim() ? form.title : undefined,
+        title: form.title.trim() ? form.title : emptyEnglish,
         titleHy: form.titleHy,
-        shortDescription: toPlainText(form.shortDescription) ? form.shortDescription : undefined,
+        shortDescription: toPlainText(form.shortDescription) ? form.shortDescription : emptyEnglish,
         shortDescriptionHy: form.shortDescriptionHy,
-        description: toPlainText(form.description) ? form.description : undefined,
+        description: toPlainText(form.description) ? form.description : emptyEnglish,
         descriptionHy: form.descriptionHy,
-        howToAccess: toPlainText(form.howToAccess) ? form.howToAccess : undefined,
+        howToAccess: toPlainText(form.howToAccess) ? form.howToAccess : emptyEnglish,
         howToAccessHy: form.howToAccessHy,
         organisationId:
           showOrganisationField && !form.isExternalOrganisation ? form.organisationId : undefined,
@@ -176,28 +296,41 @@ export function ServiceForm({
         availabilityEnd: form.availabilityEnd || undefined,
       });
     } catch (error) {
-      setSubmitError(getErrorMessage(error, t('saveError')));
+      const message = getErrorMessage(error, t(mode === 'edit' ? 'updateError' : 'saveError'));
+      const mappedField = mapErrorMessageToField<FieldErrorKey>(message, SERVER_ERROR_FIELD_PATTERNS);
+      if (mappedField) {
+        setSubmitError(null);
+        setErrors([{ key: mappedField, inline: message, summary: message }]);
+      } else {
+        setSubmitError(message);
+      }
+      scrollToErrorSummary();
     }
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate /* custom validate() handles all errors; suppress native browser validation */ className="mt-8 space-y-6">
-      {submitError ? (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{submitError}</p>
+      {errors.length > 0 || submitError ? (
+        <div ref={errorSummaryRef} role="alert" className="scroll-mt-24 space-y-3">
+          {errors.length > 0 ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <p className="font-semibold">{t('errorSummaryTitle')}</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                {errors.map((issue) => (
+                  <li key={issue.key}>{issue.summary}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {submitError ? (
+            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{submitError}</p>
+          ) : null}
+        </div>
       ) : null}
       <div className="space-y-10 rounded-xl bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06),0px_0px_0px_0px_#ececee]">
         <div>
           <label className="mb-2 block text-sm font-medium text-[#111827]">{t('language')}</label>
           <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
-            <button
-              type="button"
-              onClick={() => setActiveLanguage('en')}
-              className={`rounded-md px-3 py-1 text-xs font-medium ${
-                activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
-              }`}
-            >
-              {t('english')}
-            </button>
             <button
               type="button"
               onClick={() => setActiveLanguage('hy')}
@@ -207,6 +340,15 @@ export function ServiceForm({
             >
               {t('armenian')}
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveLanguage('en')}
+              className={`rounded-md px-3 py-1 text-xs font-medium ${
+                activeLanguage === 'en' ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6b7280]'
+              }`}
+            >
+              {t('english')}
+            </button>
           </div>
         </div>
 
@@ -215,7 +357,10 @@ export function ServiceForm({
             // Two-column layout: org select + optional external-org name field
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="mb-2 block text-sm font-medium text-[#111827]">{t('organisation')}</label>
+                <label className="mb-2 block text-sm font-medium text-[#111827]">
+                  {t('organisation')}
+                  {!form.isExternalOrganisation ? requiredMark : null}
+                </label>
                 <select
                   aria-label={t('organisation')}
                   value={form.organisationId}
@@ -230,7 +375,7 @@ export function ServiceForm({
                     </option>
                   ))}
                 </select>
-                {errors.organisationId ? <p className="mt-1 text-xs text-red-600">{errors.organisationId}</p> : null}
+                {errorMap.organisationId ? <p className="mt-1 text-xs text-red-600">{errorMap.organisationId}</p> : null}
                 <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#111827]">
                   <input
                     type="checkbox"
@@ -242,11 +387,11 @@ export function ServiceForm({
               </div>
               {form.isExternalOrganisation ? (
                 <Input
-                  label={t('organisationName')}
+                  label={`${t('organisationName')} *`}
                   value={form.externalOrganisationName}
                   onChange={(event) => updateField('externalOrganisationName', event.target.value)}
                   required
-                  error={errors.externalOrganisationName}
+                  error={errorMap.externalOrganisationName}
                 />
               ) : (
                 <div />
@@ -255,7 +400,10 @@ export function ServiceForm({
           ) : (
             // Single-column layout (original appearance for org-create / admin-create consumers)
             <div className="max-w-[492px]">
-              <label className="mb-2 block text-sm font-medium text-[#111827]">{t('organisation')}</label>
+              <label className="mb-2 block text-sm font-medium text-[#111827]">
+                {t('organisation')}
+                {requiredMark}
+              </label>
               <select
                 aria-label={t('organisation')}
                 value={form.organisationId}
@@ -269,7 +417,7 @@ export function ServiceForm({
                   </option>
                 ))}
               </select>
-              {errors.organisationId ? <p className="mt-1 text-xs text-red-600">{errors.organisationId}</p> : null}
+              {errorMap.organisationId ? <p className="mt-1 text-xs text-red-600">{errorMap.organisationId}</p> : null}
             </div>
           )
         ) : null}
@@ -300,17 +448,21 @@ export function ServiceForm({
 
         <div className="grid grid-cols-2 gap-6">
           <Input
-            label={t('titleField', { language: languageLabel })}
+            label={`${t('titleField', { language: languageLabel })}${activeLanguage === 'hy' ? ' *' : ''}`}
             value={activeLanguage === 'en' ? form.title : form.titleHy}
             onChange={(event) =>
               updateField(activeLanguage === 'en' ? 'title' : 'titleHy', event.target.value)
             }
             required={activeLanguage === 'hy'}
-            error={activeLanguage === 'hy' ? errors.title : undefined}
+            error={activeLanguage === 'hy' ? errorMap.title : undefined}
           />
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('location')}</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">
+              {t('location')}
+              {requiredMark}
+            </label>
             <select
+              aria-label={t('location')}
               value={form.regionId}
               onChange={(event) => updateField('regionId', event.target.value)}
               className={selectClasses}
@@ -322,12 +474,16 @@ export function ServiceForm({
                 </option>
               ))}
             </select>
+            {errorMap.regionId ? <p className="mt-1 text-xs text-red-600">{errorMap.regionId}</p> : null}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('topics')}</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">
+              {t('topics')}
+              {requiredMark}
+            </label>
             <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
               <div className="flex flex-col gap-2">
                 {topicOptions.map((topic) => (
@@ -349,9 +505,13 @@ export function ServiceForm({
                 ))}
               </div>
             </div>
+            {errorMap.topics ? <p className="mt-1 text-xs text-red-600">{errorMap.topics}</p> : null}
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#111827]">{t('targetGroups')}</label>
+            <label className="mb-2 block text-sm font-medium text-[#111827]">
+              {t('targetGroups')}
+              {requiredMark}
+            </label>
             <div className="max-h-36 overflow-y-auto rounded-lg border border-gray-200 p-3">
               <div className="flex flex-col gap-2">
                 {(targetGroups ?? []).map((targetGroup) => (
@@ -373,6 +533,7 @@ export function ServiceForm({
                 ))}
               </div>
             </div>
+            {errorMap.targetGroups ? <p className="mt-1 text-xs text-red-600">{errorMap.targetGroups}</p> : null}
           </div>
         </div>
 
@@ -382,20 +543,21 @@ export function ServiceForm({
             type="date"
             value={form.availabilityStart}
             onChange={(event) => updateField('availabilityStart', event.target.value)}
-            error={errors.availabilityStart}
+            error={errorMap.availabilityStart}
           />
           <Input
             label={t('endDate')}
             type="date"
             value={form.availabilityEnd}
             onChange={(event) => updateField('availabilityEnd', event.target.value)}
-            error={errors.availabilityEnd}
+            error={errorMap.availabilityEnd}
           />
         </div>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-[#111827]">
             {t('shortDescriptionField', { language: languageLabel })}
+            {activeLanguage === 'hy' ? requiredMark : null}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.shortDescription : form.shortDescriptionHy}
@@ -403,27 +565,29 @@ export function ServiceForm({
               updateField(activeLanguage === 'en' ? 'shortDescription' : 'shortDescriptionHy', html)
             }
           />
-          {activeLanguage === 'hy' && errors.shortDescription ? (
-            <p className="mt-1 text-xs text-red-600">{errors.shortDescription}</p>
+          {activeLanguage === 'hy' && errorMap.shortDescription ? (
+            <p className="mt-1 text-xs text-red-600">{errorMap.shortDescription}</p>
           ) : null}
         </div>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-[#111827]">
             {t('descriptionField', { language: languageLabel })}
+            {activeLanguage === 'hy' ? requiredMark : null}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.description : form.descriptionHy}
             onChange={(html) => updateField(activeLanguage === 'en' ? 'description' : 'descriptionHy', html)}
           />
-          {activeLanguage === 'hy' && errors.description ? (
-            <p className="mt-1 text-xs text-red-600">{errors.description}</p>
+          {activeLanguage === 'hy' && errorMap.description ? (
+            <p className="mt-1 text-xs text-red-600">{errorMap.description}</p>
           ) : null}
         </div>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-[#111827]">
             {t('howToAccessField', { language: languageLabel })}
+            {activeLanguage === 'hy' ? requiredMark : null}
           </label>
           <RichTextEditor
             content={activeLanguage === 'en' ? form.howToAccess : form.howToAccessHy}
@@ -431,8 +595,8 @@ export function ServiceForm({
               updateField(activeLanguage === 'en' ? 'howToAccess' : 'howToAccessHy', html)
             }
           />
-          {activeLanguage === 'hy' && errors.howToAccess ? (
-            <p className="mt-1 text-xs text-red-600">{errors.howToAccess}</p>
+          {activeLanguage === 'hy' && errorMap.howToAccess ? (
+            <p className="mt-1 text-xs text-red-600">{errorMap.howToAccess}</p>
           ) : null}
         </div>
       </div>

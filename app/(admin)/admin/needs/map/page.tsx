@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { type ColumnDef } from '@tanstack/react-table';
 import { ArmeniaMap } from '@/components/shared/armenia-map';
@@ -9,9 +10,11 @@ import { DataTable } from '@/components/admin/data-table';
 import { Pagination } from '@/components/admin/pagination';
 import { AdminPanel, AdminToolbar } from '@/components/admin/admin-surface';
 import { Badge } from '@/components/ui/badge';
-import { TableSearchInput } from '@/components/ui/table-controls';
+import { Input } from '@/components/ui/input';
+import { TableSearchInput, TableSelect, TableMultiSelect } from '@/components/ui/table-controls';
 import { NeedsMapLoadingSkeleton, TableLoadingSkeleton } from '@/components/shared/loading-skeletons';
 import { useAdminNeeds, useAdminNeedsMap } from '@/lib/api/needs';
+import { useNeedTags } from '@/lib/api/taxonomy';
 import { formatStatusLabel, NEED_STATUS_LABEL_KEYS } from '@/lib/formatting/status-label';
 import type { NeedReport } from '@/types/api';
 
@@ -23,23 +26,51 @@ const statusVariant: Record<string, 'neutral' | 'warning' | 'success' | 'danger'
 };
 
 export default function AdminNeedsMapPage() {
+  const router = useRouter();
   const t = useTranslations('admin.needs');
   const tMap = useTranslations('admin.needs.map');
   const tStatuses = useTranslations('admin.statuses');
   const [selectedRegionId, setSelectedRegionId] = useState('');
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [tagIds, setTagIds] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
 
   const { data: mapData, isLoading: mapLoading } = useAdminNeedsMap();
+  const { data: tagsData } = useNeedTags({ perPage: 100 });
   const needsQuery = useAdminNeeds({
     page,
     perPage,
     search,
     regionId: selectedRegionId || undefined,
+    status: statusFilter || undefined,
+    tagIds: tagIds.length > 0 ? tagIds : undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });
+
+  const tagOptions = useMemo(
+    () => (tagsData?.data ?? []).map((tag) => ({ value: tag.id, label: tag.name })),
+    [tagsData],
+  );
+
+  const hasActiveFilters = Boolean(
+    search || statusFilter || tagIds.length > 0 || startDate || endDate,
+  );
+
+  function clearFilters() {
+    setSearch('');
+    setStatusFilter('');
+    setTagIds([]);
+    setStartDate('');
+    setEndDate('');
+    setPage(1);
+  }
 
   const regionCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -199,6 +230,75 @@ export default function AdminNeedsMapPage() {
           />
         </AdminToolbar>
 
+        <div className="mx-4 mt-1 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="sm:w-[190px]">
+            <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('columns.status')}</label>
+            <TableSelect
+              aria-label={t('columns.status')}
+              value={statusFilter}
+              onChange={(event) => {
+                setStatusFilter(event.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">{tStatuses('allStatuses')}</option>
+              <option value="NEW">{tStatuses('new')}</option>
+              <option value="IN_PROGRESS">{tStatuses('inProgress')}</option>
+              <option value="SOLVED">{tStatuses('solved')}</option>
+              <option value="CLOSED">{tStatuses('closed')}</option>
+            </TableSelect>
+          </div>
+
+          <div className="sm:w-[200px]">
+            <label className="mb-1.5 block text-sm font-medium text-[#374151]">{tMap('columnTags')}</label>
+            <TableMultiSelect
+              aria-label={tMap('columnTags')}
+              options={tagOptions}
+              selected={tagIds}
+              onChange={(next) => {
+                setTagIds(next);
+                setPage(1);
+              }}
+              placeholder={tMap('allTags')}
+              selectedLabel={(count) => tMap('tagsSelected', { count })}
+            />
+          </div>
+
+          <Input
+            label={tMap('startDate')}
+            type="date"
+            value={startDate}
+            max={endDate || undefined}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+              setPage(1);
+            }}
+            className="sm:w-[160px]"
+          />
+
+          <Input
+            label={tMap('endDate')}
+            type="date"
+            value={endDate}
+            min={startDate || undefined}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+              setPage(1);
+            }}
+            className="sm:w-[160px]"
+          />
+
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="admin-link-button self-start py-3 underline sm:self-end"
+            >
+              {tMap('clearFilters')}
+            </button>
+          ) : null}
+        </div>
+
         {needsQuery.isLoading ? (
           <div className="p-4">
             <TableLoadingSkeleton />
@@ -208,6 +308,7 @@ export default function AdminNeedsMapPage() {
             <DataTable
               columns={columns}
               data={needsQuery.data?.data ?? []}
+              onRowClick={(row) => router.push(`/admin/needs/${row.id}`)}
               mobileCard={(row) => ({
                 eyebrow: String(row.id).slice(0, 8),
                 title: row.title || row.description.slice(0, 60),
